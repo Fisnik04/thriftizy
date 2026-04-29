@@ -153,17 +153,100 @@ document.addEventListener("DOMContentLoaded", () => {
     if(closeCart) closeCart.addEventListener('click', toggleCart);
     if(cartOverlay) cartOverlay.addEventListener('click', toggleCart);
 
-    // Add to cart dummy logic
+    // -----------------------------------------
+    // REAL SHOPPING CART LOGIC (Local Storage)
+    // -----------------------------------------
     const addToCartBtns = document.querySelectorAll('.btn-cart');
     const cartBadge = document.querySelector('.cart-badge');
-    let cartCount = 0;
+    const cartItemsContainer = document.querySelector('.cart-items');
+    const cartTotalElement = document.querySelector('.cart-total span:last-child');
+    
+    let cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+
+    function updateCartUI() {
+        if (!cartBadge || !cartItemsContainer || !cartTotalElement) return;
+        
+        cartBadge.textContent = cart.length;
+        
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Shporta është e zbrazët.<br>Shto disa produkte!</p>';
+            cartTotalElement.textContent = '0.00€';
+            return;
+        }
+
+        cartItemsContainer.innerHTML = '';
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            total += item.price;
+            const cartItemHTML = `
+                <div class="cart-item">
+                    <div class="cart-item-img" style="background-image: ${item.image};"></div>
+                    <div class="cart-item-info" style="flex: 1;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">${item.title}</h4>
+                        <p style="color: var(--primary); font-weight: 700;">${item.price.toFixed(2)}€</p>
+                        <button class="cart-item-remove" data-index="${index}" style="color: red; font-size: 0.85rem; cursor: pointer; border:none; background:none; padding:0; margin-top:5px; text-decoration:underline;">Largo</button>
+                    </div>
+                </div>
+            `;
+            cartItemsContainer.insertAdjacentHTML('beforeend', cartItemHTML);
+        });
+
+        cartTotalElement.textContent = total.toFixed(2) + '€';
+
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.cart-item-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const itemIndex = e.target.getAttribute('data-index');
+                cart.splice(itemIndex, 1);
+                localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
+                updateCartUI();
+            });
+        });
+    }
+
+    // Initialize UI on load
+    updateCartUI();
 
     addToCartBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            cartCount++;
-            if(cartBadge) cartBadge.textContent = cartCount;
-            toggleCart();
+            
+            // Find product details from DOM
+            const card = e.target.closest('.product-card');
+            if (card) {
+                const title = card.querySelector('h4').textContent;
+                const priceText = card.querySelector('.product-price').textContent;
+                // Extract number from price text (e.g. "45.00€" -> 45.00)
+                const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+                const imgStyle = card.querySelector('.product-img').style.backgroundImage;
+
+                cart.push({ title, price, image: imgStyle });
+                localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
+                
+                updateCartUI();
+                toggleCart(); // Open sidebar to show it was added
+            }
+        });
+    });
+
+    // -----------------------------------------
+    // LIVE SEARCH LOGIC
+    // -----------------------------------------
+    const searchInputs = document.querySelectorAll('.nav-search input');
+    searchInputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const allProducts = document.querySelectorAll('.product-card');
+            
+            allProducts.forEach(card => {
+                const title = card.querySelector('h4') ? card.querySelector('h4').textContent.toLowerCase() : '';
+                if (title.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         });
     });
 });
