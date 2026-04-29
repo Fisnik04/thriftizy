@@ -122,19 +122,145 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Heart Icon Logic
+    // -----------------------------------------
+    // HEART ICON / FAVORITES LOGIC
+    // -----------------------------------------
     const heartIcons = document.querySelectorAll('.heart-icon');
+    let likedItems = JSON.parse(localStorage.getItem('thriftizy_likes')) || [];
+
+    // Helper: Find index of item by title
+    function getLikedIndex(title) {
+        return likedItems.findIndex(item => item.title === title);
+    }
+
+    // Initialize hearts based on saved state
+    document.querySelectorAll('.product-card').forEach(card => {
+        const heart = card.querySelector('.heart-icon');
+        const titleEl = card.querySelector('h4');
+        if (heart && titleEl) {
+            const title = titleEl.textContent;
+            if (getLikedIndex(title) !== -1) {
+                heart.classList.add('liked');
+                heart.innerHTML = '❤️';
+            }
+        }
+    });
+
     heartIcons.forEach(icon => {
         icon.addEventListener('click', (e) => {
             e.stopPropagation();
-            icon.classList.toggle('liked');
-            if(icon.classList.contains('liked')) {
+            const card = e.target.closest('.product-card');
+            if(!card) return;
+
+            const title = card.querySelector('h4').textContent;
+            const priceText = card.querySelector('.product-price').textContent;
+            const imgStyle = card.querySelector('.product-img').style.backgroundImage;
+            
+            const itemIndex = getLikedIndex(title);
+
+            if (itemIndex === -1) {
+                // Add to likes
+                likedItems.push({ title, price: priceText, image: imgStyle });
+                icon.classList.add('liked');
                 icon.innerHTML = '❤️';
             } else {
+                // Remove from likes
+                likedItems.splice(itemIndex, 1);
+                icon.classList.remove('liked');
                 icon.innerHTML = '🤍';
+            }
+            
+            localStorage.setItem('thriftizy_likes', JSON.stringify(likedItems));
+            
+            // If we are on the saved items page, remove the card visually
+            if (window.location.pathname.includes('saved.html')) {
+                card.remove();
+                checkIfSavedIsEmpty();
             }
         });
     });
+
+    // Render Saved Items dynamically on saved.html
+    function renderSavedItems() {
+        if (!window.location.pathname.includes('saved.html')) return;
+        
+        const shopGrid = document.querySelector('.shop-grid');
+        if(!shopGrid) return;
+
+        shopGrid.innerHTML = '';
+        
+        if (likedItems.length === 0) {
+            checkIfSavedIsEmpty();
+            return;
+        }
+
+        likedItems.forEach(item => {
+            const cardHTML = `
+                <div class="product-card" style="cursor: pointer;">
+                    <div class="heart-icon liked">❤️</div>
+                    <div class="product-img" style="background-image: ${item.image}; background-size: cover; background-position: center;">
+                        <div class="product-actions">
+                            <button class="btn-cart">Shto në shportë</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h4>${item.title}</h4>
+                        <p class="product-price">${item.price}</p>
+                    </div>
+                </div>
+            `;
+            shopGrid.insertAdjacentHTML('beforeend', cardHTML);
+        });
+
+        // Re-attach event listeners for newly rendered cards
+        const newHearts = shopGrid.querySelectorAll('.heart-icon');
+        newHearts.forEach(h => {
+            h.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = e.target.closest('.product-card');
+                const title = card.querySelector('h4').textContent;
+                const index = getLikedIndex(title);
+                if (index !== -1) {
+                    likedItems.splice(index, 1);
+                    localStorage.setItem('thriftizy_likes', JSON.stringify(likedItems));
+                }
+                card.remove();
+                checkIfSavedIsEmpty();
+            });
+        });
+
+        const newCartBtns = shopGrid.querySelectorAll('.btn-cart');
+        newCartBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = e.target.closest('.product-card');
+                const title = card.querySelector('h4').textContent;
+                const price = parseFloat(card.querySelector('.product-price').textContent.replace(/[^0-9.]/g, ''));
+                const imgStyle = card.querySelector('.product-img').style.backgroundImage;
+                cart.push({ title, price, image: imgStyle });
+                localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
+                updateCartUI();
+                toggleCart();
+            });
+        });
+
+        shopGrid.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if(!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
+                    window.location.href = 'produkt.html';
+                }
+            });
+        });
+    }
+
+    function checkIfSavedIsEmpty() {
+        const shopGrid = document.querySelector('.shop-grid');
+        if (shopGrid && shopGrid.children.length === 0) {
+            shopGrid.innerHTML = '<p style="grid-column: 1/-1; color: var(--text-muted);">Nuk keni asnjë produkt të ruajtur. Shkoni te dyqani dhe pëlqeni diçka!</p>';
+        }
+    }
+
+    renderSavedItems();
 
     // Cart Sidebar Logic
     const cartIcon = document.getElementById('cart-icon');
