@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesazhet | Thriftizy</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .chat-container {
+            padding: 100px 5% 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 90vh;
+            display: flex;
+        }
+        .chat-box {
+            display: flex;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid var(--secondary);
+            overflow: hidden;
+        }
+        .chat-list {
+            width: 300px;
+            border-right: 1px solid var(--secondary);
+            background: #f8fafc;
+            overflow-y: auto;
+        }
+        .chat-list-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .chat-list-item:hover, .chat-list-item.active {
+            background: white;
+        }
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+        .chat-info h4 { font-size: 1rem; margin-bottom: 5px; }
+        .chat-info p { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-product {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .chat-product img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #f8fafc;
+        }
+        .msg {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+        }
+        .msg.received {
+            background: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .msg.sent {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid var(--secondary);
+            display: flex;
+            gap: 10px;
+            background: white;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 50px;
+            border: 1px solid var(--secondary);
+            outline: none;
+        }
+        .chat-input button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar" class="scrolled">
+        <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <div class="nav-actions">
+            <button class="btn-secondary" onclick="history.back()">Kthehu në platformë</button>
+        </div>
+    </nav>
+
+    <div class="chat-container reveal">
+        <div class="chat-box">
+            <!-- Sidebar list -->
+            <div class="chat-list">
+                <div class="chat-list-item active">
+                    <div class="chat-avatar">E</div>
+                    <div class="chat-info">
+                        <h4>Erand (Shitësi)</h4>
+                        <p>A mundesh pak më lirë?</p>
+                    </div>
+                </div>
+                <div class="chat-list-item">
+                    <div class="chat-avatar" style="background: var(--accent);">B</div>
+                    <div class="chat-info">
+                        <h4>Blerina</h4>
+                        <p>Po, masa është e saktë.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="chat-main">
+                <div class="chat-header">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="chat-avatar">E</div>
+                        <div>
+                            <h3 style="font-size: 1.1rem;">Erand <span style="font-size: 0.8rem; color: var(--text-muted);">@erandi99</span></h3>
+                            <span style="font-size: 0.8rem; color: var(--accent);">Online tani</span>
+                        </div>
+                    </div>
+                    <div class="chat-product">
+                        <img src="assets/clothes.png" alt="Xhaketë">
+                        <div>
+                            <span style="font-size: 0.8rem; display: block; color: var(--text-muted);">Për produktin:</span>
+                            <span style="font-weight: 800; font-size: 0.9rem;">Xhaketë Vintage (25€)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <div class="msg received">Përshëndetje! Jam i interesuar për xhaketën.</div>
+                    <div class="msg sent">Përshëndetje! Po, është e disponueshme. 😊</div>
+                    <div class="msg received">A mundesh me lëshu çmimin pak më lirë? A bën 20€?</div>
+                    <div class="msg sent">Mund ta bëjmë 22€ dhe marr përsipër gjysmën e postës.</div>
+                    <div class="msg received">Në rregull, jam dakord. Do e bëj porosinë tani. Faleminderit!</div>
+                </div>
+
+                <form class="chat-input" onsubmit="event.preventDefault(); let val = document.getElementById('msg-input').value; if(val){ document.getElementById('chat-messages').innerHTML += `<div class='msg sent'>${val}</div>`; document.getElementById('msg-input').value = ''; document.getElementById('chat-messages').scrollTop = 10000; }">
+                    <input type="text" id="msg-input" placeholder="Shkruaj një mesazh...">
+                    <button type="submit">Dërgo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
