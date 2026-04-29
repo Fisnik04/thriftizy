@@ -62,4 +62,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // Auto-filter based on URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+        const checkbox = document.querySelector(`input[value="${categoryParam}"]`);
+        if (checkbox) {
+            checkbox.checked = true;
+            filterProducts(); // trigger the filter
+        }
+    }
 });
