@@ -379,4 +379,108 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     });
+
+    // -----------------------------------------
+    // SELLER LOGIC (Upload Item to Profile)
+    // -----------------------------------------
+    const sellForm = document.getElementById('sell-form');
+    let myItems = JSON.parse(localStorage.getItem('thriftizy_my_items')) || [];
+
+    if (sellForm) {
+        sellForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('sell-title').value;
+            const price = parseFloat(document.getElementById('sell-price').value).toFixed(2);
+            // Default image since we don't handle file uploads in this prototype
+            const image = "url('assets/clothes.png')";
+            
+            myItems.push({ title, price: price + '€', image });
+            localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
+            
+            alert('Artikulli u postua me sukses!');
+            window.location.href = 'profil.html';
+        });
+    }
+
+    // Render "Dollapi Im" dynamically on profil.html
+    function renderMyItems() {
+        if (!window.location.pathname.includes('profil.html')) return;
+        
+        const shopGrid = document.querySelector('.profile-content .shop-grid');
+        if (!shopGrid) return;
+        
+        // Remove previously dynamically rendered items
+        document.querySelectorAll('.dynamic-my-item').forEach(el => el.remove());
+
+        myItems.forEach((item, index) => {
+            const cardHTML = `
+                <div class="product-card dynamic-my-item" style="cursor: pointer;">
+                    <span class="badge badge-sale" style="background: var(--primary);">E Re (Nga ju)</span>
+                    <div class="product-img" style="background-image: ${item.image}; background-size: cover; background-position: center;">
+                        <div class="product-actions">
+                            <button class="btn-cart" style="background: red;" onclick="event.stopPropagation(); removeMyItem(${index})">Fshi</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h4>${item.title}</h4>
+                        <p class="product-price">${item.price}</p>
+                    </div>
+                </div>
+            `;
+            // Insert it at the beginning of the grid
+            shopGrid.insertAdjacentHTML('afterbegin', cardHTML);
+        });
+    }
+    
+    // Make removeMyItem globally accessible
+    window.removeMyItem = function(index) {
+        let myItems = JSON.parse(localStorage.getItem('thriftizy_my_items')) || [];
+        myItems.splice(index, 1);
+        localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
+        renderMyItems();
+    };
+
+    renderMyItems();
+
+    // -----------------------------------------
+    // CHECKOUT LOGIC
+    // -----------------------------------------
+    function initCheckout() {
+        if (!window.location.pathname.includes('checkout.html')) return;
+        
+        let cartItems = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+        const subtotalLabel = document.getElementById('checkout-subtotal-label');
+        const subtotalPrice = document.getElementById('checkout-subtotal-price');
+        const totalPrice = document.getElementById('checkout-total-price');
+        const confirmBtn = document.getElementById('btn-confirm-checkout');
+
+        if (subtotalLabel && subtotalPrice && totalPrice) {
+            let sub = 0;
+            cartItems.forEach(item => sub += item.price);
+            
+            subtotalLabel.textContent = `Nëntotali (${cartItems.length} artikuj)`;
+            subtotalPrice.textContent = sub.toFixed(2) + '€';
+            
+            let finalPrice = sub + 2.00 - 5.00; // + Shipping - Discount
+            if (finalPrice < 0) finalPrice = 0;
+            totalPrice.textContent = finalPrice.toFixed(2) + '€';
+        }
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                if (cartItems.length === 0) {
+                    alert('Shporta është e zbrazët! Kthehuni në dyqan për të shtuar produkte.');
+                    return;
+                }
+                
+                alert('Porosia u konfirmua me sukses! Faleminderit që zgjodhët Thriftizy.');
+                // Clear the cart
+                localStorage.removeItem('thriftizy_cart');
+                window.location.href = 'index.html';
+            });
+        }
+    }
+
+    initCheckout();
+
 });

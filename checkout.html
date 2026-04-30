@@ -96,8 +96,8 @@
         <div class="order-summary">
             <h2 class="step-title">Përmbledhja e Porosisë</h2>
             <div class="summary-item">
-                <span>Nëntotali (2 artikuj)</span>
-                <span>45.00€</span>
+                <span id="checkout-subtotal-label">Nëntotali (0 artikuj)</span>
+                <span id="checkout-subtotal-price">0.00€</span>
             </div>
             <div class="summary-item">
                 <span>Dërgesa</span>
@@ -109,9 +109,9 @@
             </div>
             <div class="summary-item summary-total">
                 <span>Totali</span>
-                <span style="color: var(--primary);">42.00€</span>
+                <span id="checkout-total-price" style="color: var(--primary);">0.00€</span>
             </div>
-            <button class="btn-buy" style="width: 100%; margin-top: 20px;" onclick="alert('Porosia u konfirmua me sukses! Faleminderit që zgjodhët Thriftizy.'); window.location.href='index.html';">Konfirmo Porosinë</button>
+            <button class="btn-buy" id="btn-confirm-checkout" style="width: 100%; margin-top: 20px;">Konfirmo Porosinë</button>
         </div>
     </div>
 
