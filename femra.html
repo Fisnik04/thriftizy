@@ -1,339 +1,844 @@
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rrobat për Femra | Thriftizy</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 64px;
+            background: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* ─── Page Hero ─── */
+        .page-hero {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #ede9fe 100%);
+            padding: 48px 20px 32px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .page-hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .page-hero p {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .page-hero .count-badge {
+            display: inline-block;
+            background: white;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* ─── Toolbar ─── */
+        .shop-toolbar {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+            max-width: 380px;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: 30px;
+            border: 1.5px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 0.88rem;
+            background: white;
+            color: #0f172a;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .search-wrap input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .sort-select {
+            padding: 10px 16px;
+            border-radius: 30px;
+            border: 1.5px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 0.85rem;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        /* ─── Layout ─── */
+        .shop-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 28px;
+            max-width: 1300px;
+            margin: 20px auto 60px;
+            padding: 0 24px;
+            align-items: start;
+        }
+
+        /* ─── Sidebar Filters ─── */
+        .filters-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 84px;
+        }
+
+        .filter-section {
+            margin-bottom: 28px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-section h4 {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        /* Category pills */
+        .cat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.15s;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            width: 100%;
+            text-align: left;
+        }
+
+        .cat-item:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .cat-item.active {
+            background: #f0fdf4;
+            color: #10b981;
+        }
+
+        .cat-item .cat-icon {
+            margin-right: 8px;
+        }
+
+        .cat-count {
+            background: #f1f5f9;
+            color: #94a3b8;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+        }
+
+        .cat-item.active .cat-count {
+            background: #dcfce7;
+            color: #10b981;
+        }
+
+        /* Price range */
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .price-input {
+            padding: 8px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            width: 100%;
+            box-sizing: border-box;
+            color: #0f172a;
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        .btn-apply-price {
+            margin-top: 10px;
+            width: 100%;
+            padding: 9px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-apply-price:hover {
+            background: #10b981;
+        }
+
+        /* Condition checkboxes */
+        .condition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cond-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .cond-item input {
+            accent-color: #10b981;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .cond-item label {
+            font-size: 0.86rem;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Size chips */
+        .size-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .size-chip {
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: white;
+            color: #64748b;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .size-chip:hover,
+        .size-chip.active {
+            border-color: #10b981;
+            color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .btn-clear-filters {
+            width: 100%;
+            padding: 9px;
+            background: transparent;
+            color: #ef4444;
+            border: 1.5px solid #fee2e2;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-clear-filters:hover {
+            background: #fee2e2;
+        }
+
+        /* ─── Product Grid ─── */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 22px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.04);
+        }
+
+        .img-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .heart-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            border: none;
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .heart-icon:hover {
+            transform: scale(1.15);
+        }
+
+        .badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        .badge-new {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge-used {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .product-info {
+            padding: 14px 16px 18px;
+        }
+
+        .product-brand {
+            font-size: 0.72rem;
+            color: #10b981;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .product-info h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .product-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .btn-cart {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-cart:hover {
+            background: #10b981;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #94a3b8;
+            grid-column: 1/-1;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: #64748b;
+        }
+
+        .empty-state p {
+            margin-bottom: 24px;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+            font-size: 1rem;
+            grid-column: 1/-1;
+        }
+
+        /* Active filters bar */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .af-tag {
+            background: #f0fdf4;
+            color: #10b981;
+            border: 1px solid #bbf7d0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .af-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #10b981;
+            font-size: 0.9rem;
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 900px) {
+            .shop-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+                display: none;
+            }
+
+            .filters-sidebar.mobile-open {
+                display: block;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+
+            .product-img {
+                height: 200px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <nav id="navbar" class="scrolled">
+
+            <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
-                <div class="nav-center">
-            <div class="nav-search">
-                <i>🔍</i>
-                <input type="text" placeholder="Kërko marka, artikuj...">
-            </div>
-            <ul class="nav-links">
+        <div class="nav-center">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
+                        <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li class="nav-item-dropdown">
-                <a href="femra.html">Femra</a>
-                <div class="mega-menu">
-                    <!-- Shop by category -->
-                    <div class="mega-column two-col">
-                        <div class="mega-title">Shop by category</div>
-                        <a href="#" class="mega-link">Tops</a>
-                        <a href="#" class="mega-link">Shoes</a>
-                        <a href="#" class="mega-link">Jeans</a>
-                        <a href="#" class="mega-link">Bags & Purses</a>
-                        <a href="#" class="mega-link">Sweaters</a>
-                        <a href="#" class="mega-link">Sunglasses</a>
-                        <a href="#" class="mega-link">Skirts</a>
-                        <a href="#" class="mega-link">Hats</a>
-                        <a href="#" class="mega-link">Dresses</a>
-                        <a href="#" class="mega-link">Jewelry</a>
-                        <a href="#" class="mega-link">Coats & Jackets</a>
-                        <a href="#" class="mega-link">Plus Size</a>
-                        <a href="femra.html" class="see-all-link">See all women's</a>
-                    </div>
-                    
-                    <!-- Featured -->
-                    <div class="mega-column">
-                        <div class="mega-title">Featured</div>
-                        <a href="#" class="mega-link">Wardrobe essentials</a>
-                        <a href="#" class="mega-link">Denim everything</a>
-                        <a href="#" class="mega-link">Lifestyle sneakers</a>
-                        <a href="#" class="mega-link">Office wear</a>
-                        <a href="#" class="mega-link">Gym gear</a>
-                    </div>
-
-                    <!-- Images -->
-                    <div class="mega-images">
-                        <div class="mega-img-card">
-                            <img src="assets/clothes.png" alt="80s">
-                            <div class="mega-img-label">'80s</div>
-                        </div>
-                        <div class="mega-img-card">
-                            <img src="assets/clothes.png" alt="90s" style="transform: scaleX(-1);">
-                            <div class="mega-img-label">'90s</div>
-                        </div>
-                        <div class="mega-img-card">
-                            <img src="assets/accessories.png" alt="00s">
-                            <div class="mega-img-label">'00s</div>
-                        </div>
-                        <div class="mega-img-card">
-                            <img src="assets/clothes.png" alt="2010s" style="filter: hue-rotate(90deg);">
-                            <div class="mega-img-label">2010s</div>
-                        </div>
-                    </div>
-                </div>
-            </li>
-                <li class="nav-item-dropdown">
-                <a href="meshkuj.html">Meshkuj</a>
-                <div class="mega-menu">
-                    <!-- Shop by category -->
-                    <div class="mega-column two-col">
-                        <div class="mega-title">Kategoritë për Meshkuj</div>
-                        <a href="meshkuj.html" class="mega-link">T-shirts & Maica</a>
-                        <a href="meshkuj.html" class="mega-link">Patika / Sneakers</a>
-                        <a href="meshkuj.html" class="mega-link">Pantallona / Xhinse</a>
-                        <a href="meshkuj.html" class="mega-link">Këmisha</a>
-                        <a href="meshkuj.html" class="mega-link">Duksa & Triko</a>
-                        <a href="meshkuj.html" class="mega-link">Syze Dielli</a>
-                        <a href="meshkuj.html" class="mega-link">Shorts</a>
-                        <a href="meshkuj.html" class="mega-link">Kapele</a>
-                        <a href="meshkuj.html" class="mega-link">Xhaketa & Pallto</a>
-                        <a href="meshkuj.html" class="mega-link">Orë & Aksesorë</a>
-                        <a href="meshkuj.html" class="see-all-link">Shiko të gjitha</a>
-                    </div>
-                    
-                    <!-- Featured -->
-                    <div class="mega-column">
-                        <div class="mega-title">Të Zgjedhura</div>
-                        <a href="meshkuj.html" class="mega-link">Streetwear Essentials</a>
-                        <a href="meshkuj.html" class="mega-link">Vintage 90s</a>
-                        <a href="meshkuj.html" class="mega-link">Gym & Fitness</a>
-                        <a href="meshkuj.html" class="mega-link">Kostume Zyrtare</a>
-                    </div>
-
-                    <!-- Images -->
-                    <div class="mega-images">
-                        <div class="mega-img-card" onclick="location.href='meshkuj.html'">
-                            <img src="assets/sneakers.png" alt="Sneakers">
-                            <div class="mega-img-label">Sneakers</div>
-                        </div>
-                        <div class="mega-img-card" onclick="location.href='meshkuj.html'">
-                            <img src="assets/clothes.png" alt="Streetwear" style="transform: scaleX(-1); filter: grayscale(50%);">
-                            <div class="mega-img-label">Streetwear</div>
-                        </div>
-                        <div class="mega-img-card" onclick="location.href='meshkuj.html'">
-                            <img src="assets/accessories.png" alt="Watches" style="filter: sepia(50%);">
-                            <div class="mega-img-label">Aksesorë</div>
-                        </div>
-                        <div class="mega-img-card" onclick="location.href='meshkuj.html'">
-                            <img src="assets/clothes.png" alt="Vintage" style="filter: hue-rotate(180deg);">
-                            <div class="mega-img-label">Vintage</div>
-                        </div>
-                    </div>
-                </div>
-            </li>
+                <li><a href="femra.html">Femra</a></li>
+                <li><a href="meshkuj.html">Meshkuj</a></li>
+                <li><a href="kepuce.html">Këpucë</a></li>
+                <li><a href="aksesore.html">Aksesorë</a></li>
+                <li><a href="shit.html">Posto</a></li>
+                <li><a href="profil.html">Profili</a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-
-        <div class="nav-actions">
-            <a href="shit.html" class="btn-secondary" style="background: var(--accent); color: white; border: none;">Shit Tani</a>
-            <button class="icon-btn" id="cart-icon">🛒<span class="cart-badge">0</span></button>
-            <button class="icon-btn" onclick="location.href='profil.html'">👤</button>
-        </div>
+        <div class="nav-actions" id="nav-actions"></div>
     </nav>
 
-    <div class="shop-container">
-        
-        <div class="shop-header" style="justify-content: center; text-align: center; margin-bottom: 40px;">
-            <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-main);">Rrobat për Femra</h1>
-            <p id="product-count" style="color: var(--text-muted); margin-top: 5px;">Duke shfaqur 6 produkte</p>
-        </div>
-
-        <!-- Subcategories -->
-        <div class="subcategories-row">
-            <a href="#" class="sub-category">
-                <div class="sub-category-img" style="background-image: url('assets/clothes.png');"></div>
-                <span>Tops</span>
-            </a>
-            <a href="#" class="sub-category">
-                <div class="sub-category-img" style="background-image: url('assets/clothes.png'); background-position: bottom;"></div>
-                <span>Pants</span>
-            </a>
-            <a href="#" class="sub-category">
-                <div class="sub-category-img" style="background-image: url('assets/clothes.png'); background-position: top;"></div>
-                <span>Outerwear</span>
-            </a>
-            <a href="#" class="sub-category">
-                <div class="sub-category-img" style="background-image: url('assets/sneakers.png');"></div>
-                <span>Shoes</span>
-            </a>
-            <a href="#" class="sub-category">
-                <div class="sub-category-img" style="background-image: url('assets/clothes.png'); background-position: left;"></div>
-                <span>Dresses</span>
-            </a>
-            <a href="#" class="sub-category">
-                <div class="sub-category-img" style="background-image: url('assets/accessories.png');"></div>
-                <span>Accessories</span>
-            </a>
-        </div>
-
-        <!-- Horizontal Filters -->
-        <div class="filters-bar">
-            <div class="filter-dropdown">
-                <button class="filter-btn">Kategoria ▾</button>
-                <div class="filter-menu">
-                    <label class="filter-label"><input type="checkbox" value="fustane" class="filter-chk"> Fustane</label>
-                    <label class="filter-label"><input type="checkbox" value="maica" class="filter-chk"> Maica</label>
-                    <label class="filter-label"><input type="checkbox" value="xhaketa" class="filter-chk"> Xhaketa</label>
-                    <label class="filter-label"><input type="checkbox" value="pantallona" class="filter-chk"> Pantallona</label>
-                </div>
-            </div>
-            
-            <div class="filter-dropdown">
-                <button class="filter-btn">Madhësia ▾</button>
-                <div class="filter-menu">
-                    <label class="filter-label"><input type="checkbox" value="s" class="filter-chk"> S</label>
-                    <label class="filter-label"><input type="checkbox" value="m" class="filter-chk"> M</label>
-                    <label class="filter-label"><input type="checkbox" value="l" class="filter-chk"> L</label>
-                </div>
-            </div>
-
-            <div class="filter-dropdown">
-                <button class="filter-btn">Gjendja ▾</button>
-                <div class="filter-menu">
-                    <label class="filter-label"><input type="checkbox" value="re" class="filter-chk"> E re (Me etiketë)</label>
-                    <label class="filter-label"><input type="checkbox" value="pak" class="filter-chk"> Pak e përdorur</label>
-                    <label class="filter-label"><input type="checkbox" value="shume" class="filter-chk"> Shumë e përdorur</label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Grid -->
-        <main class="shop-products">
-            
-            <div class="shop-grid" id="product-grid">
-                <!-- Product 1 -->
-                <div class="product-card reveal active" data-type="xhaketa" data-size="m" data-condition="pak">
-                    <span class="badge badge-new">Pak e përdorur</span>
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover;">
-                        <div class="product-actions"><button class="btn-cart">Shto në shportë</button></div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Vintage Denim Jacket</h4>
-                        <p class="product-price">25.00€</p>
-                    </div>
-                </div>
-
-                <!-- Product 2 -->
-                <div class="product-card reveal active" data-type="maica" data-size="s" data-condition="re">
-                    <span class="badge badge-sale">E re</span>
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover; background-position: bottom;">
-                        <div class="product-actions"><button class="btn-cart">Shto në shportë</button></div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Graphic T-Shirt '90s</h4>
-                        <p class="product-price">12.00€</p>
-                    </div>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="product-card reveal active" data-type="fustane" data-size="m" data-condition="shume">
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover; background-position: left;">
-                        <div class="product-actions"><button class="btn-cart">Shto në shportë</button></div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Fustan Veror Lule</h4>
-                        <p class="product-price">15.00€</p>
-                    </div>
-                </div>
-
-                <!-- Product 4 -->
-                <div class="product-card reveal active" data-type="pantallona" data-size="l" data-condition="pak">
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover; background-position: right;">
-                        <div class="product-actions"><button class="btn-cart">Shto në shportë</button></div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Xhinse High-Waist</h4>
-                        <p class="product-price">20.00€</p>
-                    </div>
-                </div>
-
-                <!-- Product 5 -->
-                <div class="product-card reveal active" data-type="maica" data-size="l" data-condition="re">
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover; background-position: center;">
-                        <div class="product-actions"><button class="btn-cart">Shto në shportë</button></div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Oversized Tee</h4>
-                        <p class="product-price">10.00€</p>
-                    </div>
-                </div>
-
-                <!-- Product 6 -->
-                <div class="product-card reveal active" data-type="xhaketa" data-size="s" data-condition="shume">
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover; background-position: top;">
-                        <div class="product-actions"><button class="btn-cart">Shto në shportë</button></div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Xhaketë Lëkure Retro</h4>
-                        <p class="product-price">40.00€</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-            <!-- Global Footer -->
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <a href="index.html" class="logo" style="color: white;">THRIFT<span>IZY</span></a>
-                <p style="color: #94a3b8; margin-top: 15px; font-size: 0.9rem;">Platforma më e madhe e rrobave të përdorura në Ballkan. Bli, shit, dhe mbro mjedisin.</p>
-            </div>
-            <div class="footer-col">
-                <h3>Blerja</h3>
-                <ul>
-                    <li><a href="femra.html">Femra</a></li>
-                    <li><a href="meshkuj.html">Meshkuj</a></li>
-                    <li><a href="#">Këpucë</a></li>
-                    <li><a href="#">Aksesorë</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>Shitja</h3>
-                <ul>
-                    <li><a href="shit.html">Shit një artikull</a></li>
-                    <li><a href="#">Si të shesësh?</a></li>
-                    <li><a href="#">Rregullat e shitjes</a></li>
-                    <li><a href="#">Tarifat</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>Suporti</h3>
-                <ul>
-                    <li><a href="#">Pyetjet e shpeshta (FAQ)</a></li>
-                    <li><a href="#">Dërgesat & Kthimet</a></li>
-                    <li><a href="#">Kontakt</a></li>
-                    <li><a href="#">Rreth Nesh</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            &copy; 2026 Thriftizy. Të gjitha të drejtat e rezervuara.
-        </div>
-    </footer>
-
-<!-- Cart Sidebar Overlay -->
+    <!-- Cart Sidebar -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
-            <h2>Shporta Jote</h2>
-            <button class="close-cart" id="close-cart">×</button>
+            <h2>Shporta Jote</h2><button class="close-cart" id="close-cart">×</button>
         </div>
-        <div class="cart-items">
-            <!-- Items added here -->
-            <p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Shporta është e zbrazët.</p>
-        </div>
+        <div class="cart-items"></div>
         <div class="cart-footer">
-            <div class="cart-total">
-                <span>Totali:</span>
-                <span>0.00€</span>
-            </div>
-            <button class="btn-buy" style="width: 100%;" onclick="location.href=\'checkout.html\'">Paguaj Tani</button>
+            <div class="cart-total"><span>Totali:</span><span>0.00€</span></div>
+            <button class="btn-buy" style="width:100%;" onclick="location.href='checkout.html'">Paguaj Tani</button>
         </div>
     </div>
 
-    <script src="shop.js"></script>
+    <!-- Page Hero -->
+    <div class="page-hero">
+        <h1>👗 Femra</h1>
+        <p>Zbulo moda të çmuar nga markë premium me çmime të paimagjinueshme</p>
+        <span class="count-badge" id="count-badge">Duke ngarkuar...</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="shop-toolbar">
+        <div class="search-wrap">
+            <i>🔍</i>
+            <input type="text" id="search-input" placeholder="Kërko sipas marke, titullit...">
+        </div>
+        <select class="sort-select" id="sort-select">
+            <option value="newest">Më të reja</option>
+            <option value="price-asc">Çmimi: i ulët → i lartë</option>
+            <option value="price-desc">Çmimi: i lartë → i ulët</option>
+            <option value="az">A → Z</option>
+        </select>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="shop-layout">
+
+        <!-- Sidebar -->
+        <aside class="filters-sidebar" id="filters-sidebar">
+
+            <div class="filter-section">
+                <h4>Kategoria</h4>
+                <div class="cat-list">
+                    <button class="cat-item active" data-filter="all"><span class="cat-icon">🛍️</span>Të
+                        gjitha</button>
+                    <button class="cat-item" data-filter="fustane"><span class="cat-icon">👗</span>Fustane</button>
+                    <button class="cat-item" data-filter="maica"><span class="cat-icon">👕</span>Tops & Maica</button>
+                    <button class="cat-item" data-filter="bluzë"><span class="cat-icon">👚</span>Bluzë & Shirt</button>
+                    <button class="cat-item" data-filter="pantallona"><span
+                            class="cat-icon">👖</span>Pantallona</button>
+                    <button class="cat-item" data-filter="xhaketa"><span class="cat-icon">🧥</span>Xhaketa &
+                        Pallto</button>
+                    <button class="cat-item" data-filter="triko"><span class="cat-icon">🧣</span>Triko &
+                        Pulovër</button>
+                    <button class="cat-item" data-filter="sport"><span class="cat-icon">🏃</span>Sport & Active</button>
+                    <button class="cat-item" data-filter="kepuce"><span class="cat-icon">👠</span>Këpucë</button>
+                    <button class="cat-item" data-filter="çanta"><span class="cat-icon">👜</span>Çanta</button>
+                    <button class="cat-item" data-filter="aksesore"><span class="cat-icon">💍</span>Aksesorë</button>
+                    <button class="cat-item" data-filter="swimwear"><span class="cat-icon">👙</span>Swimwear</button>
+                    <button class="cat-item" data-filter="underwear"><span class="cat-icon">🩱</span>Nënveshje</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Çmimi (€)</h4>
+                <div class="price-inputs">
+                    <input type="number" class="price-input" id="price-min" placeholder="Min" min="0">
+                    <input type="number" class="price-input" id="price-max" placeholder="Max" min="0">
+                </div>
+                <button class="btn-apply-price" onclick="applyFilters()">Apliko</button>
+            </div>
+
+            <div class="filter-section">
+                <h4>Gjendja</h4>
+                <div class="condition-list">
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E re me etiketë"> <label>E
+                            re me etiketë ✨</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E re pa etiketë"> <label>E
+                            re pa etiketë</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="Pak e përdorur">
+                        <label>Pak e përdorur</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E përdorur"> <label>E
+                            përdorur mirë</label></label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Madhësia</h4>
+                <div class="size-chips">
+                    <button class="size-chip" data-size="XS">XS</button>
+                    <button class="size-chip" data-size="S">S</button>
+                    <button class="size-chip" data-size="M">M</button>
+                    <button class="size-chip" data-size="L">L</button>
+                    <button class="size-chip" data-size="XL">XL</button>
+                    <button class="size-chip" data-size="XXL">XXL</button>
+                    <button class="size-chip" data-size="36">36</button>
+                    <button class="size-chip" data-size="38">38</button>
+                    <button class="size-chip" data-size="40">40</button>
+                    <button class="size-chip" data-size="42">42</button>
+                    <button class="size-chip" data-size="One Size">One Size</button>
+                </div>
+            </div>
+
+            <button class="btn-clear-filters" onclick="clearFilters()">🗑️ Pastro filtrat</button>
+        </aside>
+
+        <!-- Product Grid -->
+        <div>
+            <div class="active-filters" id="active-filters"></div>
+            <div class="products-grid" id="product-grid">
+                <div class="loading-state">⏳ Duke ngarkuar produktet...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, collection, getDocs, query, where } from './firebase-config.js';
+
+        const grid = document.getElementById('product-grid');
+        const countEl = document.getElementById('count-badge');
+        let allProducts = [];
+        let activeCategory = 'all';
+        let activeSize = '';
+        let priceMin = 0, priceMax = Infinity;
+
+        // ── Render Card ──
+        function renderCard(p) {
+            const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
+            const badge = isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`;
+            const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
+            return `
+            <div class="product-card" onclick="selectProduct('${p.id}')">
+                <div class="img-wrapper">
+                    <img class="product-img" src="${p.image}" alt="${p.title}" loading="lazy"
+                         onerror="this.style.background='#f1f5f9'">
+                    <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
+                    ${badge}
+                </div>
+                <div class="product-info">
+                    <div class="product-brand">${p.brand || ''}</div>
+                    <h4>${p.title}</h4>
+                    <div class="product-meta">${meta || '—'}</div>
+                    <div class="product-footer">
+                        <span class="product-price">${parseFloat(p.price).toFixed(2)}€</span>
+                        <button class="btn-cart" onclick="event.stopPropagation(); addCart('${p.id}')">+ Shportë</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // ── Navigate ──
+        window.selectProduct = (id) => {
+            const p = allProducts.find(x => x.id === id);
+            if (p) sessionStorage.setItem('current_product', JSON.stringify(p));
+            window.location.href = 'produkt.html';
+        };
+
+        // ── Cart ──
+        window.addCart = (id) => {
+            const p = allProducts.find(x => x.id === id);
+            if (!p) return;
+            let cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+            cart.push({ title: p.title, price: parseFloat(p.price), image: `url('${p.image}')` });
+            localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
+            document.querySelectorAll('.cart-badge').forEach(b => b.textContent = cart.length);
+            document.getElementById('cart-sidebar')?.classList.add('open');
+            document.getElementById('cart-overlay')?.classList.add('open');
+        };
+
+        // ── Heart ──
+        window.toggleHeart = (btn, id) => {
+            const p = allProducts.find(x => x.id === id);
+            if (!p) return;
+            let likes = JSON.parse(localStorage.getItem('thriftizy_likes')) || [];
+            const idx = likes.findIndex(i => i.title === p.title);
+            if (idx === -1) { likes.push(p); btn.innerHTML = '❤️'; }
+            else { likes.splice(idx, 1); btn.innerHTML = '🤍'; }
+            localStorage.setItem('thriftizy_likes', JSON.stringify(likes));
+        };
+
+        // ── Filter & Sort ──
+        function applyFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const sort = document.getElementById('sort-select').value;
+            const checkedConds = [...document.querySelectorAll('.cond-check:checked')].map(c => c.value);
+            priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+            priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
+
+            let filtered = allProducts.filter(p => {
+                const matchCat = activeCategory === 'all' || p.category === activeCategory;
+                const matchQ = !search || p.title?.toLowerCase().includes(search) || p.brand?.toLowerCase().includes(search);
+                const matchCond = !checkedConds.length || checkedConds.includes(p.condition);
+                const matchSize = !activeSize || p.size === activeSize;
+                const matchPrc = parseFloat(p.price) >= priceMin && parseFloat(p.price) <= priceMax;
+                return matchCat && matchQ && matchCond && matchSize && matchPrc;
+            });
+
+            // Sort
+            if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+            if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+            if (sort === 'az') filtered.sort((a, b) => a.title.localeCompare(b.title));
+            if (sort === 'newest') filtered.sort((a, b) => (b.createdAt || 0) > (a.createdAt || 0) ? 1 : -1);
+
+            countEl.textContent = filtered.length + ' produkte';
+            grid.innerHTML = filtered.length
+                ? filtered.map(renderCard).join('')
+                : `<div class="empty-state"><h2>🛍️ Asnjë produkt</h2><p>Provo të ndryshosh filtrat.</p></div>`;
+        }
+
+        window.applyFilters = applyFilters;
+
+        window.clearFilters = () => {
+            activeCategory = 'all'; activeSize = '';
+            document.getElementById('search-input').value = '';
+            document.getElementById('price-min').value = '';
+            document.getElementById('price-max').value = '';
+            document.querySelectorAll('.cond-check').forEach(c => c.checked = false);
+            document.querySelectorAll('.cat-item').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
+            document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+            applyFilters();
+        };
+
+        // ── Category ──
+        document.querySelectorAll('.cat-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeCategory = btn.dataset.filter;
+                applyFilters();
+            });
+        });
+
+        // ── Size ──
+        document.querySelectorAll('.size-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const already = btn.classList.contains('active');
+                document.querySelectorAll('.size-chip').forEach(b => b.classList.remove('active'));
+                if (!already) { btn.classList.add('active'); activeSize = btn.dataset.size; }
+                else activeSize = '';
+                applyFilters();
+            });
+        });
+
+        // ── Search & Sort ──
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('sort-select').addEventListener('change', applyFilters);
+        document.querySelectorAll('.cond-check').forEach(c => c.addEventListener('change', applyFilters));
+
+        // ── Load from Firestore ──
+        try {
+            const snap = await getDocs(query(collection(db, 'produktet'), where('gender', 'in', ['femra', 'unisex'])));
+            let rawProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            // Filter by country globally
+            const userCountry = localStorage.getItem('thriftizy_country') || 'all';
+            if (userCountry !== 'all') {
+                rawProducts = rawProducts.filter(p => p.country === userCountry);
+            }
+            allProducts = rawProducts;
+
+            countEl.textContent = allProducts.length + ' produkte';
+
+            if (!allProducts.length) {
+                grid.innerHTML = `<div class="empty-state">
+                <div style="font-size:3.5rem;margin-bottom:16px;">👗</div>
+                <h2>Ende asnjë produkt</h2>
+                <p>Bëhu e para që shet diçka në Thriftizy!</p>
+                <a href="shit.html" class="btn-buy" style="text-decoration:none;display:inline-block;margin-top:8px;">Shit Tani</a>
+            </div>`;
+            } else {
+                applyFilters();
+            }
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state"><h2>⚠️ Gabim</h2><p>${err.message}</p></div>`;
+        }
+    </script>
+    <script type="module" src="main.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,307 @@
+�<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profili i Shitësit | Thriftizy</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #f8fafc; padding-top: 100px; }
+
+        .seller-header {
+            max-width: 1200px; margin: 0 auto 40px; padding: 40px 20px;
+            background: white; border-radius: 24px;
+            display: flex; align-items: center; gap: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);
+            position: relative; overflow: hidden;
+        }
+
+        .seller-bg {
+            position: absolute; top: 0; left: 0; right: 0; height: 80px;
+            background: linear-gradient(135deg, #10b981, #0f172a);
+            opacity: 0.1; z-index: 1;
+        }
+
+        .seller-avatar-big {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #0f172a);
+            color: white; font-size: 2.5rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            position: relative; z-index: 2; flex-shrink: 0;
+        }
+
+        .seller-info-big { position: relative; z-index: 2; flex: 1; }
+        .seller-info-big h1 { font-size: 2rem; color: #0f172a; margin-bottom: 8px; }
+        .seller-stats { display: flex; gap: 20px; font-size: 0.95rem; color: #64748b; font-weight: 600; }
+        .seller-stats span { display: flex; align-items: center; gap: 6px; }
+        .seller-stats .star { color: #f59e0b; }
+
+        .btn-contact {
+            padding: 12px 24px; background: #0f172a; color: white;
+            border: none; border-radius: 30px; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s; position: relative; z-index: 2;
+            display: flex; align-items: center; gap: 8px; font-family: inherit;
+        }
+        .btn-contact:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        .products-section { max-width: 1200px; margin: 0 auto 80px; padding: 0 20px; }
+        .products-section h2 { font-size: 1.5rem; margin-bottom: 24px; color: #0f172a; font-weight: 800; }
+
+        .products-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 22px;
+        }
+
+        .product-card {
+            background: white; border-radius: 20px; overflow: hidden;
+            cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0,0,0,0.04); position: relative;
+        }
+        .product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .product-img { width: 100%; height: 260px; object-fit: cover; display: block; transition: transform 0.4s; }
+        .product-card:hover .product-img { transform: scale(1.04); }
+        .img-wrapper { overflow: hidden; position: relative; }
+        .product-badge {
+            position: absolute; top: 14px; left: 14px;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
+            padding: 4px 10px; border-radius: 20px; font-size: 0.75rem;
+            font-weight: 800; color: #0f172a; z-index: 2; text-transform: uppercase;
+        }
+        .product-info { padding: 18px; position: relative; z-index: 2; background: white; }
+        .product-brand { color: #10b981; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .product-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-price { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+        .product-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 0.8rem; color: #94a3b8; }
+
+        .loading-state { grid-column: 1/-1; text-align: center; padding: 60px; color: #94a3b8; font-size: 1.1rem; }
+        .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 20px; background: white; border-radius: 24px; color: #94a3b8; border: 1px dashed #e2e8f0; }
+
+        @media (max-width: 768px) {
+            .seller-header { flex-direction: column; text-align: center; padding: 30px 20px; gap: 20px; }
+            .seller-stats { justify-content: center; flex-wrap: wrap; }
+            .btn-contact { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+            <nav id="navbar">
+        <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <div class="nav-center">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
+                        <ul class="nav-links">
+                <li><a href="index.html">Ballina</a></li>
+                <li><a href="femra.html">Femra</a></li>
+                <li><a href="meshkuj.html">Meshkuj</a></li>
+                <li><a href="kepuce.html">Këpucë</a></li>
+                <li><a href="aksesore.html">Aksesorë</a></li>
+                <li><a href="shit.html">Posto</a></li>
+                <li><a href="profil.html">Profili</a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+            </ul>
+        </div>
+        <div class="nav-actions" id="nav-actions"></div>
+    </nav>
+
+    <!-- Seller Header -->
+    <div class="seller-header">
+        <div class="seller-bg"></div>
+        <div class="seller-avatar-big" id="s-avatar">?</div>
+        <div class="seller-info-big">
+            <h1 id="s-name">Duke ngarkuar...</h1>
+            <div class="seller-stats">
+                <span><i class="star">��&</i> 4.9 Rating</span>
+                <span>�x� <span id="s-count">0</span> produkte aktive</span>
+                <span>�x& Anëtarësuar së fundmi</span>
+            </div>
+        </div>
+        <!-- Will remove contact button if looking at own profile -->
+        <button class="btn-contact" id="btn-contact" style="display:none;" onclick="startChat()">
+            �x� Dërgo Mesazh
+        </button>
+    </div>
+
+    <!-- Products -->
+    <div class="products-section">
+        <h2>Të gjitha produktet nga ky shitës</h2>
+        <div class="products-grid" id="products-grid">
+            <div class="loading-state">⏳ Duke ngarkuar produktet...</div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h2>Shporta Jote</h2>
+            <button class="close-cart" id="close-cart">�</button>
+        </div>
+        <div class="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total"><span>Totali:</span><span>0.00��</span></div>
+            <button class="btn-buy" style="width:100%;" onclick="location.href='checkout.html'">Paguaj Tani</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+            <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <a href="index.html" class="logo" style="color:white;">THRIFT<span>IZY</span></a>
+                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura në Ballkan. Bli, shit, dhe mbro mjedisin.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Blerja</h3>
+                <ul>
+                    <li><a href="femra.html">Femra</a></li>
+                    <li><a href="meshkuj.html">Meshkuj</a></li>
+                    <li><a href="kepuce.html">Këpucë</a></li>
+                    <li><a href="aksesore.html">Aksesorë</a></li>
+                    <li><a href="saved.html">Të Ruajtura</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Shitja</h3>
+                <ul>
+                    <li><a href="shit.html">Shit një artikull</a></li>
+                    <li><a href="profil.html">Profili Im</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Llogaria</h3>
+                <ul>
+                    <li><a href="login.html">Kyçu</a></li>
+                    <li><a href="signup.html">Regjistrohu</a></li>
+                    <li><a href="mesazhet.html">Mesazhet</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2026 Thriftizy. Të gjitha të drejtat e rezervuara.</div>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        import { db, auth, onAuthStateChanged, collection, query, where, orderBy, getDocs } from './firebase-config.js';
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sellerId = urlParams.get('id');
+        let sellerName = urlParams.get('name') || 'Shitës i panjohur';
+
+        if (!sellerId) {
+            document.getElementById('s-name').textContent = "Shitësi nuk u gjet";
+            document.getElementById('products-grid').innerHTML = '<div class="empty-state">�R Kjo faqe nuk ekziston ose URL është e pasaktë.</div>';
+        } else {
+            // Update basic UI instantly from URL
+            document.getElementById('s-name').textContent = sellerName;
+            document.getElementById('s-avatar').textContent = sellerName.charAt(0).toUpperCase();
+            document.title = sellerName + " | Thriftizy";
+
+        // Check if looking at own profile to hide contact button
+        onAuthStateChanged(auth, (user) => {
+            if (!user || user.uid !== sellerId) {
+                document.getElementById('btn-contact').style.display = 'flex';
+            }
+        });
+
+        loadSellerProducts();
+    }
+
+    async function loadSellerProducts() {
+        const grid = document.getElementById('products-grid');
+        try {
+            // Remove orderBy from query to prevent Firebase missing index error. Sort locally.
+            const q = query(
+                collection(db, 'produktet'),
+                where('sellerId', '==', sellerId)
+            );
+            
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                grid.innerHTML = '<div class="empty-state">Ky shitës nuk ka asnjë produkt aktiv për momentin.</div>';
+                document.getElementById('s-count').textContent = '0';
+                return;
+            }
+
+            document.getElementById('s-count').textContent = snap.docs.length;
+
+            let products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })); products.sort((a, b) => (b.createdAt || "") > (a.createdAt || "") ? 1 : -1);
+            // Sort newest first
+            products.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+
+            grid.innerHTML = products.map(p => {
+                return `
+                    <div class="product-card" onclick="openProduct('${encodeURIComponent(JSON.stringify(p))}')">
+                        <div class="img-wrapper">
+                            <span class="product-badge">${p.condition || 'E re'}</span>
+                            <img src="${p.image}" class="product-img" onerror="this.src='assets/clothes.png'">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-brand">${p.brand || 'Pa markë'}</div>
+                            <div class="product-title">${p.title}</div>
+                            <div class="product-price">${parseFloat(p.price).toFixed(2)}��</div>
+                            <div class="product-meta">
+                                <span>�x� ${p.size || 'N/A'}</span>
+                                <span>${p.gender === 'femra' ? '�x Femra' : p.gender === 'meshkuj' ? '�x Meshkuj' : 'Unisex'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        } catch(e) {
+            console.error("Error loading products:", e);
+            grid.innerHTML = '<div class="empty-state">�a�️ Ndodhi një gabim gjatë ngarkimit të produkteve.<br><br><small style="color:#ef4444;">' + e.message + '</small></div>';
+        }
+    }
+
+    window.openProduct = (jsonStr) => {
+        sessionStorage.setItem('current_product', decodeURIComponent(jsonStr));
+        window.location.href = 'produkt.html';
+    };
+
+    window.startChat = async () => {
+        const { auth, db, collection, addDoc, getDocs, query, where } = await import('./firebase-config.js');
+        const user = auth.currentUser;
+        if (!user) { window.location.href = 'login.html'; return; }
+        if (sellerId === user.uid) { alert('Ky është profili yt!'); return; }
+
+        const btn = document.getElementById('btn-contact');
+        btn.textContent = '⏳ Duke hapur...';
+
+        try {
+            const q = query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid));
+            const snap = await getDocs(q);
+            const existing = snap.docs.find(d => (d.data().participants || []).includes(sellerId));
+
+            let convId;
+            if (existing) {
+                convId = existing.id;
+            } else {
+                const newConv = await addDoc(collection(db, 'conversations'), {
+                    participants: [user.uid, sellerId],
+                    participantNames: {
+                        [user.uid]: user.email?.split('@')[0] || 'Blerës',
+                        [sellerId]: sellerName || 'Shitës'
+                    },
+                    productId: '',
+                    productTitle: 'Nga profili',
+                    lastMessage: 'Filloi bisedën',
+                    lastAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                });
+                convId = newConv.id;
+            }
+            window.location.href = 'mesazhet.html#' + convId;
+        } catch(err) {
+            alert('Gabim: ' + err.message);
+            btn.textContent = '�x� Dërgo Mesazh';
+        }
+    };
+</script>
+</body>
+</html>
+

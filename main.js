@@ -85,6 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem('thriftizy_country', selected);
                 if(modal) modal.classList.remove('active');
                 updateUIForCountry(selected);
+                
+                // Reload to apply country filter on dynamic pages
+                location.reload();
             });
         });
     }
@@ -509,25 +512,73 @@ document.addEventListener("DOMContentLoaded", () => {
     function initDynamicProduct() {
         if (!window.location.pathname.includes('produkt.html')) return;
         
+        let item = null;
+        
+        // Check for URL params (my items)
         const urlParams = new URLSearchParams(window.location.search);
         const myItemIndex = urlParams.get('myitem');
-        
         if (myItemIndex !== null && myItems[myItemIndex]) {
-            const item = myItems[myItemIndex];
-            
-            // Overwrite DOM elements in produkt.html
-            const titleEl = document.querySelector('.product-details h1');
-            const priceEl = document.querySelector('.detail-price');
-            const mainImgEl = document.getElementById('main-image');
-            
+            item = myItems[myItemIndex];
+        } else {
+            // Check for Firebase product in sessionStorage
+            const sessionProd = sessionStorage.getItem('current_product');
+            if (sessionProd) {
+                try { item = JSON.parse(sessionProd); } catch(e) {}
+            }
+        }
+        
+        if (item) {
+            // Update Title
+            const titleEl = document.getElementById('prod-title') || document.querySelector('.product-details h1');
             if(titleEl) titleEl.textContent = item.title;
-            if(priceEl) priceEl.textContent = item.price;
             
+            // Update Price
+            const priceEl = document.getElementById('prod-price') || document.querySelector('.detail-price');
+            if(priceEl) {
+                // If price is a number, format it
+                const p = parseFloat(item.price);
+                if (!isNaN(p)) {
+                    priceEl.textContent = p.toFixed(2) + '€';
+                } else {
+                    priceEl.textContent = item.price;
+                }
+            }
+            
+            // Update Main Image
+            const mainImgEl = document.getElementById('mainImage');
             if(mainImgEl) {
-                // Extract URL string from "url('...')"
-                let imgUrl = item.image.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '');
-                mainImgEl.src = imgUrl;
-                mainImgEl.style.objectFit = 'cover';
+                if (item.image && item.image.startsWith('url(')) {
+                    mainImgEl.style.backgroundImage = item.image;
+                } else if (item.image) {
+                    mainImgEl.style.backgroundImage = `url('${item.image}')`;
+                }
+            }
+            
+            // Update Thumbnails
+            const thumbs = document.querySelectorAll('.thumb');
+            if(thumbs.length > 0 && item.image) {
+                let imgStyle = item.image.startsWith('url(') ? item.image : `url('${item.image}')`;
+                thumbs[0].style.backgroundImage = imgStyle;
+            }
+            
+            // Update Attributes (if available in item)
+            if(document.getElementById('prod-brand') && item.brand) document.getElementById('prod-brand').textContent = item.brand;
+            if(document.getElementById('prod-size') && item.size) document.getElementById('prod-size').textContent = item.size;
+            if(document.getElementById('prod-condition') && item.condition) document.getElementById('prod-condition').textContent = item.condition;
+            if(document.getElementById('prod-color') && item.color) document.getElementById('prod-color').textContent = item.color;
+            if(document.getElementById('prod-material') && item.material) document.getElementById('prod-material').textContent = item.material;
+            
+            // Update Description
+            if(document.getElementById('prod-desc') && item.description) {
+                document.getElementById('prod-desc').textContent = item.description;
+            }
+            
+            // Update Seller Details
+            if(document.getElementById('prod-seller-name') && item.sellerName) {
+                document.getElementById('prod-seller-name').textContent = 'Shitet nga: ' + item.sellerName;
+            }
+            if(document.getElementById('prod-seller-avatar') && item.sellerName) {
+                document.getElementById('prod-seller-avatar').textContent = item.sellerName.charAt(0).toUpperCase();
             }
         }
     }

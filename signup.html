@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regjistrohu | Thriftizy</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .shapes {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.1);
+            filter: blur(80px);
+        }
+        .shape-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+        .shape-2 { width: 300px; height: 300px; bottom: -50px; left: -50px; background: rgba(59, 130, 246, 0.1); }
+
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 40px;
+            display: block;
+            letter-spacing: -1px;
+        }
+        .auth-logo span { color: var(--accent); }
+
+        .auth-title {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .auth-subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 35px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            text-align: left;
+        }
+
+        .input-group label {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-auth-submit {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-auth-submit:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-auth-submit.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .auth-toggle {
+            margin-top: 30px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .auth-toggle a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .back-link {
+            margin-top: 25px;
+            display: block;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        .back-link:hover { color: white; }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card fade-in">
+            <a href="index.html" class="auth-logo">THRIFT<span>IZY</span></a>
+            
+            <h1 class="auth-title">Krijo Llogari</h1>
+            <p class="auth-subtitle">B�hu pjes� e komunitetit Thriftizy</p>
+
+            <form class="auth-form" id="signup-form">
+                <div class="input-group">
+                    <label>Emri i Plot�</label>
+                    <input type="text" id="signup-name" placeholder="Filan Fisteku" required>
+                </div>
+                <div class="input-group">
+                    <label>Email-i</label>
+                    <input type="email" id="signup-email" placeholder="emri@shembull.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Fjal�kalimi</label>
+                    <input type="password" id="signup-password" placeholder="""""""""" required minlength="6">
+                </div>
+                <button type="submit" class="btn-auth-submit" id="signup-btn">Regjistrohu</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span>Keni nj� llogari?</span>
+                <a href="login.html">Hyni k�tu</a>
+            </div>
+
+            <a href="index.html" class="back-link">&larr; Kthehu te dyqani</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, createUserWithEmailAndPassword, doc, setDoc } from './firebase-config.js';
+
+        const signupForm = document.getElementById('signup-form');
+        const signupBtn = document.getElementById('signup-btn');
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+
+            if (!name || !email || !password) {
+                alert('Ju lutem plot�soni t� gjitha fushat.');
+                return;
+            }
+
+            // Loading state
+            signupBtn.classList.add('loading');
+            const originalText = signupBtn.textContent;
+            signupBtn.innerHTML = '<span class="spinner"></span> Duke u procesuar...';
+            signupBtn.disabled = true;
+
+            try {
+                console.log("1. Duke filluar regjistrimin...");
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                console.log("2. User u krijua:", user.uid);
+
+                console.log("3. Duke shkruar n� Firestore...");
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: name,
+                    email: email,
+                    uid: user.uid,
+                    createdAt: new Date().toISOString(),
+                    role: 'user'
+                });
+                console.log("4. T� dh�nat u ruajt�n!");
+
+                signupBtn.style.background = '#059669';
+                signupBtn.textContent = 'Sukses!';
+                
+                // Presim 1 sekonde qe te jemi te sigurt qe databaza u azhurnua
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error("GABIM:", error);
+                let message = 'Gabim gjat� regjistrimit.';
+                
+                if (error.code === 'permission-denied') {
+                    message = 'Firebase bllokoi shkrimin. Kontrollo rregullat (Rules) n� Firestore!';
+                } else if (error.code === 'auth/email-already-in-use') {
+                    message = 'Ky email �sht� i regjistruar m� par�.';
+                } else {
+                    message = error.message;
+                }
+                
+                alert('GABIM: ' + message);
+                signupBtn.classList.remove('loading');
+                signupBtn.innerHTML = originalText;
+                signupBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

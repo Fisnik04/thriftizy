@@ -129,6 +129,28 @@ nav.scrolled {
     color: var(--accent);
 }
 
+.nav-country a {
+    background: #f1f5f9;
+    padding: 6px 14px !important;
+    border-radius: 30px;
+    font-size: 0.85rem !important;
+    color: var(--primary) !important;
+    font-weight: 800 !important;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+}
+
+.nav-country a:hover {
+    background: white;
+    border-color: var(--accent);
+    color: var(--accent) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
 /* Mega Menu */
 .nav-item-dropdown {
     position: static;

@@ -133,11 +133,22 @@
     </style>
 </head>
 <body>
-    <nav id="navbar" class="scrolled">
+        <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
-        <div class="nav-actions">
-            <button class="btn-secondary" onclick="history.back()">Kthehu në platformë</button>
+        <div class="nav-center">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
+                        <ul class="nav-links">
+                <li><a href="index.html">Ballina</a></li>
+                <li><a href="femra.html">Femra</a></li>
+                <li><a href="meshkuj.html">Meshkuj</a></li>
+                <li><a href="kepuce.html">Këpucë</a></li>
+                <li><a href="aksesore.html">Aksesorë</a></li>
+                <li><a href="shit.html">Posto</a></li>
+                <li><a href="profil.html">Profili</a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+            </ul>
         </div>
+        <div class="nav-actions" id="nav-actions"></div>
     </nav>
 
     <div class="chat-container reveal">
@@ -195,6 +206,6 @@
         </div>
     </div>
 
-    <script src="main.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
