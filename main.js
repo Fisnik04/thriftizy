@@ -384,6 +384,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // SELLER LOGIC (Upload Item to Profile)
     // -----------------------------------------
     const sellForm = document.getElementById('sell-form');
+    const imageUpload = document.getElementById('sell-image-upload');
+    const uploadBox = document.getElementById('upload-box');
+    let uploadedImageBase64 = "url('assets/clothes.png')"; // Default
+
+    if (imageUpload && uploadBox) {
+        imageUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.addEventListener('load', function() {
+                    uploadedImageBase64 = `url('${this.result}')`;
+                    uploadBox.style.backgroundImage = uploadedImageBase64;
+                    uploadBox.style.backgroundSize = 'cover';
+                    uploadBox.style.backgroundPosition = 'center';
+                    document.getElementById('upload-icon').style.display = 'none';
+                    document.getElementById('upload-text').style.color = 'white';
+                    document.getElementById('upload-text').style.textShadow = '0 2px 4px rgba(0,0,0,0.8)';
+                    document.getElementById('upload-text').textContent = 'Foto u ngarkua (Kliko për ta ndryshuar)';
+                });
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
     let myItems = JSON.parse(localStorage.getItem('thriftizy_my_items')) || [];
 
     if (sellForm) {
@@ -391,10 +415,8 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const title = document.getElementById('sell-title').value;
             const price = parseFloat(document.getElementById('sell-price').value).toFixed(2);
-            // Default image since we don't handle file uploads in this prototype
-            const image = "url('assets/clothes.png')";
             
-            myItems.push({ title, price: price + '€', image });
+            myItems.push({ title, price: price + '€', image: uploadedImageBase64 });
             localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
             
             alert('Artikulli u postua me sukses!');
@@ -409,12 +431,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const shopGrid = document.querySelector('.profile-content .shop-grid');
         if (!shopGrid) return;
         
-        // Remove previously dynamically rendered items
         document.querySelectorAll('.dynamic-my-item').forEach(el => el.remove());
 
         myItems.forEach((item, index) => {
             const cardHTML = `
-                <div class="product-card dynamic-my-item" style="cursor: pointer;">
+                <div class="product-card dynamic-my-item" style="cursor: pointer;" onclick="location.href='produkt.html?myitem=${index}'">
                     <span class="badge badge-sale" style="background: var(--primary);">E Re (Nga ju)</span>
                     <div class="product-img" style="background-image: ${item.image}; background-size: cover; background-position: center;">
                         <div class="product-actions">
@@ -427,7 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
             `;
-            // Insert it at the beginning of the grid
             shopGrid.insertAdjacentHTML('afterbegin', cardHTML);
         });
     }
@@ -482,5 +502,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     initCheckout();
+
+    // -----------------------------------------
+    // DYNAMIC PRODUCT PAGE (produkt.html)
+    // -----------------------------------------
+    function initDynamicProduct() {
+        if (!window.location.pathname.includes('produkt.html')) return;
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const myItemIndex = urlParams.get('myitem');
+        
+        if (myItemIndex !== null && myItems[myItemIndex]) {
+            const item = myItems[myItemIndex];
+            
+            // Overwrite DOM elements in produkt.html
+            const titleEl = document.querySelector('.product-details h1');
+            const priceEl = document.querySelector('.detail-price');
+            const mainImgEl = document.getElementById('main-image');
+            
+            if(titleEl) titleEl.textContent = item.title;
+            if(priceEl) priceEl.textContent = item.price;
+            
+            if(mainImgEl) {
+                // Extract URL string from "url('...')"
+                let imgUrl = item.image.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '');
+                mainImgEl.src = imgUrl;
+                mainImgEl.style.objectFit = 'cover';
+            }
+        }
+    }
+    
+    initDynamicProduct();
 
 });

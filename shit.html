@@ -137,9 +137,10 @@
                 
                 <div class="form-group">
                     <label>Fotografitë e Produktit</label>
-                    <div class="image-upload-box" onclick="alert('Këtu do të hapej dritarja për të zgjedhur foto nga kompjuteri/telefoni.')">
-                        <i>📸</i>
-                        <p>Kliko për të ngarkuar foto (Deri në 4 foto)</p>
+                    <input type="file" id="sell-image-upload" accept="image/*" style="display: none;">
+                    <div class="image-upload-box" id="upload-box" onclick="document.getElementById('sell-image-upload').click()">
+                        <i id="upload-icon">📸</i>
+                        <p id="upload-text">Kliko për të ngarkuar foto nga pajisja juaj</p>
                     </div>
                 </div>
 
