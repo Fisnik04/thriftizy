@@ -72,32 +72,36 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedCountry = localStorage.getItem('thriftizy_country');
     
     if (!savedCountry) {
-        modal.classList.add('active');
+        if(modal) modal.classList.add('active');
     } else {
         updateUIForCountry(savedCountry);
     }
     
     // Handle country selection
-    countryBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const selected = e.target.closest('.country-btn').getAttribute('data-select');
-            localStorage.setItem('thriftizy_country', selected);
-            modal.classList.remove('active');
-            updateUIForCountry(selected);
+    if(countryBtns) {
+        countryBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const selected = e.target.closest('.country-btn').getAttribute('data-select');
+                localStorage.setItem('thriftizy_country', selected);
+                if(modal) modal.classList.remove('active');
+                updateUIForCountry(selected);
+            });
         });
-    });
+    }
     
     // Open modal to change country
-    changeBtn.addEventListener('click', () => {
-        modal.classList.add('active');
-    });
+    if(changeBtn && modal) {
+        changeBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+    }
     
     function updateUIForCountry(countryCode) {
         // Update Navbar text
-        currentCountrySpan.textContent = countryNames[countryCode];
+        if(currentCountrySpan) currentCountrySpan.textContent = countryNames[countryCode] || 'Shteti';
         
         // Filter products
-        const products = document.querySelectorAll('.product-card');
+        const products = document.querySelectorAll('.product-card[data-country]');
         products.forEach(product => {
             if (product.getAttribute('data-country') === countryCode) {
                 product.style.display = 'block';
