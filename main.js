@@ -5,6 +5,10 @@ import {
     getDoc,
     addDoc,
     collection,
+    getDocs,
+    query,
+    updateDoc,
+    where,
     serverTimestamp,
     firebaseProductImageBackgroundCss,
     firebaseProductImageUrlsForViewer,
@@ -86,8 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
 // Smooth Scroll for Nav Links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+        const target = this.getAttribute('href');
+        if (!target || target === '#') return;
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
+        document.querySelector(target)?.scrollIntoView({
             behavior: 'smooth'
         });
     });
@@ -664,12 +670,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let item = null;
 
-        // Check for URL params (my items)
+        // Check for URL params (my items / Firestore product)
         const urlParams = new URLSearchParams(window.location.search);
         const myItemIndex = urlParams.get('myitem');
+        const firestoreId = urlParams.get('id');
         if (myItemIndex !== null && myItems[myItemIndex]) {
             item = myItems[myItemIndex];
-        } else {
+        } else if (firestoreId) {
+            try {
+                const docSnap = await getDoc(doc(db, 'produktet', firestoreId));
+                if (docSnap.exists()) {
+                    item = { id: docSnap.id, ...docSnap.data() };
+                    sessionStorage.setItem('current_product', JSON.stringify(item));
+                }
+            } catch (error) {
+                console.error('Nuk u ngarkua produkti nga Firebase:', error);
+            }
+        }
+
+        if (!item) {
             // Check for Firebase product in sessionStorage
             const sessionProd = sessionStorage.getItem('current_product');
             if (sessionProd) {
@@ -780,6 +799,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const genderLabels = { femra: 'Femra', meshkuj: 'Meshkuj', unisex: 'Unisex' };
             const countryLabels = { ks: 'Kosovë', al: 'Shqipëri', mk: 'Maqedoni' };
 
+            function displayCountry(value) {
+                const labels = { ks: 'Kosovë', al: 'Shqipëri', mk: 'Maqedoni' };
+                const code = thriftizyNormalizeCountry(value);
+                return labels[code] || value || '';
+            }
+            function displayLocation(city, country) {
+                const parts = [];
+                const cityText = city == null ? '' : String(city).trim();
+                const countryText = displayCountry(country);
+                if (cityText) parts.push(cityText);
+                if (countryText) parts.push(countryText);
+                return parts.join(', ');
+            }
+
             setProdAttr('prod-brand', item.brand);
             setProdAttr('prod-size', item.size);
             setProdAttr('prod-condition', item.condition);
@@ -790,7 +823,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setProdAttr('prod-gender', genderLabels[g] || g);
             const c = item.country;
             setProdAttr('prod-country', c !== undefined && c !== null && String(c).trim() !== ''
-                ? (countryLabels[String(c)] || c)
+                ? displayCountry(c)
                 : '');
             setProdAttr('prod-city', item.city);
             setProdAttr('prod-id', item.id || '');
@@ -806,13 +839,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Update Seller Details
             const sellerId = item.sellerId || item.uid || '';
-            let sellerName = item.sellerName || item.seller || '';
-            if (!sellerName && sellerId) {
+            let sellerName = item.sellerName || item.seller || (item.sellerEmail ? String(item.sellerEmail).split('@')[0] : '');
+            let sellerLocation = displayLocation(item.city, item.country);
+            if (sellerId) {
                 try {
                     const sellerSnap = await getDoc(doc(db, 'users', sellerId));
                     if (sellerSnap.exists()) {
                         const sellerData = sellerSnap.data();
-                        sellerName = sellerData.fullName || sellerData.displayName || sellerData.email || '';
+                        sellerName = sellerData.fullName || sellerData.displayName || sellerData.email || sellerName;
+                        sellerLocation = displayLocation(sellerData.city || item.city, sellerData.country || item.country) || sellerLocation;
                     }
                 } catch (error) {
                     console.error('Nuk u ngarkua shitësi nga Firebase:', error);
@@ -824,6 +859,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (document.getElementById('prod-seller-avatar')) {
                 document.getElementById('prod-seller-avatar').textContent = sellerName.charAt(0).toUpperCase();
+            }
+            if (document.getElementById('prod-seller-location')) {
+                document.getElementById('prod-seller-location').textContent = '📍 Lokacioni: ' + (sellerLocation || 'Nuk është vendosur');
             }
 
             const sellerProfileCard = document.getElementById('seller-profile-card');
@@ -910,7 +948,104 @@ document.addEventListener("DOMContentLoaded", () => {
                 e.stopPropagation();
             });
 
-            document.getElementById('offer-modal-submit')?.addEventListener('click', () => {
+            async function resolveCurrentUserName(user) {
+                let buyerName = user.email?.split('@')[0] || 'Blerës';
+                try {
+                    const buyerSnap = await getDoc(doc(db, 'users', user.uid));
+                    if (buyerSnap.exists()) {
+                        const buyerData = buyerSnap.data();
+                        buyerName = buyerData.fullName || buyerData.displayName || buyerData.email || buyerName;
+                    }
+                } catch (_) {}
+                return buyerName;
+            }
+
+            async function findOrCreateOfferConversation(user) {
+                const convQuery = query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid));
+                const convSnap = await getDocs(convQuery);
+                const existing = convSnap.docs.find((d) => {
+                    const data = d.data();
+                    return (data.participants || []).includes(sellerId);
+                });
+
+                const buyerName = await resolveCurrentUserName(user);
+                const productTitle = item.title || 'Artikull';
+                const productImage = productCartImage();
+                const cleanSellerName = sellerName && sellerName !== 'Shitës' ? sellerName : '';
+                const participantNames = {
+                    [user.uid]: buyerName
+                };
+                if (cleanSellerName) participantNames[sellerId] = cleanSellerName;
+
+                if (existing) {
+                    await updateDoc(doc(db, 'conversations', existing.id), {
+                        participantNames: {
+                            ...(existing.data().participantNames || {}),
+                            ...participantNames
+                        },
+                        productId: item.id || '',
+                        productTitle,
+                        productImage,
+                        lastAt: serverTimestamp()
+                    });
+                    return existing.id;
+                }
+
+                const created = await addDoc(collection(db, 'conversations'), {
+                    participants: [user.uid, sellerId],
+                    participantNames: {
+                        ...participantNames,
+                        [sellerId]: cleanSellerName || 'Shitës'
+                    },
+                    productId: item.id || '',
+                    productTitle,
+                    productImage,
+                    lastMessage: 'Ofertë e re',
+                    lastAt: serverTimestamp(),
+                    createdAt: serverTimestamp()
+                });
+                return created.id;
+            }
+
+            async function sendOfferToSeller(offerPrice, note) {
+                const user = auth.currentUser;
+                if (!user) {
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent('produkt.html' + window.location.search);
+                    return;
+                }
+                if (!sellerId) {
+                    alert('Ky produkt nuk ka shitës të lidhur.');
+                    return;
+                }
+                if (sellerId === user.uid) {
+                    alert('Nuk mund të bësh ofertë për produktin tënd.');
+                    return;
+                }
+
+                const listedText = Number.isFinite(listedNum) ? `${listedNum.toFixed(2)}€` : 'pa çmim të listuar';
+                const noteText = note ? `\nShënim: ${note}` : '';
+                const messageText = `Ofertë për "${item.title || 'Artikull'}": ${offerPrice.toFixed(2)}€ (çmimi i listuar: ${listedText}).${noteText}`;
+
+                const convId = await findOrCreateOfferConversation(user);
+                await addDoc(collection(db, 'conversations', convId, 'messages'), {
+                    text: messageText,
+                    senderId: user.uid,
+                    type: 'offer',
+                    offerPrice,
+                    listedPrice: Number.isFinite(listedNum) ? listedNum : null,
+                    productId: item.id || '',
+                    productTitle: item.title || 'Artikull',
+                    createdAt: serverTimestamp()
+                });
+                await updateDoc(doc(db, 'conversations', convId), {
+                    lastMessage: messageText,
+                    lastAt: serverTimestamp()
+                });
+
+                window.location.href = `mesazhet.html#${convId}`;
+            }
+
+            document.getElementById('offer-modal-submit')?.addEventListener('click', async () => {
                 const val = parseFloat(offerInput?.value || '');
                 if (!Number.isFinite(val) || val <= 0) {
                     alert('Fut një çmim të vlefshëm për ofertën (€).');
@@ -920,22 +1055,99 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert('Çmimi i ofertës zakonisht duhet të jetë më i ulët ose i njëjtë me çmimin e listuar.');
                     return;
                 }
-                addLineToCart({
-                    title: item.title || 'Artikull',
-                    price: val,
-                    listedPrice: Number.isFinite(listedNum) ? listedNum : undefined,
-                    isOffer: true,
-                    offerNote: (offerNote?.value || '').trim() || undefined,
-                    image: productCartImage(),
-                    productId: item.id || '',
-                    sellerId: item.sellerId || item.uid || ''
-                });
-                offerOverlay?.classList.remove('open');
-                offerOverlay?.setAttribute('aria-hidden', 'true');
+                const submitBtn = document.getElementById('offer-modal-submit');
+                const previousText = submitBtn?.textContent || 'Dërgo ofertën';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Duke dërguar...';
+                }
+                try {
+                    await sendOfferToSeller(val, (offerNote?.value || '').trim());
+                    offerOverlay?.classList.remove('open');
+                    offerOverlay?.setAttribute('aria-hidden', 'true');
+                } catch (error) {
+                    console.error('Oferta nuk u dërgua:', error);
+                    alert('Oferta nuk u dërgua: ' + error.message);
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = previousText;
+                    }
+                }
             });
         }
     }
 
     initDynamicProduct();
 
+});
+
+function thriftizyNormalizeCountry(value) {
+    const v = String(value || '').trim().toLowerCase();
+    if (['all', 'te gjitha', 'të gjitha'].includes(v)) return 'all';
+    if (['ks', 'kosovë', 'kosove', 'kosova'].includes(v)) return 'ks';
+    if (['al', 'shqipëri', 'shqiperi', 'albania'].includes(v)) return 'al';
+    if (['mk', 'maqedoni', 'maqedonia', 'north macedonia'].includes(v)) return 'mk';
+    return v;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const changeBtn = document.getElementById('btn-change-country');
+    const currentCountrySpan = document.getElementById('current-country');
+    if (!changeBtn) return;
+
+    const countryLabels = {
+        all: 'Të gjitha',
+        ks: 'Kosovë',
+        al: 'Shqipëri',
+        mk: 'Maqedoni'
+    };
+
+    let modal = document.getElementById('country-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.id = 'country-modal';
+        modal.innerHTML = `
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="country-modal-title">
+                <h2 id="country-modal-title">Zgjidh shtetin</h2>
+                <p>Shfaq produktet sipas lokacionit që të intereson.</p>
+                <div class="country-options">
+                    <button type="button" class="country-btn" data-select="all">🌍 Të gjitha</button>
+                    <button type="button" class="country-btn" data-select="ks">🇽🇰 Kosovë</button>
+                    <button type="button" class="country-btn" data-select="al">🇦🇱 Shqipëri</button>
+                    <button type="button" class="country-btn" data-select="mk">🇲🇰 Maqedoni</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+    }
+
+    function applyCountry(code) {
+        const normalized = thriftizyNormalizeCountry(code || 'all') || 'all';
+        localStorage.setItem('thriftizy_country', normalized);
+        if (currentCountrySpan) currentCountrySpan.textContent = countryLabels[normalized] || 'Shteti';
+        document.querySelectorAll('.country-top-btn span').forEach((el) => {
+            el.textContent = countryLabels[normalized] || 'Shteti';
+        });
+    }
+
+    applyCountry(localStorage.getItem('thriftizy_country') || 'all');
+
+    const navActions = document.getElementById('nav-actions');
+    let quickCountryBtn = document.querySelector('.country-top-btn');
+    // REMOVED dynamic injection to avoid duplicates as it is already in nav-links
+
+
+    [changeBtn, quickCountryBtn].filter(Boolean).forEach((btn) => btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        modal.classList.add('active');
+    }));
+
+    modal.querySelectorAll('.country-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            applyCountry(btn.dataset.select);
+            modal.classList.remove('active');
+            location.reload();
+        });
+    });
 });

@@ -32,7 +32,7 @@
             height: 44px;
             border: none;
             border-radius: 14px;
-            background: rgba(15,23,42,0.06);
+            background: rgba(15, 23, 42, 0.06);
             cursor: pointer;
             font-size: 1.25rem;
             color: var(--text-main, #1e293b);
@@ -47,8 +47,8 @@
             padding: clamp(32px, 6vw, 72px) clamp(20px, 6%, 96px);
             gap: clamp(28px, 5vw, 64px);
             background:
-                radial-gradient(ellipse 120% 80% at 100% 0%, rgba(16,185,129,0.12), transparent 50%),
-                radial-gradient(ellipse 100% 60% at 0% 100%, rgba(59,130,246,0.1), transparent 55%),
+                radial-gradient(ellipse 120% 80% at 100% 0%, rgba(16, 185, 129, 0.12), transparent 50%),
+                radial-gradient(ellipse 100% 60% at 0% 100%, rgba(59, 130, 246, 0.1), transparent 55%),
                 linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
             position: relative;
             overflow: hidden;
@@ -64,7 +64,7 @@
             z-index: 0;
         }
 
-        .hero > div {
+        .hero>div {
             position: relative;
             z-index: 1;
         }
@@ -156,8 +156,8 @@
             font-size: clamp(4rem, 14vw, 7.5rem);
             min-height: min(520px, 55vh);
             box-shadow:
-                0 32px 64px rgba(15,23,42,0.15),
-                0 0 0 1px rgba(255,255,255,0.25) inset;
+                0 32px 64px rgba(15, 23, 42, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.25) inset;
             position: relative;
             z-index: 1;
         }
@@ -167,7 +167,7 @@
             position: absolute;
             inset: -2px;
             border-radius: inherit;
-            background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 40%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 40%);
             pointer-events: none;
         }
 
@@ -721,7 +721,7 @@
                 width: 100%;
                 gap: 0;
                 padding: 8px 0 4px;
-                border-top: 1px solid rgba(15,23,42,0.08);
+                border-top: 1px solid rgba(15, 23, 42, 0.08);
                 margin-top: 4px;
             }
 
@@ -829,11 +829,12 @@
 
     <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
-        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links" aria-expanded="false" aria-label="Hap menyën"></button>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
+            aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
             <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
             </div>
-                                    <ul class="nav-links" id="mobile-nav-drawer-links">
+            <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -841,7 +842,8 @@
                 <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
         <div class="nav-actions" id="nav-actions">
@@ -1086,6 +1088,15 @@
             bindProductCardGalleries(document.getElementById('meshkuj-grid'));
         }
 
+        function normalizeCountryCode(value) {
+            const v = String(value || '').trim().toLowerCase();
+            if (['all', 'te gjitha', 'të gjitha'].includes(v)) return 'all';
+            if (['ks', 'kosovë', 'kosove', 'kosova'].includes(v)) return 'ks';
+            if (['al', 'shqipëri', 'shqiperi', 'albania'].includes(v)) return 'al';
+            if (['mk', 'maqedoni', 'maqedonia', 'north macedonia'].includes(v)) return 'mk';
+            return v;
+        }
+
         function card(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
             const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
@@ -1103,7 +1114,7 @@
         ${renderProductMediaInner(p, overlays)}
       </div>
       <div class="product-info">
-        <div class="product-brand">${p.brand || ''}</div>
+        <div class="product-brand">${p.brand || 'No Brand'} • <span style="color:#64748b; font-weight:400;">${p.sellerName || 'Shitës'}</span></div>
         <h4>${p.title}</h4>
         <div class="product-meta">${meta || '—'}</div>
         <div class="product-footer">
@@ -1114,7 +1125,12 @@
     </div>`;
         }
 
-        window.go = encodedRaw => { sessionStorage.setItem('current_product', decodeURIComponent(encodedRaw)); location.href = 'produkt.html'; };
+        window.go = encodedRaw => {
+            const raw = decodeURIComponent(encodedRaw);
+            sessionStorage.setItem('current_product', raw);
+            const p = JSON.parse(raw);
+            location.href = `produkt.html?id=${encodeURIComponent(p.id)}`;
+        };
 
         window.heart = (btn, encodedRaw) => {
             const p = JSON.parse(decodeURIComponent(encodedRaw));
@@ -1146,9 +1162,9 @@
             let all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
             // Filter by country
-            const userCountry = localStorage.getItem('thriftizy_country') || 'all';
+            const userCountry = normalizeCountryCode(localStorage.getItem('thriftizy_country') || 'all');
             if (userCountry !== 'all') {
-                all = all.filter(p => p.country === userCountry);
+                all = all.filter(p => normalizeCountryCode(p.country) === userCountry);
             }
 
             const f = all.filter(p => p.gender === 'femra' || p.gender === 'unisex');

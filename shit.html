@@ -129,6 +129,14 @@
 
                     <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                         <div>
+                            <label>Gjinia *</label>
+                            <select id="sell-gender" required>
+                                <option value="femra">Femra</option>
+                                <option value="meshkuj">Meshkuj</option>
+                                <option value="unisex">Unisex</option>
+                            </select>
+                        </div>
+                        <div>
                             <label>Kategoria *</label>
                             <select id="sell-category" required>
                                 <option value="">Zgjidh Kategorinë</option>
@@ -138,14 +146,6 @@
                                 <option value="pantallona">Pantallona / Xhinse</option>
                                 <option value="kepuce">Këpucë / Patika</option>
                                 <option value="aksesore">Aksesorë</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Gjinia *</label>
-                            <select id="sell-gender" required>
-                                <option value="femra">Femra</option>
-                                <option value="meshkuj">Meshkuj</option>
-                                <option value="unisex">Unisex</option>
                             </select>
                         </div>
                     </div>
@@ -172,11 +172,35 @@
                     <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                         <div>
                             <label>Ngjyra</label>
-                            <input type="text" id="sell-color" placeholder="p.sh. E zezë, E kuqe...">
+                            <select id="sell-color">
+                                <option value="">Zgjidh ngjyrën</option>
+                                <option value="E zezë">E zezë</option>
+                                <option value="E bardhë">E bardhë</option>
+                                <option value="E hirtë">E hirtë</option>
+                                <option value="Blu">Blu</option>
+                                <option value="E kuqe">E kuqe</option>
+                                <option value="E verdhë">E verdhë</option>
+                                <option value="E gjelbër">E gjelbër</option>
+                                <option value="Rozë">Rozë</option>
+                                <option value="E kaftë">E kaftë</option>
+                                <option value="Portokalli">Portokalli</option>
+                                <option value="Shumëngjyrësh">Shumëngjyrësh</option>
+                            </select>
                         </div>
                         <div>
                             <label>Materiali</label>
-                            <input type="text" id="sell-material" placeholder="p.sh. Pambuk, Lëkurë...">
+                            <select id="sell-material">
+                                <option value="">Zgjidh materialin</option>
+                                <option value="Pambuk">Pambuk</option>
+                                <option value="Lëkurë">Lëkurë</option>
+                                <option value="Lesh">Lesh</option>
+                                <option value="Mëndafsh">Mëndafsh</option>
+                                <option value="Poliestër">Poliestër</option>
+                                <option value="Xhins (Denim)">Xhins (Denim)</option>
+                                <option value="Akrilik">Akrilik</option>
+                                <option value="Viskozë">Viskozë</option>
+                                <option value="Tjetër">Tjetër</option>
+                            </select>
                         </div>
                     </div>
 
@@ -258,6 +282,7 @@
             auth, db, storage,
             onAuthStateChanged,
             collection, addDoc, serverTimestamp,
+            getDoc, doc,
             ref, uploadBytes, getDownloadURL
         } from './firebase-config.js';
 
@@ -369,6 +394,15 @@
                 }
                 submitBtn.textContent = 'Duke ruajtur në databazë...';
 
+                let sellerName = currentUser.displayName || 'Përdorues';
+                try {
+                    const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        sellerName = userData.fullName || userData.displayName || sellerName;
+                    }
+                } catch (e) { console.warn("S'u mor emri i shitësit:", e); }
+
                 await addDoc(collection(db, 'produktet'), {
                     title,
                     category: document.getElementById('sell-category').value,
@@ -385,6 +419,7 @@
                     images: imageUrls,
                     image: imageUrls[0] || '',
                     sellerId: currentUser.uid,
+                    sellerName: sellerName,
                     sellerEmail: currentUser.email || '',
                     status: 'active',
                     createdAt: serverTimestamp(),

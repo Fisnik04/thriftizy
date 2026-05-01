@@ -218,6 +218,8 @@
             query,
             where,
             getDocs,
+            getDoc,
+            doc,
             firebaseProductImageUrl,
             firebaseProductImageUrls,
             firebaseProductImageBackgroundCss
@@ -231,6 +233,37 @@
         const urlParams = new URLSearchParams(window.location.search);
         const sellerId = urlParams.get('id');
         let sellerName = urlParams.get('name') || 'Shitës i panjohur';
+
+        function applySellerName(name) {
+            const clean = String(name || '').trim();
+            if (!clean || clean === 'ShitÃ«s' || clean === 'Shitës') return;
+            sellerName = clean;
+            document.getElementById('s-name').textContent = sellerName;
+            document.getElementById('s-avatar').textContent = sellerName.charAt(0).toUpperCase();
+            document.title = sellerName + ' | Thriftizy';
+        }
+
+        async function loadSellerNameFromUser() {
+            if (!sellerId) return;
+            try {
+                const sellerSnap = await getDoc(doc(db, 'users', sellerId));
+                if (sellerSnap.exists()) {
+                    const data = sellerSnap.data();
+                    applySellerName(data.fullName || data.displayName || data.email);
+                }
+            } catch (error) {
+                console.warn('Nuk u mor emri i shitÃ«sit nga users:', error);
+            }
+        }
+
+        function sellerNameFromProducts(products) {
+            const productWithName = products.find(p => p.sellerName || p.seller || p.displayName || p.sellerEmail);
+            if (!productWithName) return '';
+            return productWithName.sellerName ||
+                productWithName.seller ||
+                productWithName.displayName ||
+                String(productWithName.sellerEmail || '').split('@')[0];
+        }
 
         function euroAmount(n) {
             const num = typeof n === 'number' ? n : parseFloat(n);
@@ -254,6 +287,7 @@
             document.getElementById('s-name').textContent = sellerName;
             document.getElementById('s-avatar').textContent = sellerName.charAt(0).toUpperCase();
             document.title = sellerName + ' | Thriftizy';
+            loadSellerNameFromUser();
 
             onAuthStateChanged(auth, (user) => {
                 if (!user || user.uid !== sellerId) {
@@ -281,6 +315,7 @@
 
                 const products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 products.sort((a, b) => String(b.createdAt || '') > String(a.createdAt || '') ? 1 : -1);
+                applySellerName(sellerNameFromProducts(products));
 
                 window.thriftizySellerProducts = products;
 
@@ -362,7 +397,7 @@
             const p = window.thriftizySellerProducts?.find(x => x.id === id);
             if (!p) return;
             sessionStorage.setItem('current_product', JSON.stringify(p));
-            window.location.href = 'produkt.html';
+            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
         };
 
         window.sellerQuickAddCart = (encId) => {

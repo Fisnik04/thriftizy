@@ -544,11 +544,11 @@
 
 <body>
 
-            <nav id="navbar">
+    <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
         <div class="nav-center">
             <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-                        <ul class="nav-links">
+            <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -556,7 +556,8 @@
                 <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
         <div class="nav-actions" id="nav-actions"></div>
@@ -665,6 +666,20 @@
                 </div>
             </div>
 
+            <div class="filter-section">
+                <h4>Ngjyra</h4>
+                <select id="filter-color" class="sort-select" style="width:100%; border-radius:12px;">
+                    <option value="">Të gjitha</option>
+                </select>
+            </div>
+
+            <div class="filter-section">
+                <h4>Materiali</h4>
+                <select id="filter-material" class="sort-select" style="width:100%; border-radius:12px;">
+                    <option value="">Të gjitha</option>
+                </select>
+            </div>
+
             <button class="btn-clear-filters" onclick="clearFilters()">🗑️ Pastro filtrat</button>
         </aside>
 
@@ -692,12 +707,26 @@
         let activeSize = '';
         let priceMin = 0, priceMax = Infinity;
 
+        function normalizeCountryCode(value) {
+            const v = String(value || '').trim().toLowerCase();
+            if (['all', 'te gjitha', 'të gjitha'].includes(v)) return 'all';
+            if (['ks', 'kosovë', 'kosove', 'kosova'].includes(v)) return 'ks';
+            if (['al', 'shqipëri', 'shqiperi', 'albania'].includes(v)) return 'al';
+            if (['mk', 'maqedoni', 'maqedonia', 'north macedonia'].includes(v)) return 'mk';
+            return v;
+        }
+
         // ── Render Card ──
         function renderCard(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
             const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
             const badge = isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`;
-            const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
+
+            const metaParts = [];
+            if (p.size) metaParts.push(`Madh. ${p.size}`);
+            if (p.color) metaParts.push(`Ngjyra: ${p.color}`);
+            if (p.material) metaParts.push(`Mat: ${p.material}`);
+            const meta = metaParts.join(' • ');
             const overlays = `
                     <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
                     ${badge}`;
@@ -707,7 +736,7 @@
                     ${renderProductMediaInner(p, overlays)}
                 </div>
                 <div class="product-info">
-                    <div class="product-brand">${p.brand || ''}</div>
+                    <div class="product-brand">${p.brand || 'No Brand'} • <span style="color:#64748b; font-weight:400;">${p.sellerName || 'Shitës'}</span></div>
                     <h4>${p.title}</h4>
                     <div class="product-meta">${meta || '—'}</div>
                     <div class="product-footer">
@@ -722,7 +751,7 @@
         window.selectProduct = (id) => {
             const p = allProducts.find(x => x.id === id);
             if (p) sessionStorage.setItem('current_product', JSON.stringify(p));
-            window.location.href = 'produkt.html';
+            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
         };
 
         // ── Cart ──
@@ -753,6 +782,8 @@
         function applyFilters() {
             const search = document.getElementById('search-input').value.toLowerCase();
             const sort = document.getElementById('sort-select').value;
+            const filterColor = document.getElementById('filter-color').value;
+            const filterMaterial = document.getElementById('filter-material').value;
             const checkedConds = [...document.querySelectorAll('.cond-check:checked')].map(c => c.value);
             priceMin = parseFloat(document.getElementById('price-min').value) || 0;
             priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
@@ -762,8 +793,10 @@
                 const matchQ = !search || p.title?.toLowerCase().includes(search) || p.brand?.toLowerCase().includes(search);
                 const matchCond = !checkedConds.length || checkedConds.includes(p.condition);
                 const matchSize = !activeSize || p.size === activeSize;
+                const matchColor = !filterColor || p.color === filterColor;
+                const matchMat = !filterMaterial || p.material === filterMaterial;
                 const matchPrc = parseFloat(p.price) >= priceMin && parseFloat(p.price) <= priceMax;
-                return matchCat && matchQ && matchCond && matchSize && matchPrc;
+                return matchCat && matchQ && matchCond && matchSize && matchColor && matchMat && matchPrc;
             });
 
             // Sort
@@ -786,6 +819,8 @@
             document.getElementById('search-input').value = '';
             document.getElementById('price-min').value = '';
             document.getElementById('price-max').value = '';
+            document.getElementById('filter-color').value = '';
+            document.getElementById('filter-material').value = '';
             document.querySelectorAll('.cond-check').forEach(c => c.checked = false);
             document.querySelectorAll('.cat-item').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
             document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
@@ -816,6 +851,8 @@
         // ── Search & Sort ──
         document.getElementById('search-input').addEventListener('input', applyFilters);
         document.getElementById('sort-select').addEventListener('change', applyFilters);
+        document.getElementById('filter-color').addEventListener('change', applyFilters);
+        document.getElementById('filter-material').addEventListener('change', applyFilters);
         document.querySelectorAll('.cond-check').forEach(c => c.addEventListener('change', applyFilters));
 
         // ── Load from Firestore ──
@@ -824,11 +861,21 @@
             let rawProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
             // Filter by country globally
-            const userCountry = localStorage.getItem('thriftizy_country') || 'all';
+            const userCountry = normalizeCountryCode(localStorage.getItem('thriftizy_country') || 'all');
             if (userCountry !== 'all') {
-                rawProducts = rawProducts.filter(p => p.country === userCountry);
+                rawProducts = rawProducts.filter(p => normalizeCountryCode(p.country) === userCountry);
             }
             allProducts = rawProducts;
+
+            // Populate Color & Material Filters
+            const colors = [...new Set(allProducts.map(p => p.color).filter(Boolean))].sort();
+            const materials = [...new Set(allProducts.map(p => p.material).filter(Boolean))].sort();
+
+            const colorSelect = document.getElementById('filter-color');
+            const matSelect = document.getElementById('filter-material');
+
+            colors.forEach(c => colorSelect.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+            materials.forEach(m => matSelect.insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`));
 
             countEl.textContent = allProducts.length + ' produkte';
 

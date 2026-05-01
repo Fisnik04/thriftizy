@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,67 +8,470 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { padding-top: 64px; background: #f8fafc; font-family: 'Outfit', sans-serif; }
-        .page-hero { background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 50%, #eef2ff 100%); padding: 48px 20px 32px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.04); }
-        .page-hero h1 { font-size: 2.4rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
-        .page-hero p { color: #64748b; font-size: 1rem; }
-        .page-hero .count-badge { display: inline-block; background: white; padding: 4px 14px; border-radius: 30px; font-size: 0.82rem; font-weight: 700; color: #3b82f6; margin-top: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .shop-toolbar { max-width: 1300px; margin: 0 auto; padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-        .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 380px; }
-        .search-wrap input { width: 100%; padding: 10px 16px 10px 40px; border-radius: 30px; border: 1.5px solid #e2e8f0; font-family: inherit; font-size: 0.88rem; background: white; color: #0f172a; box-sizing: border-box; transition: border-color 0.2s; }
-        .search-wrap input:focus { outline: none; border-color: #3b82f6; }
-        .search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .sort-select { padding: 10px 16px; border-radius: 30px; border: 1.5px solid #e2e8f0; font-family: inherit; font-size: 0.85rem; background: white; color: #64748b; cursor: pointer; font-weight: 600; }
-        .shop-layout { display: grid; grid-template-columns: 240px 1fr; gap: 28px; max-width: 1300px; margin: 20px auto 60px; padding: 0 24px; align-items: start; }
-        .filters-sidebar { background: white; border-radius: 20px; padding: 24px; border: 1px solid rgba(0,0,0,0.05); position: sticky; top: 84px; }
-        .filter-section { margin-bottom: 28px; }
-        .filter-section:last-child { margin-bottom: 0; }
-        .filter-section h4 { font-size: 0.78rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
-        .cat-list { display: flex; flex-direction: column; gap: 4px; }
-        .cat-item { display: flex; align-items: center; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 0.87rem; font-weight: 600; color: #64748b; transition: all 0.15s; border: none; background: transparent; font-family: inherit; width: 100%; text-align: left; gap: 8px; }
-        .cat-item:hover { background: #f8fafc; color: #0f172a; }
-        .cat-item.active { background: #eff6ff; color: #3b82f6; }
-        .price-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .price-input { padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: inherit; font-size: 0.83rem; width: 100%; box-sizing: border-box; color: #0f172a; }
-        .price-input:focus { outline: none; border-color: #3b82f6; }
-        .btn-apply-price { margin-top: 10px; width: 100%; padding: 9px; background: #0f172a; color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 0.83rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-        .btn-apply-price:hover { background: #3b82f6; }
-        .condition-list { display: flex; flex-direction: column; gap: 8px; }
-        .cond-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .cond-item input { accent-color: #3b82f6; width: 16px; height: 16px; cursor: pointer; }
-        .cond-item label { font-size: 0.86rem; color: #64748b; cursor: pointer; font-weight: 500; }
-        .size-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-        .size-chip { padding: 5px 12px; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 0.8rem; font-weight: 700; cursor: pointer; background: white; color: #64748b; transition: all 0.15s; font-family: inherit; }
-        .size-chip:hover,.size-chip.active { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
-        .btn-clear-filters { width: 100%; padding: 9px; background: transparent; color: #ef4444; border: 1.5px solid #fee2e2; border-radius: 10px; font-family: inherit; font-size: 0.83rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .btn-clear-filters:hover { background: #fee2e2; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
-        .product-card { background: white; border-radius: 20px; overflow: hidden; cursor: pointer; transition: transform 0.3s,box-shadow 0.3s; border: 1px solid rgba(0,0,0,0.04); position: relative; }
-        .product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
-        .product-img { width: 100%; height: 260px; object-fit: cover; display: block; transition: transform 0.4s; }
-        .product-card:hover .product-img { transform: scale(1.04); }
-        .img-wrapper { overflow: hidden; position: relative; }
-        .heart-icon { position: absolute; top: 12px; right: 12px; background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.12); cursor: pointer; border: none; z-index: 5; transition: transform 0.2s; }
-        .heart-icon:hover { transform: scale(1.15); }
-        .badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; z-index: 5; }
-        .badge-new { background: #3b82f6; color: white; }
-        .badge-used { background: #f59e0b; color: white; }
-        .product-info { padding: 14px 16px 18px; }
-        .product-brand { font-size: 0.72rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .product-info h4 { font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
-        .product-meta { font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; }
-        .product-footer { display: flex; justify-content: space-between; align-items: center; }
-        .product-price { font-size: 1.05rem; font-weight: 800; color: #0f172a; }
-        .btn-cart { background: #0f172a; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-        .btn-cart:hover { background: #3b82f6; }
-        .empty-state { text-align: center; padding: 80px 20px; color: #94a3b8; grid-column: 1/-1; }
-        .empty-state h2 { font-size: 1.5rem; margin-bottom: 12px; color: #64748b; }
-        .empty-state p { margin-bottom: 24px; }
-        .loading-state { text-align: center; padding: 60px; color: #94a3b8; grid-column: 1/-1; }
-        @media (max-width: 900px) { .shop-layout { grid-template-columns: 1fr; } .filters-sidebar { position: static; } }
-        @media (max-width: 600px) { .page-hero h1 { font-size: 1.8rem; } .products-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } .product-img { height: 200px; } }
+        body {
+            padding-top: 64px;
+            background: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .page-hero {
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 50%, #eef2ff 100%);
+            padding: 48px 20px 32px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .page-hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .page-hero p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .page-hero .count-badge {
+            display: inline-block;
+            background: white;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .shop-toolbar {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+            max-width: 380px;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: 30px;
+            border: 1.5px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 0.88rem;
+            background: white;
+            color: #0f172a;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .search-wrap input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .sort-select {
+            padding: 10px 16px;
+            border-radius: 30px;
+            border: 1.5px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 0.85rem;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .shop-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 28px;
+            max-width: 1300px;
+            margin: 20px auto 60px;
+            padding: 0 24px;
+            align-items: start;
+        }
+
+        .filters-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 84px;
+        }
+
+        .filter-section {
+            margin-bottom: 28px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-section h4 {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .cat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cat-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.15s;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            width: 100%;
+            text-align: left;
+            gap: 8px;
+        }
+
+        .cat-item:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .cat-item.active {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .price-input {
+            padding: 8px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            width: 100%;
+            box-sizing: border-box;
+            color: #0f172a;
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn-apply-price {
+            margin-top: 10px;
+            width: 100%;
+            padding: 9px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-apply-price:hover {
+            background: #3b82f6;
+        }
+
+        .condition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cond-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .cond-item input {
+            accent-color: #3b82f6;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .cond-item label {
+            font-size: 0.86rem;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .size-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .size-chip {
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: white;
+            color: #64748b;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .size-chip:hover,
+        .size-chip.active {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .btn-clear-filters {
+            width: 100%;
+            padding: 9px;
+            background: transparent;
+            color: #ef4444;
+            border: 1.5px solid #fee2e2;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-clear-filters:hover {
+            background: #fee2e2;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 22px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.04);
+        }
+
+        .img-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .heart-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            border: none;
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .heart-icon:hover {
+            transform: scale(1.15);
+        }
+
+        .badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        .badge-new {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .badge-used {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .product-info {
+            padding: 14px 16px 18px;
+        }
+
+        .product-brand {
+            font-size: 0.72rem;
+            color: #3b82f6;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .product-info h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .product-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .btn-cart {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-cart:hover {
+            background: #3b82f6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #94a3b8;
+            grid-column: 1/-1;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: #64748b;
+        }
+
+        .empty-state p {
+            margin-bottom: 24px;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+            grid-column: 1/-1;
+        }
+
+        @media (max-width: 900px) {
+            .shop-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+
+            .product-img {
+                height: 200px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
@@ -81,7 +485,8 @@
                 <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
         <div class="nav-actions" id="nav-actions"></div>
@@ -89,7 +494,9 @@
 
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
-        <div class="cart-header"><h2>Shporta Jote</h2><button class="close-cart" id="close-cart">×</button></div>
+        <div class="cart-header">
+            <h2>Shporta Jote</h2><button class="close-cart" id="close-cart">×</button>
+        </div>
         <div class="cart-items"></div>
         <div class="cart-footer">
             <div class="cart-total"><span>Totali:</span><span>0.00€</span></div>
@@ -143,10 +550,14 @@
             <div class="filter-section">
                 <h4>Gjendja</h4>
                 <div class="condition-list">
-                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E re me etiketë"> <label>E re me etiketë ✨</label></label>
-                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E re pa etiketë"> <label>E re pa etiketë</label></label>
-                    <label class="cond-item"><input type="checkbox" class="cond-check" value="Pak e përdorur"> <label>Pak e përdorur</label></label>
-                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E përdorur"> <label>E përdorur mirë</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E re me etiketë"> <label>E
+                            re me etiketë ✨</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E re pa etiketë"> <label>E
+                            re pa etiketë</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="Pak e përdorur">
+                        <label>Pak e përdorur</label></label>
+                    <label class="cond-item"><input type="checkbox" class="cond-check" value="E përdorur"> <label>E
+                            përdorur mirë</label></label>
                 </div>
             </div>
 
@@ -165,6 +576,20 @@
                     <button class="size-chip" data-size="45">45</button>
                     <button class="size-chip" data-size="46">46</button>
                 </div>
+            </div>
+
+            <div class="filter-section">
+                <h4>Ngjyra</h4>
+                <select id="filter-color" class="sort-select" style="width:100%; border-radius:12px;">
+                    <option value="">Të gjitha</option>
+                </select>
+            </div>
+
+            <div class="filter-section">
+                <h4>Materiali</h4>
+                <select id="filter-material" class="sort-select" style="width:100%; border-radius:12px;">
+                    <option value="">Të gjitha</option>
+                </select>
             </div>
 
             <button class="btn-clear-filters" onclick="clearFilters()">🗑️ Pastro filtrat</button>
@@ -191,6 +616,15 @@
         let activeCategory = 'all';
         let activeSize = '';
 
+        function normalizeCountryCode(value) {
+            const v = String(value || '').trim().toLowerCase();
+            if (['all', 'te gjitha', 'të gjitha'].includes(v)) return 'all';
+            if (['ks', 'kosovë', 'kosove', 'kosova'].includes(v)) return 'ks';
+            if (['al', 'shqipëri', 'shqiperi', 'albania'].includes(v)) return 'al';
+            if (['mk', 'maqedoni', 'maqedonia', 'north macedonia'].includes(v)) return 'mk';
+            return v;
+        }
+
         const categoryKeywords = {
             sneakers: ['sneaker', 'sneakers', 'patika'],
             kepuce: ['kepuce', 'këpucë', 'shoes'],
@@ -215,7 +649,12 @@
             const imgBg = firebaseProductImageBackgroundCss(p);
             const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
             const badge = isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`;
-            const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
+
+            const metaParts = [];
+            if (p.size) metaParts.push(`Madh. ${p.size}`);
+            if (p.color) metaParts.push(`Ngjyra: ${p.color}`);
+            if (p.material) metaParts.push(`Mat: ${p.material}`);
+            const meta = metaParts.join(' • ');
             const overlays = `
                         <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
                         ${badge}`;
@@ -225,7 +664,7 @@
                         ${renderProductMediaInner(p, overlays)}
                     </div>
                     <div class="product-info">
-                        <div class="product-brand">${p.brand || ''}</div>
+                        <div class="product-brand">${p.brand || 'No Brand'} • <span style="color:#64748b; font-weight:400;">${p.sellerName || 'Shitës'}</span></div>
                         <h4>${p.title}</h4>
                         <div class="product-meta">${meta || '—'}</div>
                         <div class="product-footer">
@@ -239,7 +678,7 @@
         window.selectProduct = (id) => {
             const p = allProducts.find(x => x.id === id);
             if (p) sessionStorage.setItem('current_product', JSON.stringify(p));
-            window.location.href = 'produkt.html';
+            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
         };
 
         window.addCart = (id) => {
@@ -267,6 +706,8 @@
         function applyFilters() {
             const search = document.getElementById('search-input').value.toLowerCase();
             const sort = document.getElementById('sort-select').value;
+            const filterColor = document.getElementById('filter-color').value;
+            const filterMaterial = document.getElementById('filter-material').value;
             const checkedConds = [...document.querySelectorAll('.cond-check:checked')].map(c => c.value);
             const pMin = parseFloat(document.getElementById('price-min').value) || 0;
             const pMax = parseFloat(document.getElementById('price-max').value) || Infinity;
@@ -276,9 +717,11 @@
                 const matchQ = !search || p.title?.toLowerCase().includes(search) || p.brand?.toLowerCase().includes(search);
                 const matchCond = !checkedConds.length || checkedConds.includes(p.condition);
                 const matchSize = !activeSize || String(p.size).toUpperCase() === activeSize.toUpperCase();
+                const matchColor = !filterColor || p.color === filterColor;
+                const matchMat = !filterMaterial || p.material === filterMaterial;
                 const price = parseFloat(p.price) || 0;
                 const matchPrc = price >= pMin && price <= pMax;
-                return matchCat && matchQ && matchCond && matchSize && matchPrc;
+                return matchCat && matchQ && matchCond && matchSize && matchColor && matchMat && matchPrc;
             });
 
             if (sort === 'price-asc') filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -299,6 +742,8 @@
             document.getElementById('search-input').value = '';
             document.getElementById('price-min').value = '';
             document.getElementById('price-max').value = '';
+            document.getElementById('filter-color').value = '';
+            document.getElementById('filter-material').value = '';
             document.querySelectorAll('.cond-check').forEach(c => c.checked = false);
             document.querySelectorAll('.cat-item').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
             document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
@@ -324,16 +769,27 @@
         });
         document.getElementById('search-input').addEventListener('input', applyFilters);
         document.getElementById('sort-select').addEventListener('change', applyFilters);
+        document.getElementById('filter-color').addEventListener('change', applyFilters);
+        document.getElementById('filter-material').addEventListener('change', applyFilters);
         document.querySelectorAll('.cond-check').forEach(c => c.addEventListener('change', applyFilters));
 
         try {
             const snap = await getDocs(collection(db, 'produktet'));
             let rawProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            const userCountry = localStorage.getItem('thriftizy_country') || 'all';
-            if (userCountry !== 'all') rawProducts = rawProducts.filter(p => p.country === userCountry);
+            const userCountry = normalizeCountryCode(localStorage.getItem('thriftizy_country') || 'all');
+            if (userCountry !== 'all') rawProducts = rawProducts.filter(p => normalizeCountryCode(p.country) === userCountry);
 
             allProducts = rawProducts.filter(p => matchesShoeCategory(p, 'all'));
+
+            // Populate Color & Material Filters
+            const colors = [...new Set(allProducts.map(p => p.color).filter(Boolean))].sort();
+            const materials = [...new Set(allProducts.map(p => p.material).filter(Boolean))].sort();
+            const colorSelect = document.getElementById('filter-color');
+            const matSelect = document.getElementById('filter-material');
+            colors.forEach(c => colorSelect.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+            materials.forEach(m => matSelect.insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`));
+
             countEl.textContent = allProducts.length + ' produkte';
 
             if (!allProducts.length) {
@@ -350,4 +806,5 @@
     </script>
     <script type="module" src="main.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,79 +8,263 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .profile-card-actions {
-            display: flex; gap: 8px; padding: 0 14px 14px;
+            display: flex;
+            gap: 8px;
+            padding: 0 14px 14px;
         }
-        .btn-edit-prod, .btn-del-prod {
-            flex: 1; padding: 8px; border: none; border-radius: 10px;
-            font-family: inherit; font-weight: 700; font-size: 0.82rem;
-            cursor: pointer; transition: background 0.2s;
+
+        .btn-edit-prod,
+        .btn-del-prod {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .btn-edit-prod { background: #f1f5f9; color: #0f172a; }
-        .btn-edit-prod:hover { background: #e2e8f0; }
-        .btn-del-prod { background: #fee2e2; color: #ef4444; }
-        .btn-del-prod:hover { background: #fecaca; }
+
+        .btn-edit-prod {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .btn-edit-prod:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-del-prod {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .btn-del-prod:hover {
+            background: #fecaca;
+        }
 
         /* Modal */
         #edit-modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45); z-index: 10000;
-            align-items: center; justify-content: center;
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
         }
-        #edit-modal-overlay.open { display: flex; }
+
+        #edit-modal-overlay.open {
+            display: flex;
+        }
+
         #edit-modal {
-            background: white; border-radius: 20px; padding: 36px;
-            width: 100%; max-width: 560px; max-height: 90vh;
-            overflow-y: auto; position: relative;
+            background: white;
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
         }
-        #edit-modal h2 { font-size: 1.3rem; margin-bottom: 20px; }
-        .edit-field { margin-bottom: 16px; }
-        .edit-field label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; }
-        .edit-field input, .edit-field select, .edit-field textarea {
-            width: 100%; padding: 12px 14px; border-radius: 10px;
-            border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.95rem;
-            outline: none; box-sizing: border-box;
+
+        #edit-modal h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
         }
-        .edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus {
+
+        .edit-field {
+            margin-bottom: 16px;
+        }
+
+        .edit-field label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .edit-field input,
+        .edit-field select,
+        .edit-field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .edit-field input:focus,
+        .edit-field select:focus,
+        .edit-field textarea:focus {
             border-color: #10b981;
         }
-        .edit-photo-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+
+        .edit-photo-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         .edit-photo-thumb {
-            position: relative; width: 90px; height: 90px;
-            border-radius: 10px; overflow: hidden; background: #f1f5f9;
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f1f5f9;
         }
-        .edit-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        .edit-photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .edit-photo-thumb .remove-photo {
-            position: absolute; top: 4px; right: 4px;
-            background: rgba(239,68,68,0.9); color: white;
-            border: none; border-radius: 50%; width: 22px; height: 22px;
-            cursor: pointer; font-size: 0.75rem; line-height: 22px; text-align: center;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            line-height: 22px;
+            text-align: center;
         }
+
         .edit-add-photo {
-            width: 90px; height: 90px; border-radius: 10px;
-            border: 2px dashed #e2e8f0; background: #f8fafc;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1.5rem; color: #94a3b8;
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+            border: 2px dashed #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #94a3b8;
         }
-        .edit-add-photo:hover { border-color: #10b981; color: #10b981; }
-        .edit-modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+
+        .edit-add-photo:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .edit-modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
         .btn-save-edit {
-            flex: 1; padding: 14px; background: #0f172a; color: white;
-            border: none; border-radius: 50px; font-weight: 800;
-            font-size: 1rem; cursor: pointer; font-family: inherit;
+            flex: 1;
+            padding: 14px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
         }
-        .btn-save-edit:hover { background: #10b981; }
+
+        .btn-save-edit:hover {
+            background: #10b981;
+        }
+
         .btn-cancel-edit {
-            padding: 14px 24px; background: #f1f5f9; color: #0f172a;
-            border: none; border-radius: 50px; font-weight: 700;
-            font-size: 1rem; cursor: pointer; font-family: inherit;
+            padding: 14px 24px;
+            background: #f1f5f9;
+            color: #0f172a;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
         }
+
         .close-modal-btn {
-            position: absolute; top: 16px; right: 20px;
-            background: none; border: none; font-size: 1.4rem;
-            cursor: pointer; color: #94a3b8;
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .btn-edit-profile {
+            margin: 14px 0 18px;
+            width: 100%;
+            padding: 11px 14px;
+            border: none;
+            border-radius: 12px;
+            background: #0f172a;
+            color: white;
+            font-family: inherit;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .btn-edit-profile:hover {
+            background: #10b981;
+        }
+
+        #profile-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.48);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #profile-modal-overlay.open {
+            display: flex;
+        }
+
+        #profile-modal {
+            width: 100%;
+            max-width: 460px;
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            position: relative;
+            box-shadow: 0 25px 70px rgba(15, 23, 42, 0.2);
+        }
+
+        #profile-modal h2 {
+            font-size: 1.25rem;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 520px) {
+
+            #profile-modal,
+            #edit-modal {
+                padding: 24px 18px;
+            }
         }
     </style>
 </head>
+
 <body>
     <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
@@ -93,7 +278,8 @@
                 <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
         <div class="nav-actions" id="nav-actions"></div>
@@ -116,18 +302,64 @@
             </div>
             <div class="edit-field" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
                 <div>
+                    <label>Gjinia</label>
+                    <select id="edit-gender">
+                        <option value="femra">Femra</option>
+                        <option value="meshkuj">Meshkuj</option>
+                        <option value="unisex">Unisex</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Kategoria</label>
+                    <select id="edit-category">
+                        <option value="">Zgjidh Kategorinë</option>
+                        <option value="fustane">Fustane</option>
+                        <option value="maica">Maica</option>
+                        <option value="xhaketa">Xhaketa / Pallto</option>
+                        <option value="pantallona">Pantallona / Xhinse</option>
+                        <option value="kepuce">Këpucë / Patika</option>
+                        <option value="aksesore">Aksesorë</option>
+                    </select>
+                </div>
+            </div>
+            <div class="edit-field" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                <div>
                     <label>Marka</label>
                     <input type="text" id="edit-brand" placeholder="Nike, Zara...">
                 </div>
                 <div>
                     <label>Ngjyra</label>
-                    <input type="text" id="edit-color" placeholder="E zezë, E kuqe...">
+                    <select id="edit-color">
+                        <option value="">Zgjidh ngjyrën</option>
+                        <option value="E zezë">E zezë</option>
+                        <option value="E bardhë">E bardhë</option>
+                        <option value="E hirtë">E hirtë</option>
+                        <option value="Blu">Blu</option>
+                        <option value="E kuqe">E kuqe</option>
+                        <option value="E verdhë">E verdhë</option>
+                        <option value="E gjelbër">E gjelbër</option>
+                        <option value="Rozë">Rozë</option>
+                        <option value="E kaftë">E kaftë</option>
+                        <option value="Portokalli">Portokalli</option>
+                        <option value="Shumëngjyrësh">Shumëngjyrësh</option>
+                    </select>
                 </div>
             </div>
             <div class="edit-field" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
                 <div>
                     <label>Materiali</label>
-                    <input type="text" id="edit-material" placeholder="Pambuk, Lëkurë...">
+                    <select id="edit-material">
+                        <option value="">Zgjidh materialin</option>
+                        <option value="Pambuk">Pambuk</option>
+                        <option value="Lëkurë">Lëkurë</option>
+                        <option value="Lesh">Lesh</option>
+                        <option value="Mëndafsh">Mëndafsh</option>
+                        <option value="Poliestër">Poliestër</option>
+                        <option value="Xhins (Denim)">Xhins (Denim)</option>
+                        <option value="Akrilik">Akrilik</option>
+                        <option value="Viskozë">Viskozë</option>
+                        <option value="Tjetër">Tjetër</option>
+                    </select>
                 </div>
                 <div>
                     <label>Çmimi (€)</label>
@@ -138,17 +370,12 @@
                 <label>Madhësia</label>
                 <select id="edit-size">
                     <option value="">Zgjidh</option>
-                    <option value="xs">XS</option><option value="s">S</option>
-                    <option value="m">M</option><option value="l">L</option>
-                    <option value="xl">XL</option><option value="xxl">XXL</option>
-                </select>
-            </div>
-            <div class="edit-field">
-                <label>Gjinia</label>
-                <select id="edit-gender">
-                    <option value="femra">Femra</option>
-                    <option value="meshkuj">Meshkuj</option>
-                    <option value="unisex">Unisex</option>
+                    <option value="xs">XS</option>
+                    <option value="s">S</option>
+                    <option value="m">M</option>
+                    <option value="l">L</option>
+                    <option value="xl">XL</option>
+                    <option value="xxl">XXL</option>
                 </select>
             </div>
             <div class="edit-field">
@@ -171,6 +398,35 @@
         </div>
     </div>
 
+    <!-- Profile Edit Modal -->
+    <div id="profile-modal-overlay">
+        <div id="profile-modal">
+            <button class="close-modal-btn" id="close-profile-modal-btn" type="button">×</button>
+            <h2>Edito Profilin</h2>
+            <div class="edit-field">
+                <label>Emri i plotë</label>
+                <input type="text" id="profile-edit-name" placeholder="Emri dhe mbiemri">
+            </div>
+            <div class="edit-field">
+                <label>Qyteti</label>
+                <input type="text" id="profile-edit-city" placeholder="p.sh. Prishtinë">
+            </div>
+            <div class="edit-field">
+                <label>Shteti</label>
+                <select id="profile-edit-country">
+                    <option value="">Zgjidh shtetin</option>
+                    <option value="ks">Kosovë</option>
+                    <option value="al">Shqipëri</option>
+                    <option value="mk">Maqedoni</option>
+                </select>
+            </div>
+            <div class="edit-modal-actions">
+                <button class="btn-cancel-edit" id="btn-cancel-profile-edit" type="button">Anulo</button>
+                <button class="btn-save-edit" id="btn-save-profile-edit" type="button">Ruaj Profilin</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Layout -->
     <div class="profile-container">
         <aside class="profile-sidebar reveal">
@@ -178,10 +434,17 @@
             <h3 id="profile-name">Duke u ngarkuar...</h3>
             <p id="profile-meta">@përdorues • -</p>
             <div class="profile-stats">
-                <div class="stat"><h4 id="stat-listime">0</h4><span>Listime</span></div>
-                <div class="stat"><h4 id="stat-shitura">0</h4><span>Të shitura</span></div>
-                <div class="stat"><h4 id="stat-rating">⭐ 5.0</h4><span>Vlerësimi</span></div>
+                <div class="stat">
+                    <h4 id="stat-listime">0</h4><span>Listime</span>
+                </div>
+                <div class="stat">
+                    <h4 id="stat-shitura">0</h4><span>Të shitura</span>
+                </div>
+                <div class="stat">
+                    <h4 id="stat-rating">⭐ 5.0</h4><span>Vlerësimi</span>
+                </div>
             </div>
+            <button class="btn-edit-profile" id="btn-edit-profile" type="button">Edito Profilin</button>
             <ul class="profile-menu">
                 <li><a href="#" class="active">Dollapi Im</a></li>
                 <li><a href="saved.html">Të Ruajtura ❤️</a></li>
@@ -217,251 +480,347 @@
         <div class="footer-grid">
             <div class="footer-col">
                 <a href="index.html" class="logo" style="color:white;">THRIFT<span>IZY</span></a>
-                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura në Ballkan.</p>
+                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura
+                    në Ballkan.</p>
             </div>
-            <div class="footer-col"><h3>Blerja</h3><ul>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">Këpucë</a></li>
-            </ul></div>
-            <div class="footer-col"><h3>Llogaria</h3><ul>
-                <li><a href="login.html">Kyçu</a></li>
-                <li><a href="signup.html">Regjistrohu</a></li>
-                <li><a href="mesazhet.html">Mesazhet</a></li>
-            </ul></div>
+            <div class="footer-col">
+                <h3>Blerja</h3>
+                <ul>
+                    <li><a href="femra.html">Femra</a></li>
+                    <li><a href="meshkuj.html">Meshkuj</a></li>
+                    <li><a href="kepuce.html">Këpucë</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Llogaria</h3>
+                <ul>
+                    <li><a href="login.html">Kyçu</a></li>
+                    <li><a href="signup.html">Regjistrohu</a></li>
+                    <li><a href="mesazhet.html">Mesazhet</a></li>
+                </ul>
+            </div>
         </div>
         <div class="footer-bottom">© 2026 Thriftizy. Të gjitha të drejtat e rezervuara.</div>
     </footer>
 
-<script type="module" src="main.js"></script>
-<script type="module">
-import {
-    auth, db, storage,
-    onAuthStateChanged, signOut,
-    doc, getDoc, collection, query, where, getDocs,
-    updateDoc, deleteDoc,
-    ref, uploadBytes, getDownloadURL,
-    firebaseProductImageBackgroundCss
-} from './firebase-config.js';
-import { bindProductCardGalleries, galleryDataAttr, renderProductMediaInner } from './product-card-ui.js';
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        import {
+            auth, db, storage,
+            onAuthStateChanged, signOut,
+            doc, getDoc, collection, query, where, getDocs,
+            updateDoc, deleteDoc, setDoc,
+            ref, uploadBytes, getDownloadURL,
+            firebaseProductImageBackgroundCss
+        } from './firebase-config.js';
+        import { bindProductCardGalleries, galleryDataAttr, renderProductMediaInner } from './product-card-ui.js';
 
-const avatarEl   = document.getElementById('profile-avatar');
-const nameEl     = document.getElementById('profile-name');
-const metaEl     = document.getElementById('profile-meta');
-const itemsGrid  = document.getElementById('profile-items-grid');
-const loadingEl  = document.getElementById('profile-loading');
-const statListEl = document.getElementById('stat-listime');
-const statSoldEl = document.getElementById('stat-shitura');
-const logoutLink = document.getElementById('logout-link');
+        const avatarEl = document.getElementById('profile-avatar');
+        const nameEl = document.getElementById('profile-name');
+        const metaEl = document.getElementById('profile-meta');
+        const itemsGrid = document.getElementById('profile-items-grid');
+        const loadingEl = document.getElementById('profile-loading');
+        const statListEl = document.getElementById('stat-listime');
+        const statSoldEl = document.getElementById('stat-shitura');
+        const logoutLink = document.getElementById('logout-link');
+        const editProfileBtn = document.getElementById('btn-edit-profile');
+        const profileModalOverlay = document.getElementById('profile-modal-overlay');
+        const closeProfileModalBtn = document.getElementById('close-profile-modal-btn');
+        const cancelProfileEditBtn = document.getElementById('btn-cancel-profile-edit');
+        const saveProfileEditBtn = document.getElementById('btn-save-profile-edit');
+        const profileNameInput = document.getElementById('profile-edit-name');
+        const profileCityInput = document.getElementById('profile-edit-city');
+        const profileCountrySelect = document.getElementById('profile-edit-country');
 
-const modalOverlay  = document.getElementById('edit-modal-overlay');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const cancelEditBtn = document.getElementById('btn-cancel-edit');
-const saveEditBtn   = document.getElementById('btn-save-edit');
-const photoStrip    = document.getElementById('edit-photo-strip');
-const photoInput    = document.getElementById('edit-photo-input');
+        const modalOverlay = document.getElementById('edit-modal-overlay');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelEditBtn = document.getElementById('btn-cancel-edit');
+        const saveEditBtn = document.getElementById('btn-save-edit');
+        const photoStrip = document.getElementById('edit-photo-strip');
+        const photoInput = document.getElementById('edit-photo-input');
 
-let currentUser = null;
-let editingProductId = null;
-// Array of { url: string (existing) | file: File (new) }
-let editPhotos = [];
+        let currentUser = null;
+        let currentUserData = {};
+        let editingProductId = null;
+        // Array of { url: string (existing) | file: File (new) }
+        let editPhotos = [];
 
-/* ── helpers ── */
-function safeText(v, fb = '-') { return (v == null || String(v).trim() === '') ? fb : String(v).trim(); }
-function toPrice(p) { const n = parseFloat(p); return Number.isFinite(n) ? n.toFixed(2) + '€' : '0.00€'; }
-function isSold(p) { return p?.status === 'sold' || p?.isSold === true; }
+        /* ── helpers ── */
+        function safeText(v, fb = '-') { return (v == null || String(v).trim() === '') ? fb : String(v).trim(); }
+        function toPrice(p) { const n = parseFloat(p); return Number.isFinite(n) ? n.toFixed(2) + '€' : '0.00€'; }
+        function isSold(p) { return p?.status === 'sold' || p?.isSold === true; }
+        const countryLabels = { ks: 'Kosovë', al: 'Shqipëri', mk: 'Maqedoni' };
 
-/* ── photo strip in modal ── */
-function renderEditPhotoStrip() {
-    photoStrip.innerHTML = '';
-    editPhotos.slice(0, 3).forEach((item, i) => {
-        const thumb = document.createElement('div');
-        thumb.className = 'edit-photo-thumb';
-        const img = document.createElement('img');
-        img.src = item.url || URL.createObjectURL(item.file);
-        thumb.appendChild(img);
-        const rmBtn = document.createElement('button');
-        rmBtn.className = 'remove-photo';
-        rmBtn.textContent = '✕';
-        rmBtn.type = 'button';
-        rmBtn.onclick = () => { editPhotos.splice(i, 1); renderEditPhotoStrip(); };
-        thumb.appendChild(rmBtn);
-        photoStrip.appendChild(thumb);
-    });
-    if (editPhotos.length < 3) {
-        const add = document.createElement('div');
-        add.className = 'edit-add-photo';
-        add.textContent = '+';
-        add.onclick = () => photoInput.click();
-        photoStrip.appendChild(add);
-    }
-}
+        function normalizeCountry(value) {
+            const v = String(value || '').trim().toLowerCase();
+            if (['ks', 'kosovë', 'kosove', 'kosova'].includes(v)) return 'ks';
+            if (['al', 'shqipëri', 'shqiperi', 'albania'].includes(v)) return 'al';
+            if (['mk', 'maqedoni', 'maqedonia', 'north macedonia'].includes(v)) return 'mk';
+            return value || '';
+        }
 
-photoInput.addEventListener('change', () => {
-    const files = Array.from(photoInput.files);
-    files.forEach(f => { if (editPhotos.length < 3) editPhotos.push({ file: f }); });
-    photoInput.value = '';
-    renderEditPhotoStrip();
-});
+        function formatLocation(data) {
+            const city = safeText(data.city, '');
+            const countryCode = normalizeCountry(data.country);
+            const country = countryLabels[countryCode] || safeText(data.country, '');
+            if (city && country) return `${city}, ${country}`;
+            return city || country || 'Pa lokacion';
+        }
 
-/* ── open modal ── */
-function openEditModal(product) {
-    editingProductId = product.id;
+        function openProfileModal() {
+            if (!currentUser) return;
+            const fallbackName = currentUser.displayName || currentUser.email?.split('@')[0] || '';
+            profileNameInput.value = safeText(currentUserData.fullName || currentUserData.displayName, fallbackName);
+            profileCityInput.value = safeText(currentUserData.city, '');
+            profileCountrySelect.value = normalizeCountry(currentUserData.country || localStorage.getItem('thriftizy_country')) || '';
+            profileModalOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            profileNameInput.focus();
+        }
 
-    // load existing photos
-    editPhotos = [];
-    if (Array.isArray(product.images)) {
-        product.images.slice(0, 3).forEach(u => { if (u) editPhotos.push({ url: u }); });
-    } else if (product.image) {
-        editPhotos.push({ url: product.image });
-    }
+        function closeProfileModal() {
+            profileModalOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
 
-    document.getElementById('edit-title').value     = safeText(product.title, '');
-    document.getElementById('edit-price').value     = product.price || '';
-    document.getElementById('edit-brand').value     = safeText(product.brand, '');
-    document.getElementById('edit-color').value     = safeText(product.color, '');
-    document.getElementById('edit-material').value  = safeText(product.material, '');
-    document.getElementById('edit-size').value      = product.size || '';
-    document.getElementById('edit-gender').value    = product.gender || 'femra';
-    document.getElementById('edit-condition').value = product.condition || 'E re';
-    document.getElementById('edit-desc').value      = safeText(product.description, '');
+        editProfileBtn.addEventListener('click', openProfileModal);
+        closeProfileModalBtn.addEventListener('click', closeProfileModal);
+        cancelProfileEditBtn.addEventListener('click', closeProfileModal);
+        profileModalOverlay.addEventListener('click', e => { if (e.target === profileModalOverlay) closeProfileModal(); });
 
-    renderEditPhotoStrip();
-    modalOverlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
+        saveProfileEditBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            const fullName = profileNameInput.value.trim();
+            const city = profileCityInput.value.trim();
+            const country = profileCountrySelect.value;
+            if (!fullName) {
+                alert('Shkruaj emrin e profilit.');
+                return;
+            }
+            if (!country) {
+                alert('Zgjidh shtetin.');
+                return;
+            }
 
-function closeModal() {
-    modalOverlay.classList.remove('open');
-    document.body.style.overflow = '';
-    editingProductId = null;
-    editPhotos = [];
-}
+            saveProfileEditBtn.disabled = true;
+            const previousText = saveProfileEditBtn.textContent;
+            saveProfileEditBtn.textContent = 'Duke ruajtur...';
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid), {
+                    fullName,
+                    displayName: fullName,
+                    city,
+                    country,
+                    email: currentUser.email || '',
+                    uid: currentUser.uid,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                localStorage.setItem('thriftizy_country', country);
+                const countrySpan = document.getElementById('current-country');
+                if (countrySpan) countrySpan.textContent = countryLabels[country] || 'Shteti';
+                closeProfileModal();
+                await loadProfile(currentUser);
+            } catch (err) {
+                alert('Profili nuk u ruajt: ' + err.message);
+            } finally {
+                saveProfileEditBtn.disabled = false;
+                saveProfileEditBtn.textContent = previousText;
+            }
+        });
 
-closeModalBtn.addEventListener('click', closeModal);
-cancelEditBtn.addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-
-function compressImage(file, maxWidth = 800, quality = 0.7) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                if (width > maxWidth) {
-                    height = Math.round(height * (maxWidth / width));
-                    width = maxWidth;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.onerror = error => reject(error);
-        };
-        reader.onerror = error => reject(error);
-    });
-}
-
-/* ── save edits ── */
-saveEditBtn.addEventListener('click', async () => {
-    if (!editingProductId) return;
-    saveEditBtn.disabled = true;
-    saveEditBtn.textContent = 'Duke ruajtur...';
-    try {
-        const finalUrls = [];
-        for (const item of editPhotos.slice(0, 3)) {
-            if (item.url) {
-                finalUrls.push(item.url);
-            } else if (item.file) {
-                saveEditBtn.textContent = 'Duke kompresuar foton...';
-                const base64Url = await compressImage(item.file);
-                finalUrls.push(base64Url);
+        /* ── photo strip in modal ── */
+        function renderEditPhotoStrip() {
+            photoStrip.innerHTML = '';
+            editPhotos.slice(0, 3).forEach((item, i) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'edit-photo-thumb';
+                const img = document.createElement('img');
+                img.src = item.url || URL.createObjectURL(item.file);
+                thumb.appendChild(img);
+                const rmBtn = document.createElement('button');
+                rmBtn.className = 'remove-photo';
+                rmBtn.textContent = '✕';
+                rmBtn.type = 'button';
+                rmBtn.onclick = () => { editPhotos.splice(i, 1); renderEditPhotoStrip(); };
+                thumb.appendChild(rmBtn);
+                photoStrip.appendChild(thumb);
+            });
+            if (editPhotos.length < 3) {
+                const add = document.createElement('div');
+                add.className = 'edit-add-photo';
+                add.textContent = '+';
+                add.onclick = () => photoInput.click();
+                photoStrip.appendChild(add);
             }
         }
 
-        const updates = {
-            title:       document.getElementById('edit-title').value.trim(),
-            price:       parseFloat(document.getElementById('edit-price').value) || 0,
-            brand:       document.getElementById('edit-brand').value.trim(),
-            color:       document.getElementById('edit-color').value.trim(),
-            material:    document.getElementById('edit-material').value.trim(),
-            size:        document.getElementById('edit-size').value,
-            gender:      document.getElementById('edit-gender').value,
-            condition:   document.getElementById('edit-condition').value,
-            description: document.getElementById('edit-desc').value.trim(),
-            images:      finalUrls,
-        };
-        if (finalUrls[0]) updates.image = finalUrls[0];
+        photoInput.addEventListener('change', () => {
+            const files = Array.from(photoInput.files);
+            files.forEach(f => { if (editPhotos.length < 3) editPhotos.push({ file: f }); });
+            photoInput.value = '';
+            renderEditPhotoStrip();
+        });
 
-        await updateDoc(doc(db, 'produktet', editingProductId), updates);
-        closeModal();
-        await loadProfile(currentUser);
-    } catch (err) {
-        alert('Gabim gjatë ruajtjes: ' + err.message);
-    } finally {
-        saveEditBtn.disabled = false;
-        saveEditBtn.textContent = 'Ruaj Ndryshimet';
-    }
-});
+        /* ── open modal ── */
+        function openEditModal(product) {
+            editingProductId = product.id;
 
-/* ── delete product ── */
-async function deleteProduct(productId) {
-    if (!confirm('A jeni i sigurt? Produkti do të fshihet përgjithmonë.')) return;
-    try {
-        await deleteDoc(doc(db, 'produktet', productId));
-        await loadProfile(currentUser);
-    } catch (err) {
-        alert('Gabim gjatë fshirjes: ' + err.message);
-    }
-}
+            // load existing photos
+            editPhotos = [];
+            if (Array.isArray(product.images)) {
+                product.images.slice(0, 3).forEach(u => { if (u) editPhotos.push({ url: u }); });
+            } else if (product.image) {
+                editPhotos.push({ url: product.image });
+            }
 
-/* ── render ── */
-function renderAddNewCard() {
-    const c = document.createElement('div');
-    c.className = 'product-card';
-    c.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:300px;border:2px dashed var(--secondary);background:transparent;';
-    c.onclick = () => window.location.href = 'shit.html';
-    c.innerHTML = `<div style="text-align:center;color:var(--text-muted);">
+            document.getElementById('edit-title').value = safeText(product.title, '');
+            document.getElementById('edit-price').value = product.price || '';
+            document.getElementById('edit-brand').value = safeText(product.brand, '');
+            document.getElementById('edit-color').value = safeText(product.color, '');
+            document.getElementById('edit-material').value = safeText(product.material, '');
+            document.getElementById('edit-size').value = product.size || '';
+            document.getElementById('edit-gender').value = product.gender || 'femra';
+            document.getElementById('edit-category').value = product.category || '';
+            document.getElementById('edit-condition').value = product.condition || 'E re';
+            document.getElementById('edit-desc').value = safeText(product.description, '');
+
+            renderEditPhotoStrip();
+            modalOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+            editingProductId = null;
+            editPhotos = [];
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelEditBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+        function compressImage(file, maxWidth = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = error => reject(error);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        /* ── save edits ── */
+        saveEditBtn.addEventListener('click', async () => {
+            if (!editingProductId) return;
+            saveEditBtn.disabled = true;
+            saveEditBtn.textContent = 'Duke ruajtur...';
+            try {
+                const finalUrls = [];
+                for (const item of editPhotos.slice(0, 3)) {
+                    if (item.url) {
+                        finalUrls.push(item.url);
+                    } else if (item.file) {
+                        saveEditBtn.textContent = 'Duke kompresuar foton...';
+                        const base64Url = await compressImage(item.file);
+                        finalUrls.push(base64Url);
+                    }
+                }
+
+                const updates = {
+                    title: document.getElementById('edit-title').value.trim(),
+                    price: parseFloat(document.getElementById('edit-price').value) || 0,
+                    brand: document.getElementById('edit-brand').value.trim(),
+                    color: document.getElementById('edit-color').value,
+                    material: document.getElementById('edit-material').value,
+                    size: document.getElementById('edit-size').value,
+                    gender: document.getElementById('edit-gender').value,
+                    category: document.getElementById('edit-category').value,
+                    condition: document.getElementById('edit-condition').value,
+                    description: document.getElementById('edit-desc').value.trim(),
+                    images: finalUrls,
+                };
+                if (finalUrls[0]) updates.image = finalUrls[0];
+
+                await updateDoc(doc(db, 'produktet', editingProductId), updates);
+                closeModal();
+                await loadProfile(currentUser);
+            } catch (err) {
+                alert('Gabim gjatë ruajtjes: ' + err.message);
+            } finally {
+                saveEditBtn.disabled = false;
+                saveEditBtn.textContent = 'Ruaj Ndryshimet';
+            }
+        });
+
+        /* ── delete product ── */
+        async function deleteProduct(productId) {
+            if (!confirm('A jeni i sigurt? Produkti do të fshihet përgjithmonë.')) return;
+            try {
+                await deleteDoc(doc(db, 'produktet', productId));
+                await loadProfile(currentUser);
+            } catch (err) {
+                alert('Gabim gjatë fshirjes: ' + err.message);
+            }
+        }
+
+        /* ── render ── */
+        function renderAddNewCard() {
+            const c = document.createElement('div');
+            c.className = 'product-card';
+            c.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:300px;border:2px dashed var(--secondary);background:transparent;';
+            c.onclick = () => window.location.href = 'shit.html';
+            c.innerHTML = `<div style="text-align:center;color:var(--text-muted);">
         <div style="font-size:3rem;color:var(--accent);margin-bottom:10px;">+</div>
         <h3>Shto Artikull të Ri</h3>
     </div>`;
-    itemsGrid.appendChild(c);
-}
+            itemsGrid.appendChild(c);
+        }
 
-function renderProducts(products) {
-    itemsGrid.innerHTML = '';
-    if (!products.length) {
-        const p = document.createElement('p');
-        p.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--text-muted);';
-        p.textContent = 'Nuk keni listime aktive. Postoni artikullin e parë!';
-        itemsGrid.appendChild(p);
-        renderAddNewCard();
-        return;
-    }
+        function renderProducts(products) {
+            itemsGrid.innerHTML = '';
+            if (!products.length) {
+                const p = document.createElement('p');
+                p.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--text-muted);';
+                p.textContent = 'Nuk keni listime aktive. Postoni artikullin e parë!';
+                itemsGrid.appendChild(p);
+                renderAddNewCard();
+                return;
+            }
 
-    products.forEach(product => {
-        const sold = isSold(product);
-        const badgeLabel = sold ? 'E Shitur' : 'Në Shitje';
-        const badgeStyle = sold ? 'background:var(--secondary);color:var(--text-main);' : '';
-        const mediaFilter = sold ? 'filter:grayscale(90%);opacity:.85;' : '';
+            products.forEach(product => {
+                const sold = isSold(product);
+                const badgeLabel = sold ? 'E Shitur' : 'Në Shitje';
+                const badgeStyle = sold ? 'background:var(--secondary);color:var(--text-main);' : '';
+                const mediaFilter = sold ? 'filter:grayscale(90%);opacity:.85;' : '';
 
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
             <div class="img-wrapper firebase-prod-img-slot product-card-media"
                  data-gallery="${galleryDataAttr(product)}"
                  style="background-image:${firebaseProductImageBackgroundCss(product)};background-size:cover;background-position:center;cursor:pointer;${mediaFilter}">
                 ${renderProductMediaInner(product, `<span class="badge badge-sale" style="${badgeStyle}">${badgeLabel}</span>`)}
             </div>
             <div class="product-info" style="cursor:pointer;">
-                <h4>${safeText(product.title,'Artikull pa titull')}</h4>
+                <h4>${safeText(product.title, 'Artikull pa titull')}</h4>
                 <p class="product-price">${toPrice(product.price)}</p>
             </div>
             <div class="profile-card-actions">
@@ -469,60 +828,68 @@ function renderProducts(products) {
                 <button class="btn-del-prod"  type="button" data-id="${product.id}">🗑️ Fshi</button>
             </div>`;
 
-        card.querySelector('.img-wrapper').addEventListener('click', () => {
-            sessionStorage.setItem('current_product', JSON.stringify(product));
-            window.location.href = 'produkt.html';
+                card.querySelector('.img-wrapper').addEventListener('click', () => {
+                    sessionStorage.setItem('current_product', JSON.stringify(product));
+                    window.location.href = `produkt.html?id=${encodeURIComponent(product.id)}`;
+                });
+                card.querySelector('.product-info').addEventListener('click', () => {
+                    sessionStorage.setItem('current_product', JSON.stringify(product));
+                    window.location.href = `produkt.html?id=${encodeURIComponent(product.id)}`;
+                });
+                card.querySelector('.btn-edit-prod').addEventListener('click', () => openEditModal(product));
+                card.querySelector('.btn-del-prod').addEventListener('click', () => deleteProduct(product.id));
+
+                itemsGrid.appendChild(card);
+            });
+
+            bindProductCardGalleries(itemsGrid);
+            renderAddNewCard();
+        }
+
+        /* ── load ── */
+        async function loadProfile(user) {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            const ud = userSnap.exists() ? userSnap.data() : {};
+            currentUserData = ud;
+            const fullName = safeText(ud.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
+            const username = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
+            const location = formatLocation(ud);
+
+            avatarEl.textContent = fullName.charAt(0).toUpperCase();
+            nameEl.textContent = fullName;
+            metaEl.textContent = `${username} • ${location}`;
+            const userCountry = normalizeCountry(ud.country);
+            if (userCountry) {
+                localStorage.setItem('thriftizy_country', userCountry);
+                const countrySpan = document.getElementById('current-country');
+                if (countrySpan) countrySpan.textContent = countryLabels[userCountry] || 'Shteti';
+            }
+
+            const snap = await getDocs(query(collection(db, 'produktet'), where('sellerId', '==', user.uid)));
+            const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            products.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+
+            statListEl.textContent = String(products.length);
+            statSoldEl.textContent = String(products.filter(isSold).length);
+            renderProducts(products);
+        }
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            currentUser = user;
+            try { await loadProfile(user); }
+            catch (err) {
+                console.error(err);
+                if (loadingEl) loadingEl.textContent = 'Nuk u ngarkuan të dhënat. Provoni përsëri.';
+            }
         });
-        card.querySelector('.product-info').addEventListener('click', () => {
-            sessionStorage.setItem('current_product', JSON.stringify(product));
-            window.location.href = 'produkt.html';
+
+        logoutLink?.addEventListener('click', async e => {
+            e.preventDefault();
+            try { await signOut(auth); window.location.href = 'index.html'; }
+            catch (err) { alert('Nuk u bë shkyçja: ' + err.message); }
         });
-        card.querySelector('.btn-edit-prod').addEventListener('click', () => openEditModal(product));
-        card.querySelector('.btn-del-prod').addEventListener('click', () => deleteProduct(product.id));
-
-        itemsGrid.appendChild(card);
-    });
-
-    bindProductCardGalleries(itemsGrid);
-    renderAddNewCard();
-}
-
-/* ── load ── */
-async function loadProfile(user) {
-    const userSnap = await getDoc(doc(db, 'users', user.uid));
-    const ud = userSnap.exists() ? userSnap.data() : {};
-    const fullName  = safeText(ud.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
-    const username  = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
-    const location  = safeText(ud.city || ud.country, 'Pa lokacion');
-
-    avatarEl.textContent = fullName.charAt(0).toUpperCase();
-    nameEl.textContent   = fullName;
-    metaEl.textContent   = `${username} • ${location}`;
-
-    const snap = await getDocs(query(collection(db, 'produktet'), where('sellerId', '==', user.uid)));
-    const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    products.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
-
-    statListEl.textContent = String(products.length);
-    statSoldEl.textContent = String(products.filter(isSold).length);
-    renderProducts(products);
-}
-
-onAuthStateChanged(auth, async user => {
-    if (!user) { window.location.href = 'login.html'; return; }
-    currentUser = user;
-    try { await loadProfile(user); }
-    catch (err) {
-        console.error(err);
-        if (loadingEl) loadingEl.textContent = 'Nuk u ngarkuan të dhënat. Provoni përsëri.';
-    }
-});
-
-logoutLink?.addEventListener('click', async e => {
-    e.preventDefault();
-    try { await signOut(auth); window.location.href = 'index.html'; }
-    catch (err) { alert('Nuk u bë shkyçja: ' + err.message); }
-});
-</script>
+    </script>
 </body>
+
 </html>
