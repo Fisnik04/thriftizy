@@ -1233,7 +1233,7 @@
         <button class="heart-icon" onclick="event.stopPropagation();heart(this,'${pStr}')">🤍</button>
         ${badge}`;
             return `
-    <div class="product-card ${isSold ? 'product-sold' : ''}" data-id="${p.id}" data-seller-id="${p.sellerId || ''}" onclick="go('${pStr}')">
+    <div class="product-card ${isSold ? 'product-sold' : ''}" data-id="${p.id}" data-seller-id="${p.sellerId || ''}">
       <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
         ${renderProductMediaInner(p, overlays)}
       </div>

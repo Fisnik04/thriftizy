@@ -240,12 +240,42 @@
             box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
         }
 
-        .profile-alert-card strong {
-            display: block;
-            color: #0f172a;
-            font-size: 1.45rem;
-            line-height: 1;
-            margin-bottom: 6px;
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0 auto 20px;
+            border: 4px solid white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .avatar-upload-label {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .profile-avatar:hover .avatar-upload-label {
+            opacity: 1;
         }
 
         .profile-alert-card span {
@@ -612,6 +642,14 @@
         <div id="profile-modal">
             <button class="close-modal-btn" id="close-profile-modal-btn" type="button">×</button>
             <h2>Edito Profilin</h2>
+            <div class="edit-field" style="text-align:center; margin-bottom: 24px;">
+                <label>Foto e profilit</label>
+                <div class="profile-avatar" id="profile-modal-avatar" style="width: 90px; height: 90px; margin-bottom: 10px; cursor: pointer;">
+                    <span class="avatar-upload-label">📷</span>
+                </div>
+                <input type="file" id="profile-photo-input" accept="image/*" style="display:none">
+                <p style="font-size: 0.75rem; color: #64748b;">Kliko mbi rreth për të ndryshuar foton</p>
+            </div>
             <div class="edit-field">
                 <label>Emri i plotë</label>
                 <input type="text" id="profile-edit-name" placeholder="Emri dhe mbiemri">
@@ -641,7 +679,9 @@
     <!-- Profile Layout -->
     <div class="profile-container">
         <aside class="profile-sidebar reveal">
-            <div class="profile-avatar" id="profile-avatar">...</div>
+            <div class="profile-avatar" id="profile-avatar">
+                <span id="avatar-initials">...</span>
+            </div>
             <h3 id="profile-name">Duke u ngarkuar...</h3>
             <p id="profile-meta">@përdorues • -</p>
             <div class="profile-stats">
@@ -771,12 +811,16 @@
         const saveEditBtn = document.getElementById('btn-save-edit');
         const photoStrip = document.getElementById('edit-photo-strip');
         const photoInput = document.getElementById('edit-photo-input');
+        const profilePhotoInput = document.getElementById('profile-photo-input');
+        const profileModalAvatar = document.getElementById('profile-modal-avatar');
+        const avatarInitials = document.getElementById('avatar-initials');
 
         let currentUser = null;
         let currentUserData = {};
         let editingProductId = null;
         // Array of { url: string (existing) | file: File (new) }
         let editPhotos = [];
+        let newProfilePhotoData = null;
 
         /* ── helpers ── */
         function safeText(v, fb = '-') { return (v == null || String(v).trim() === '') ? fb : String(v).trim(); }
@@ -854,6 +898,19 @@
             const countryCode = normalizeCountry(currentUserData.country || localStorage.getItem('thriftizy_country'));
             profileCountrySelect.value = countryCode || '';
             updateProfileCityField(countryCode, currentUserData.city || '');
+            
+            // Set modal avatar preview
+            const modalAvatar = document.getElementById('profile-modal-avatar');
+            if (modalAvatar) {
+                if (currentUserData.photoUrl) {
+                    modalAvatar.style.backgroundImage = `url('${currentUserData.photoUrl}')`;
+                    modalAvatar.querySelector('.avatar-upload-label').textContent = '';
+                } else {
+                    modalAvatar.style.backgroundImage = 'none';
+                    modalAvatar.querySelector('.avatar-upload-label').textContent = '📷';
+                }
+            }
+            newProfilePhotoData = null;
 
             profileModalOverlay.classList.add('open');
             document.body.style.overflow = 'hidden';
@@ -866,6 +923,30 @@
         }
 
         editProfileBtn.addEventListener('click', openProfileModal);
+        
+        if (profileModalAvatar) {
+            profileModalAvatar.addEventListener('click', () => profilePhotoInput.click());
+        }
+
+        if (profilePhotoInput) {
+            profilePhotoInput.addEventListener('change', async () => {
+                const file = profilePhotoInput.files[0];
+                if (file) {
+                    try {
+                        newProfilePhotoData = await compressImage(file, 600, 0.85); // Better quality and slightly larger max size
+                        if (profileModalAvatar) {
+                            profileModalAvatar.style.background = 'none';
+                            profileModalAvatar.style.backgroundImage = `url('${newProfilePhotoData}')`;
+                            profileModalAvatar.style.backgroundSize = 'cover';
+                            profileModalAvatar.querySelector('.avatar-upload-label').textContent = '';
+                        }
+                    } catch (err) {
+                        alert('Gabim gjatë përpunimit të fotos: ' + err.message);
+                    }
+                }
+            });
+        }
+
         closeProfileModalBtn.addEventListener('click', closeProfileModal);
         cancelProfileEditBtn.addEventListener('click', closeProfileModal);
         profileModalOverlay.addEventListener('click', e => { if (e.target === profileModalOverlay) closeProfileModal(); });
@@ -888,7 +969,7 @@
             const previousText = saveProfileEditBtn.textContent;
             saveProfileEditBtn.textContent = 'Duke ruajtur...';
             try {
-                await setDoc(doc(db, 'users', currentUser.uid), {
+                const updateData = {
                     fullName,
                     displayName: fullName,
                     city,
@@ -896,7 +977,13 @@
                     email: currentUser.email || '',
                     uid: currentUser.uid,
                     updatedAt: new Date().toISOString()
-                }, { merge: true });
+                };
+                
+                if (newProfilePhotoData) {
+                    updateData.photoUrl = newProfilePhotoData;
+                }
+
+                await setDoc(doc(db, 'users', currentUser.uid), updateData, { merge: true });
                 localStorage.setItem('thriftizy_country', country);
                 const countrySpan = document.getElementById('current-country');
                 if (countrySpan) countrySpan.textContent = countryLabels[country] || 'Shteti';
@@ -1313,8 +1400,21 @@
             const fullName = safeText(ud.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
             const username = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
             const location = formatLocation(ud);
-
-            avatarEl.textContent = fullName.charAt(0).toUpperCase();
+ 
+            if (ud.photoUrl) {
+                avatarEl.style.backgroundImage = `url('${ud.photoUrl}')`;
+                if (avatarInitials) avatarInitials.style.display = 'none';
+            } else {
+                avatarEl.style.backgroundImage = 'none';
+                if (avatarInitials) {
+                    avatarInitials.style.display = 'flex';
+                    avatarInitials.style.alignItems = 'center';
+                    avatarInitials.style.justifyContent = 'center';
+                    avatarInitials.style.height = '100%';
+                    avatarInitials.style.width = '100%';
+                    avatarInitials.textContent = fullName.charAt(0).toUpperCase();
+                }
+            }
             nameEl.textContent = fullName;
             metaEl.textContent = `${username} • ${location}`;
             const userCountry = normalizeCountry(ud.country);

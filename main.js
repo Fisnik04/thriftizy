@@ -122,21 +122,25 @@ window.addEventListener("scroll", reveal);
 document.addEventListener("DOMContentLoaded", () => {
     reveal();
 
-    // Add staggered delay to reveal elements in grid
-    const categories = document.querySelectorAll('.category-card');
-    categories.forEach((card, index) => {
-        card.style.transitionDelay = `${index * 0.2}s`;
+    // Staggered categories
+    document.querySelectorAll('.category-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.15}s`;
     });
 
-    const products = document.querySelectorAll('.product-card');
-    products.forEach((card, index) => {
-        card.style.transitionDelay = `${index * 0.1}s`;
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', (e) => {
-            if (!e.target.closest('.btn-cart')) {
-                window.location.href = 'produkt.html';
-            }
-        });
+    // Handle product card clicks (global delegate)
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest('.product-card');
+        if (!card) return;
+
+        // Ignore if clicking internal buttons
+        if (e.target.closest('.btn-cart') || e.target.closest('.heart-icon') || e.target.closest('.product-actions')) {
+            return;
+        }
+
+        const id = card.getAttribute('data-id');
+        if (id) {
+            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
+        }
     });
 });
 
@@ -214,17 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Make product cards clickable to view details
-    const products = document.querySelectorAll('.product-card');
-    products.forEach((card, index) => {
-        card.style.transitionDelay = `${index * 0.1}s`;
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', (e) => {
-            if (!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
-                window.location.href = 'produkt.html';
-            }
-        });
-    });
+
 
     // -----------------------------------------
     // HEART ICON / FAVORITES LOGIC
@@ -475,7 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const priceText = card.querySelector('.product-price').textContent;
                 const id = card.getAttribute('data-id') || '';
                 const sellerId = card.getAttribute('data-seller-id') || '';
-                
+
                 // Extract number from price text (e.g. "45.00€" -> 45.00)
                 const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
 
@@ -1342,15 +1336,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (saleSnap.exists()) {
                 const saleData = saleSnap.data();
                 const productId = saleData.item.id;
-                
+
                 // Update sale status
                 await updateDoc(doc(db, 'shitjet', saleId), { status: 'completed', completedAt: new Date() });
-                
+
                 // Update product status to sold
                 if (productId) {
                     await updateDoc(doc(db, 'produktet', productId), { status: 'sold' });
                 }
-                
+
                 location.reload();
             }
         } catch (err) {
@@ -1358,33 +1352,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             checkSellerSales(user.uid);
         }
     });
 
-    // Mobile Menu Toggle Logic
-    const menuToggle = document.getElementById('home-menu-toggle');
-    if (menuToggle) {
-        menuToggle.textContent = '☰';
-        menuToggle.addEventListener('click', function () {
-            document.body.classList.toggle('home-nav-drawer-open');
-            const open = document.body.classList.contains('home-nav-drawer-open');
-            menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
 
-        window.addEventListener('resize', function () {
-            if (window.innerWidth > 900) {
-                document.body.classList.remove('home-nav-drawer-open');
-            }
-        });
-
-        document.querySelectorAll('#mobile-nav-drawer-links a').forEach(function (a) {
-            a.addEventListener('click', function () {
-                document.body.classList.remove('home-nav-drawer-open');
-                menuToggle.setAttribute('aria-expanded', 'false');
-            });
-        });
-    }
 });

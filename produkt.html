@@ -33,6 +33,13 @@
             background: #94a3b8 !important;
             cursor: not-allowed;
         }
+        .seller-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.2rem; flex-shrink: 0;
+            background-size: cover; background-position: center;
+        }
         .sold-overlay {
             position: absolute;
             inset: 0;
@@ -309,6 +316,19 @@
             document.getElementById('prod-seller-location').textContent = `📍 Lokacioni: ${p.city || ''}, ${p.country || ''}`;
             const avatar = document.getElementById('prod-seller-avatar');
             avatar.textContent = (p.sellerName || 'S').charAt(0).toUpperCase();
+
+            // Fetch seller's additional info (like photo)
+            if (p.sellerId) {
+                getDoc(doc(db, 'users', p.sellerId)).then(uSnap => {
+                    if (uSnap.exists()) {
+                        const ud = uSnap.data();
+                        if (ud.photoUrl) {
+                            avatar.style.backgroundImage = `url('${ud.photoUrl}')`;
+                            avatar.textContent = '';
+                        }
+                    }
+                }).catch(err => console.warn("Seller data fetch error:", err));
+            }
 
             document.getElementById('seller-profile-card').onclick = () => {
                 location.href = `shitesi.html?id=${p.sellerId}`;
