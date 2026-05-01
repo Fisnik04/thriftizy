@@ -117,6 +117,33 @@ function mountLightbox() {
     onKey = null;
   }
 
+  // Lightbox swipe support
+  let tx = null;
+  let ty = null;
+  wrap.querySelector('.tz-lb-stage').addEventListener('touchstart', (e) => {
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+  }, { passive: true });
+
+  wrap.querySelector('.tz-lb-stage').addEventListener('touchend', (e) => {
+    if (tx === null || ty === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    const dy = e.changedTouches[0].clientY - ty;
+    tx = null;
+    ty = null;
+    
+    // Check if it's mostly horizontal swipe
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+      if (dx > 0) {
+        idx = Math.max(0, idx - 1);
+        refresh();
+      } else {
+        idx = Math.min(urls.length - 1, idx + 1);
+        refresh();
+      }
+    }
+  }, { passive: true });
+
   wrap.querySelector('.tz-lb-close').addEventListener('click', closeLb);
   wrap.addEventListener('click', (e) => {
     if (e.target === wrap) closeLb();
@@ -203,22 +230,31 @@ export function bindProductCardGalleries(root) {
 
     /** Rrëshqitje për ndërrim të shpejtë fotosh në kartë */
     let tx = null;
+    let ty = null;
+    media.style.touchAction = 'pan-y'; // Lejon scroll vertikal, por kap swipe horizontal
+    
     media.addEventListener(
       'touchstart',
       (e) => {
         if (slides().length < 2) return;
         tx = e.touches[0]?.clientX ?? null;
+        ty = e.touches[0]?.clientY ?? null;
       },
       { passive: true }
     );
     media.addEventListener(
       'touchend',
       (e) => {
-        if (tx == null || slides().length < 2) return;
+        if (tx == null || ty == null || slides().length < 2) return;
         const dx = e.changedTouches[0].clientX - tx;
+        const dy = e.changedTouches[0].clientY - ty;
         tx = null;
-        if (dx > 48) showSlide(idx - 1);
-        else if (dx < -48) showSlide(idx + 1);
+        ty = null;
+        
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+          if (dx > 0) showSlide(idx - 1);
+          else showSlide(idx + 1);
+        }
       },
       { passive: true }
     );

@@ -29,13 +29,14 @@
             overflow-y: auto;
         }
         .chat-list-item {
-            padding: 20px;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--secondary);
             display: flex;
             align-items: center;
             gap: 15px;
             cursor: pointer;
             transition: var(--transition);
+            position: relative;
         }
         .chat-list-item:hover, .chat-list-item.active {
             background: white;
@@ -50,9 +51,30 @@
             align-items: center;
             justify-content: center;
             font-weight: 800;
+            flex-shrink: 0;
         }
-        .chat-info h4 { font-size: 1rem; margin-bottom: 5px; }
-        .chat-info p { font-size: 0.85rem; color: var(--text-muted); }
+        .chat-info { flex: 1; min-width: 0; }
+        .chat-info h4 { font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-info p { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-delete-chat {
+            opacity: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #ef4444;
+            font-size: 1rem;
+            padding: 6px;
+            border-radius: 8px;
+            transition: opacity 0.2s, background 0.2s;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .chat-list-item:hover .btn-delete-chat {
+            opacity: 1;
+        }
+        .btn-delete-chat:hover {
+            background: #fee2e2;
+        }
         
         .chat-main {
             flex: 1;
@@ -212,7 +234,9 @@
             addDoc,
             doc,
             getDoc,
+            getDocs,
             updateDoc,
+            deleteDoc,
             serverTimestamp,
             firebaseProductImageBackgroundCss
         } from './firebase-config.js';
@@ -285,12 +309,35 @@
                         const data = userSnap.data();
                         otherName = safeText(data.fullName || data.displayName || data.email, 'Përdorues');
                     }
+
+                    // Lexo gjithashtu emrin tim (për rastet ku mungon)
+                    let myName = currentUser.email?.split('@')[0] || 'Unë';
+                    if (!conv.participantNames?.[currentUser.uid]) {
+                        try {
+                            const mySnap = await getDoc(doc(db, 'users', currentUser.uid));
+                            if (mySnap.exists()) {
+                                const md = mySnap.data();
+                                myName = safeText(md.fullName || md.displayName || md.email, myName);
+                            }
+                        } catch (_) {}
+                    } else {
+                        myName = conv.participantNames[currentUser.uid];
+                    }
+
+                    const updatedNames = {
+                        ...(conv.participantNames || {}),
+                        [otherId]: otherName,
+                        [currentUser.uid]: myName
+                    };
+
+                    // Shkruaj emrat në Firestore kështu që herën tjetër janë të disponueshëm menjëherë
+                    try {
+                        await updateDoc(doc(db, 'conversations', conv.id), { participantNames: updatedNames });
+                    } catch (_) {}
+
                     return {
                         ...conv,
-                        participantNames: {
-                            ...(conv.participantNames || {}),
-                            [otherId]: otherName
-                        }
+                        participantNames: updatedNames
                     };
                 } catch (error) {
                     console.error('Gabim gjatë leximit të user-it për chat:', error);
@@ -319,16 +366,61 @@
                             <h4>${escapeHtml(otherName)}</h4>
                             <p>${escapeHtml(lastText)}</p>
                         </div>
+                        <button class="btn-delete-chat" data-delete-conv-id="${conv.id}" title="Fshi bisedën" type="button" aria-label="Fshi bisedën me ${escapeHtml(otherName)}">🗑️</button>
                     </div>
                 `;
             }).join('');
 
             chatListEl.querySelectorAll('.chat-list-item').forEach((item) => {
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.btn-delete-chat')) return;
                     const convId = item.getAttribute('data-conv-id');
                     if (convId) openConversation(convId);
                 });
             });
+
+            chatListEl.querySelectorAll('.btn-delete-chat').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const convId = btn.getAttribute('data-delete-conv-id');
+                    if (convId) confirmDeleteConversation(convId);
+                });
+            });
+        }
+
+        async function confirmDeleteConversation(conversationId) {
+            const conv = conversations.find((c) => c.id === conversationId);
+            const name = conv ? getOtherUserName(conv) : 'këtë bisedë';
+            const ok = window.confirm(`A jeni i sigurt që doni të fshini bisedën me "${name}"?\n\nTë gjitha mesazhet do të fshihen përgjithmonë.`);
+            if (!ok) return;
+
+            try {
+                // Fshi të gjitha mesazhet e bisedës
+                const messagesRef = collection(db, 'conversations', conversationId, 'messages');
+                const msgSnap = await getDocs(messagesRef);
+                const deletions = msgSnap.docs.map((d) => deleteDoc(doc(db, 'conversations', conversationId, 'messages', d.id)));
+                await Promise.all(deletions);
+
+                // Fshi dokumentin e bisedës
+                await deleteDoc(doc(db, 'conversations', conversationId));
+
+                // Nëse ishte biseda aktive, pastro ekranin
+                if (activeConversationId === conversationId) {
+                    activeConversationId = null;
+                    if (unsubscribeMessages) { unsubscribeMessages(); unsubscribeMessages = null; }
+                    activeAvatarEl.textContent = '-';
+                    activeNameEl.textContent = 'Zgjidh një bisedë';
+                    activeStatusEl.textContent = '-';
+                    activeProductTitleEl.textContent = '-';
+                    activeProductImageEl.style.backgroundImage = '';
+                    chatMessagesEl.innerHTML = '<div class="chat-empty">Nuk ka mesazhe për të shfaqur.</div>';
+                    sendBtnEl.disabled = true;
+                    window.location.hash = '';
+                }
+            } catch (err) {
+                console.error('Gabim gjatë fshirjes:', err);
+                alert('Nuk u fshi biseda: ' + err.message);
+            }
         }
 
         function renderHeader(conv) {

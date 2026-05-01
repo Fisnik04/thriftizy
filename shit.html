@@ -1,18 +1,95 @@
 <!DOCTYPE html>
 <html lang="sq">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shit Artikullin Tënd | Thriftizy</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        #sell-page-content {
+            visibility: hidden;
+        }
+
+        #sell-auth-loader {
+            position: fixed;
+            inset: 0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-size: 1.1rem;
+            color: #64748b;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .photo-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .photo-thumb {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        .photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-thumb .rm-photo {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.85);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            line-height: 22px;
+            text-align: center;
+        }
+
+        .photo-add-slot {
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+            border: 2px dashed #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.8rem;
+            color: #94a3b8;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .photo-add-slot:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+    </style>
 </head>
+
 <body>
-    <!-- Navbar -->
-        <nav id="navbar">
+    <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
         <div class="nav-center">
             <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-                        <ul class="nav-links">
+            <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -20,112 +97,140 @@
                 <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
         <div class="nav-actions" id="nav-actions"></div>
     </nav>
 
-    <!-- Sell Form -->
-    <div class="auth-container reveal">
-        <div class="form-box">
-            <h1 class="form-title">Shit Artikullin Tënd</h1>
-            <p class="form-subtitle">Shto detajet dhe fotografitë për t'i dhënë rrobës një jetë të re.</p>
+    <div id="sell-auth-loader">Duke verifikuar llogarinë...</div>
 
-            <form id="sell-form">
-                
-                <div class="form-group">
-                    <label>Fotografitë e produktit (deri në 3)</label>
-                    <input type="file" id="sell-image-upload" accept="image/*" multiple style="display: none;">
-                    <div class="image-upload-box" id="upload-box" onclick="document.getElementById('sell-image-upload').click()">
-                        <i id="upload-icon">📸</i>
-                        <p id="upload-text">Kliko për të zgjedhur foto (deri në 3 përnjëherë).</p>
+    <div id="sell-page-content">
+        <div class="auth-container reveal">
+            <div class="form-box">
+                <h1 class="form-title">Shit Artikullin Tënd</h1>
+                <p class="form-subtitle">Shto detajet dhe fotografitë për t'i dhënë rrobës një jetë të re.</p>
+
+                <form id="sell-form">
+                    <!-- PHOTOS -->
+                    <div class="form-group">
+                        <label>Fotografitë e produktit (deri në 3) *</label>
+                        <input type="file" id="sell-photo-input" accept="image/*" multiple style="display:none;">
+                        <div class="photo-strip" id="sell-photo-strip"></div>
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin-top:8px;">Kliko + për të shtuar foto.
+                            Ruhen deri në 3.</p>
                     </div>
-                    <div id="sell-photo-strip" style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
-                    <p id="sell-photo-hint" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Ruhen deri në 3 foto që shfaqen në kartë dhe te produkti.</p>
-                </div>
 
-                <div class="form-group">
-                    <label>Titulli i Artikullit</label>
-                    <input type="text" id="sell-title" placeholder="p.sh. Xhaketë Lëkure Zara" required>
-                </div>
+                    <div class="form-group">
+                        <label>Titulli i Artikullit *</label>
+                        <input type="text" id="sell-title" placeholder="p.sh. Xhaketë Lëkure Zara" required>
+                    </div>
 
-                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label>Kategoria</label>
-                        <select required>
-                            <option value="">Zgjidh Kategorinë</option>
-                            <option value="fustane">Fustane</option>
-                            <option value="maica">Maica</option>
-                            <option value="xhaketa">Xhaketa / Pallto</option>
-                            <option value="pantallona">Pantallona / Xhinse</option>
-                            <option value="kepuce">Këpucë / Patika</option>
-                            <option value="aksesore">Aksesorë</option>
+                    <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div>
+                            <label>Kategoria *</label>
+                            <select id="sell-category" required>
+                                <option value="">Zgjidh Kategorinë</option>
+                                <option value="fustane">Fustane</option>
+                                <option value="maica">Maica</option>
+                                <option value="xhaketa">Xhaketa / Pallto</option>
+                                <option value="pantallona">Pantallona / Xhinse</option>
+                                <option value="kepuce">Këpucë / Patika</option>
+                                <option value="aksesore">Aksesorë</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Gjinia *</label>
+                            <select id="sell-gender" required>
+                                <option value="femra">Femra</option>
+                                <option value="meshkuj">Meshkuj</option>
+                                <option value="unisex">Unisex</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div>
+                            <label>Marka (Brendi)</label>
+                            <input type="text" id="sell-brand" placeholder="p.sh. Nike, Zara, Vintage">
+                        </div>
+                        <div>
+                            <label>Madhësia *</label>
+                            <select id="sell-size" required>
+                                <option value="">Zgjidh</option>
+                                <option value="xs">XS</option>
+                                <option value="s">S</option>
+                                <option value="m">M</option>
+                                <option value="l">L</option>
+                                <option value="xl">XL</option>
+                                <option value="xxl">XXL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div>
+                            <label>Ngjyra</label>
+                            <input type="text" id="sell-color" placeholder="p.sh. E zezë, E kuqe...">
+                        </div>
+                        <div>
+                            <label>Materiali</label>
+                            <input type="text" id="sell-material" placeholder="p.sh. Pambuk, Lëkurë...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gjendja *</label>
+                        <select id="sell-condition" required>
+                            <option value="E re">E re me etiketë</option>
+                            <option value="E re pa etiketë">E re pa etiketë</option>
+                            <option value="Pak e përdorur">Pak e përdorur (Si e re)</option>
+                            <option value="E përdorur">E përdorur</option>
                         </select>
                     </div>
-                    <div>
-                        <label>Gjinia</label>
-                        <select required>
-                            <option value="femra">Femra</option>
-                            <option value="meshkuj">Meshkuj</option>
-                            <option value="unisex">Unisex</option>
-                        </select>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Shteti *</label>
+                            <select id="sell-country" required>
+                                <option value="" disabled selected>Zgjidh shtetin</option>
+                                <option value="Kosovë">Kosovë</option>
+                                <option value="Shqipëri">Shqipëri</option>
+                                <option value="Maqedoni">Maqedoni</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Qyteti *</label>
+                            <input type="text" id="sell-city" placeholder="P.sh. Prishtinë" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label>Marka (Brendi)</label>
-                        <input type="text" placeholder="p.sh. Nike, Zara, Vintage">
+                    <div class="form-group">
+                        <label>Përshkrimi</label>
+                        <textarea id="sell-desc" rows="4"
+                            placeholder="Përshkruaj detajet, defektet (nëse ka), materialin..."></textarea>
                     </div>
-                    <div>
-                        <label>Madhësia</label>
-                        <select required>
-                            <option value="">Zgjidh</option>
-                            <option value="xs">XS</option>
-                            <option value="s">S</option>
-                            <option value="m">M</option>
-                            <option value="l">L</option>
-                            <option value="xl">XL</option>
-                        </select>
+
+                    <div class="form-group">
+                        <label>Çmimi (€) *</label>
+                        <input type="number" id="sell-price" placeholder="0.00" min="1" step="0.5" required
+                            style="font-size:1.5rem;font-weight:800;color:var(--primary);">
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Gjendja</label>
-                    <select required>
-                        <option value="re">E re me etiketë</option>
-                        <option value="re_pa">E re pa etiketë</option>
-                        <option value="pak">Pak e përdorur (Si e re)</option>
-                        <option value="shume">E përdorur</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-<div class="form-group"><label>Shteti *</label><select id="sell-country" required><option value="" disabled selected>Zgjidh shtetin</option><option value="Kosovë">Kosovë</option><option value="Shqipëri">Shqipëri</option><option value="Maqedoni">Maqedoni</option></select></div>
-<div class="form-group"><label>Qyteti / Adresa *</label><input type="text" id="sell-city" placeholder="P.sh. Prishtinë" required></div>
-</div>
-<div class="form-group">
-<label>Përshkrimi</label>
-                    <textarea rows="4" placeholder="Përshkruaj detajet, defektet (nëse ka), materialin..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Çmimi (€)</label>
-                    <input type="number" id="sell-price" placeholder="0.00" min="1" step="0.5" required style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">
-                </div>
-
-                <button type="submit" class="btn-buy" style="width: 100%;">Posto Artikullin</button>
-            </form>
+                    <button type="submit" class="btn-buy" id="sell-submit-btn" style="width:100%;">Posto
+                        Artikullin</button>
+                </form>
+            </div>
         </div>
-    </div>
+    </div><!-- /sell-page-content -->
 
-        <!-- Global Footer -->
-        <footer class="site-footer">
+    <footer class="site-footer">
         <div class="footer-grid">
             <div class="footer-col">
                 <a href="index.html" class="logo" style="color:white;">THRIFT<span>IZY</span></a>
-                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura në Ballkan. Bli, shit, dhe mbro mjedisin.</p>
+                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura
+                    në Ballkan.</p>
             </div>
             <div class="footer-col">
                 <h3>Blerja</h3>
@@ -133,22 +238,13 @@
                     <li><a href="femra.html">Femra</a></li>
                     <li><a href="meshkuj.html">Meshkuj</a></li>
                     <li><a href="kepuce.html">Këpucë</a></li>
-                    <li><a href="aksesore.html">Aksesorë</a></li>
-                    <li><a href="saved.html">Të Ruajtura</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>Shitja</h3>
-                <ul>
-                    <li><a href="shit.html">Shit një artikull</a></li>
-                    <li><a href="profil.html">Profili Im</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h3>Llogaria</h3>
                 <ul>
                     <li><a href="login.html">Kyçu</a></li>
-                    <li><a href="signup.html">Regjistrohu</a></li>
+                    <li><a href="profil.html">Profili Im</a></li>
                     <li><a href="mesazhet.html">Mesazhet</a></li>
                 </ul>
             </div>
@@ -156,6 +252,154 @@
         <div class="footer-bottom">© 2026 Thriftizy. Të gjitha të drejtat e rezervuara.</div>
     </footer>
 
-<script type="module" src="main.js"></script>
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        import {
+            auth, db, storage,
+            onAuthStateChanged,
+            collection, addDoc, serverTimestamp,
+            ref, uploadBytes, getDownloadURL
+        } from './firebase-config.js';
+
+        const loader = document.getElementById('sell-auth-loader');
+        const content = document.getElementById('sell-page-content');
+        const form = document.getElementById('sell-form');
+        const submitBtn = document.getElementById('sell-submit-btn');
+        const photoInput = document.getElementById('sell-photo-input');
+        const photoStrip = document.getElementById('sell-photo-strip');
+
+        let currentUser = null;
+        let selectedFiles = []; // max 3 File objects
+
+        /* ── photo strip ── */
+        function renderStrip() {
+            photoStrip.innerHTML = '';
+            selectedFiles.slice(0, 3).forEach((f, i) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'photo-thumb';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(f);
+                thumb.appendChild(img);
+                const rm = document.createElement('button');
+                rm.className = 'rm-photo';
+                rm.textContent = '✕';
+                rm.type = 'button';
+                rm.onclick = () => { selectedFiles.splice(i, 1); renderStrip(); };
+                thumb.appendChild(rm);
+                photoStrip.appendChild(thumb);
+            });
+            if (selectedFiles.length < 3) {
+                const add = document.createElement('div');
+                add.className = 'photo-add-slot';
+                add.textContent = '+';
+                add.onclick = () => photoInput.click();
+                photoStrip.appendChild(add);
+            }
+        }
+        renderStrip(); // show initial + slot
+
+        photoInput.addEventListener('change', () => {
+            Array.from(photoInput.files).forEach(f => {
+                if (selectedFiles.length < 3) selectedFiles.push(f);
+            });
+            photoInput.value = '';
+            renderStrip();
+        });
+
+        /* ── auth guard ── */
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                window.location.href = 'login.html?redirect=shit.html';
+            } else {
+                currentUser = user;
+                loader.style.display = 'none';
+                content.style.visibility = 'visible';
+            }
+        });
+
+        // Funksioni për kompresimin e fotove në Base64 që të mos përdorim Storage
+        function compressImage(file, maxWidth = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = error => reject(error);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        /* ── submit ── */
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const title = document.getElementById('sell-title').value.trim();
+            if (!title) { alert('Shkruaj titullin e artikullit.'); return; }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Duke postuar...';
+
+            try {
+                // Përdorim kompresim për të shmangur Firebase Storage
+                const imageUrls = [];
+                for (let i = 0; i < selectedFiles.slice(0, 3).length; i++) {
+                    const file = selectedFiles[i];
+                    submitBtn.textContent = `Duke përgatitur foton ${i + 1}...`;
+                    const base64Url = await compressImage(file);
+                    imageUrls.push(base64Url);
+                }
+                submitBtn.textContent = 'Duke ruajtur në databazë...';
+
+                await addDoc(collection(db, 'produktet'), {
+                    title,
+                    category: document.getElementById('sell-category').value,
+                    gender: document.getElementById('sell-gender').value,
+                    brand: document.getElementById('sell-brand').value.trim(),
+                    size: document.getElementById('sell-size').value,
+                    color: document.getElementById('sell-color').value.trim(),
+                    material: document.getElementById('sell-material').value.trim(),
+                    condition: document.getElementById('sell-condition').value,
+                    country: document.getElementById('sell-country').value,
+                    city: document.getElementById('sell-city').value.trim(),
+                    description: document.getElementById('sell-desc').value.trim(),
+                    price: parseFloat(document.getElementById('sell-price').value) || 0,
+                    images: imageUrls,
+                    image: imageUrls[0] || '',
+                    sellerId: currentUser.uid,
+                    sellerEmail: currentUser.email || '',
+                    status: 'active',
+                    createdAt: serverTimestamp(),
+                });
+
+                alert('✅ Artikulli u postua me sukses!');
+                window.location.href = 'profil.html';
+            } catch (err) {
+                console.error(err);
+                alert('Gabim gjatë postimit: ' + err.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Posto Artikullin';
+            }
+        });
+    </script>
 </body>
+
 </html>

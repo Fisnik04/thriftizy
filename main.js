@@ -64,7 +64,7 @@ window.addEventListener("scroll", reveal);
 // Initial call to reveal elements on load
 document.addEventListener("DOMContentLoaded", () => {
     reveal();
-    
+
     // Add staggered delay to reveal elements in grid
     const categories = document.querySelectorAll('.category-card');
     categories.forEach((card, index) => {
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.style.transitionDelay = `${index * 0.1}s`;
         card.style.cursor = 'pointer';
         card.addEventListener('click', (e) => {
-            if(!e.target.closest('.btn-cart')) {
+            if (!e.target.closest('.btn-cart')) {
                 window.location.href = 'produkt.html';
             }
         });
@@ -105,42 +105,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const changeBtn = document.getElementById('btn-change-country');
     const currentCountrySpan = document.getElementById('current-country');
     const countryBtns = document.querySelectorAll('.country-btn');
-    
+
     // Check saved country
     let savedCountry = localStorage.getItem('thriftizy_country');
-    
+
     if (!savedCountry) {
-        if(modal) modal.classList.add('active');
+        if (modal) modal.classList.add('active');
     } else {
         updateUIForCountry(savedCountry);
     }
-    
+
     // Handle country selection
-    if(countryBtns) {
+    if (countryBtns) {
         countryBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const selected = e.target.closest('.country-btn').getAttribute('data-select');
                 localStorage.setItem('thriftizy_country', selected);
-                if(modal) modal.classList.remove('active');
+                if (modal) modal.classList.remove('active');
                 updateUIForCountry(selected);
-                
+
                 // Reload to apply country filter on dynamic pages
                 location.reload();
             });
         });
     }
-    
+
     // Open modal to change country
-    if(changeBtn && modal) {
+    if (changeBtn && modal) {
         changeBtn.addEventListener('click', () => {
             modal.classList.add('active');
         });
     }
-    
+
     function updateUIForCountry(countryCode) {
         // Update Navbar text
-        if(currentCountrySpan) currentCountrySpan.textContent = countryNames[countryCode] || 'Shteti';
-        
+        if (currentCountrySpan) currentCountrySpan.textContent = countryNames[countryCode] || 'Shteti';
+
         // Filter products
         const products = document.querySelectorAll('.product-card[data-country]');
         products.forEach(product => {
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.style.transitionDelay = `${index * 0.1}s`;
         card.style.cursor = 'pointer';
         card.addEventListener('click', (e) => {
-            if(!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
+            if (!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
                 window.location.href = 'produkt.html';
             }
         });
@@ -195,12 +195,12 @@ document.addEventListener("DOMContentLoaded", () => {
         icon.addEventListener('click', (e) => {
             e.stopPropagation();
             const card = e.target.closest('.product-card');
-            if(!card) return;
+            if (!card) return;
 
             const title = card.querySelector('h4').textContent;
             const priceText = card.querySelector('.product-price').textContent;
             const imgStyle = card.querySelector('.product-img').style.backgroundImage;
-            
+
             const itemIndex = getLikedIndex(title);
 
             if (itemIndex === -1) {
@@ -214,9 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 icon.classList.remove('liked');
                 icon.innerHTML = '🤍';
             }
-            
+
             localStorage.setItem('thriftizy_likes', JSON.stringify(likedItems));
-            
+
             // If we are on the saved items page, remove the card visually
             if (window.location.pathname.includes('saved.html')) {
                 card.remove();
@@ -228,12 +228,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render Saved Items dynamically on saved.html
     function renderSavedItems() {
         if (!window.location.pathname.includes('saved.html')) return;
-        
+
         const shopGrid = document.querySelector('.shop-grid');
-        if(!shopGrid) return;
+        if (!shopGrid) return;
 
         shopGrid.innerHTML = '';
-        
+
         if (likedItems.length === 0) {
             checkIfSavedIsEmpty();
             return;
@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         shopGrid.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if(!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
+                if (!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
                     window.location.href = 'produkt.html';
                 }
             });
@@ -312,17 +312,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
     const closeCart = document.getElementById('close-cart');
-    
+
     function toggleCart() {
-        if(cartSidebar && cartOverlay) {
+        if (cartSidebar && cartOverlay) {
             cartSidebar.classList.toggle('open');
             cartOverlay.classList.toggle('open');
         }
     }
 
-    if(cartIcon) cartIcon.addEventListener('click', toggleCart);
-    if(closeCart) closeCart.addEventListener('click', toggleCart);
-    if(cartOverlay) cartOverlay.addEventListener('click', toggleCart);
+    if (cartIcon) cartIcon.addEventListener('click', toggleCart);
+    if (closeCart) closeCart.addEventListener('click', toggleCart);
+    if (cartOverlay) cartOverlay.addEventListener('click', toggleCart);
 
     // -----------------------------------------
     // REAL SHOPPING CART LOGIC (Local Storage)
@@ -331,7 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartBadges = document.querySelectorAll('.cart-badge');
     const cartItemsContainer = document.querySelector('.cart-items');
     const cartTotalElement = document.querySelector('.cart-total span:last-child');
-    
+
     let cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
 
     function escapeCartText(str) {
@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addToCartBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            
+
             // Find product details from DOM
             const card = e.target.closest('.product-card');
             if (card) {
@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 cart.push({ title, price, image: cartImageCssFromProductCard(card) });
                 localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
-                
+
                 updateCartUI();
                 toggleCart(); // Open sidebar to show it was added
             }
@@ -434,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
         input.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             const allProducts = document.querySelectorAll('.product-card');
-            
+
             allProducts.forEach(card => {
                 const title = card.querySelector('h4') ? card.querySelector('h4').textContent.toLowerCase() : '';
                 if (title.includes(query)) {
@@ -498,8 +498,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 sellUploadedDataUrls.length >= 3
                     ? 'Keni më shumën e lejuar (3 foto).'
                     : 'Mund të shtoni ende ' +
-                      (3 - sellUploadedDataUrls.length) +
-                      ' foto (ose zgjidhni përsëri për të ndryshuar).';
+                    (3 - sellUploadedDataUrls.length) +
+                    ' foto (ose zgjidhni përsëri për të ndryshuar).';
         }
     }
 
@@ -537,14 +537,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             const title = document.getElementById('sell-title').value;
             const price = parseFloat(document.getElementById('sell-price').value).toFixed(2);
-            
+
             myItems.push({
                 title,
                 price: price + '€',
                 images: [...sellUploadedDataUrls].slice(0, 3)
             });
             localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
-            
+
             alert('Artikulli u postua me sukses!');
             window.location.href = 'profil.html';
         });
@@ -553,11 +553,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render "Dollapi Im" dynamically on profil.html
     function renderMyItems() {
         if (!window.location.pathname.includes('profil.html')) return;
-        
+
         const shopGrid = document.querySelector('.profile-content .shop-grid');
         if (!shopGrid) return;
         if (shopGrid.dataset.source === 'firebase') return;
-        
+
         document.querySelectorAll('.dynamic-my-item').forEach(el => el.remove());
 
         myItems.forEach((item, index) => {
@@ -578,9 +578,9 @@ document.addEventListener("DOMContentLoaded", () => {
             shopGrid.insertAdjacentHTML('afterbegin', cardHTML);
         });
     }
-    
+
     // Make removeMyItem globally accessible
-    window.removeMyItem = function(index) {
+    window.removeMyItem = function (index) {
         let myItems = JSON.parse(localStorage.getItem('thriftizy_my_items')) || [];
         myItems.splice(index, 1);
         localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
@@ -594,7 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -----------------------------------------
     function initCheckout() {
         if (!window.location.pathname.includes('checkout.html')) return;
-        
+
         let cartItems = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
         const subtotalLabel = document.getElementById('checkout-subtotal-label');
         const subtotalPrice = document.getElementById('checkout-subtotal-price');
@@ -604,10 +604,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (subtotalLabel && subtotalPrice && totalPrice) {
             let sub = 0;
             cartItems.forEach(item => sub += item.price);
-            
+
             subtotalLabel.textContent = `Nëntotali (${cartItems.length} artikuj)`;
             subtotalPrice.textContent = sub.toFixed(2) + '€';
-            
+
             let finalPrice = sub + 2.00 - 5.00; // + Shipping - Discount
             if (finalPrice < 0) finalPrice = 0;
             totalPrice.textContent = finalPrice.toFixed(2) + '€';
@@ -661,9 +661,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // -----------------------------------------
     async function initDynamicProduct() {
         if (!window.location.pathname.includes('produkt.html')) return;
-        
+
         let item = null;
-        
+
         // Check for URL params (my items)
         const urlParams = new URLSearchParams(window.location.search);
         const myItemIndex = urlParams.get('myitem');
@@ -673,18 +673,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // Check for Firebase product in sessionStorage
             const sessionProd = sessionStorage.getItem('current_product');
             if (sessionProd) {
-                try { item = JSON.parse(sessionProd); } catch(e) {}
+                try { item = JSON.parse(sessionProd); } catch (e) { }
             }
         }
-        
+
         if (item) {
             // Update Title
             const titleEl = document.getElementById('prod-title') || document.querySelector('.product-details h1');
-            if(titleEl) titleEl.textContent = item.title;
-            
+            if (titleEl) titleEl.textContent = item.title;
+
             // Update Price
             const priceEl = document.getElementById('prod-price') || document.querySelector('.detail-price');
-            if(priceEl) {
+            if (priceEl) {
                 // If price is a number, format it
                 const p = parseFloat(item.price);
                 if (!isNaN(p)) {
@@ -693,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     priceEl.textContent = item.price;
                 }
             }
-            
+
             const viewerUrls = firebaseProductImageUrlsForViewer(item);
 
             function bgCssFromHref(href) {
@@ -803,7 +803,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (item.title) document.title = String(item.title) + ' | Thriftizy';
-            
+
             // Update Seller Details
             const sellerId = item.sellerId || item.uid || '';
             let sellerName = item.sellerName || item.seller || '';
@@ -819,10 +819,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             if (!sellerName) sellerName = 'Shitës';
-            if(document.getElementById('prod-seller-name')) {
+            if (document.getElementById('prod-seller-name')) {
                 document.getElementById('prod-seller-name').textContent = 'Shitet nga: ' + sellerName;
             }
-            if(document.getElementById('prod-seller-avatar')) {
+            if (document.getElementById('prod-seller-avatar')) {
                 document.getElementById('prod-seller-avatar').textContent = sellerName.charAt(0).toUpperCase();
             }
 
@@ -935,7 +935,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     }
-    
+
     initDynamicProduct();
 
 });

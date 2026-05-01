@@ -5,14 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profili Im | Thriftizy</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-card-actions {
+            display: flex; gap: 8px; padding: 0 14px 14px;
+        }
+        .btn-edit-prod, .btn-del-prod {
+            flex: 1; padding: 8px; border: none; border-radius: 10px;
+            font-family: inherit; font-weight: 700; font-size: 0.82rem;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-edit-prod { background: #f1f5f9; color: #0f172a; }
+        .btn-edit-prod:hover { background: #e2e8f0; }
+        .btn-del-prod { background: #fee2e2; color: #ef4444; }
+        .btn-del-prod:hover { background: #fecaca; }
+
+        /* Modal */
+        #edit-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45); z-index: 10000;
+            align-items: center; justify-content: center;
+        }
+        #edit-modal-overlay.open { display: flex; }
+        #edit-modal {
+            background: white; border-radius: 20px; padding: 36px;
+            width: 100%; max-width: 560px; max-height: 90vh;
+            overflow-y: auto; position: relative;
+        }
+        #edit-modal h2 { font-size: 1.3rem; margin-bottom: 20px; }
+        .edit-field { margin-bottom: 16px; }
+        .edit-field label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; }
+        .edit-field input, .edit-field select, .edit-field textarea {
+            width: 100%; padding: 12px 14px; border-radius: 10px;
+            border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.95rem;
+            outline: none; box-sizing: border-box;
+        }
+        .edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus {
+            border-color: #10b981;
+        }
+        .edit-photo-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .edit-photo-thumb {
+            position: relative; width: 90px; height: 90px;
+            border-radius: 10px; overflow: hidden; background: #f1f5f9;
+        }
+        .edit-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .edit-photo-thumb .remove-photo {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(239,68,68,0.9); color: white;
+            border: none; border-radius: 50%; width: 22px; height: 22px;
+            cursor: pointer; font-size: 0.75rem; line-height: 22px; text-align: center;
+        }
+        .edit-add-photo {
+            width: 90px; height: 90px; border-radius: 10px;
+            border: 2px dashed #e2e8f0; background: #f8fafc;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.5rem; color: #94a3b8;
+        }
+        .edit-add-photo:hover { border-color: #10b981; color: #10b981; }
+        .edit-modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-save-edit {
+            flex: 1; padding: 14px; background: #0f172a; color: white;
+            border: none; border-radius: 50px; font-weight: 800;
+            font-size: 1rem; cursor: pointer; font-family: inherit;
+        }
+        .btn-save-edit:hover { background: #10b981; }
+        .btn-cancel-edit {
+            padding: 14px 24px; background: #f1f5f9; color: #0f172a;
+            border: none; border-radius: 50px; font-weight: 700;
+            font-size: 1rem; cursor: pointer; font-family: inherit;
+        }
+        .close-modal-btn {
+            position: absolute; top: 16px; right: 20px;
+            background: none; border: none; font-size: 1.4rem;
+            cursor: pointer; color: #94a3b8;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navbar -->
-        <nav id="navbar">
+    <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
         <div class="nav-center">
             <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-                        <ul class="nav-links">
+            <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -26,265 +99,430 @@
         <div class="nav-actions" id="nav-actions"></div>
     </nav>
 
+    <!-- Edit Modal -->
+    <div id="edit-modal-overlay">
+        <div id="edit-modal">
+            <button class="close-modal-btn" id="close-modal-btn" type="button">✕</button>
+            <h2>✏️ Edito Produktin</h2>
+
+            <div class="edit-field">
+                <label>Fotografitë (deri në 3)</label>
+                <div class="edit-photo-strip" id="edit-photo-strip"></div>
+                <input type="file" id="edit-photo-input" accept="image/*" multiple style="display:none">
+            </div>
+            <div class="edit-field">
+                <label>Titulli</label>
+                <input type="text" id="edit-title" placeholder="Titulli i artikullit">
+            </div>
+            <div class="edit-field" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                <div>
+                    <label>Marka</label>
+                    <input type="text" id="edit-brand" placeholder="Nike, Zara...">
+                </div>
+                <div>
+                    <label>Ngjyra</label>
+                    <input type="text" id="edit-color" placeholder="E zezë, E kuqe...">
+                </div>
+            </div>
+            <div class="edit-field" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                <div>
+                    <label>Materiali</label>
+                    <input type="text" id="edit-material" placeholder="Pambuk, Lëkurë...">
+                </div>
+                <div>
+                    <label>Çmimi (€)</label>
+                    <input type="number" id="edit-price" min="1" step="0.5" placeholder="0.00">
+                </div>
+            </div>
+            <div class="edit-field">
+                <label>Madhësia</label>
+                <select id="edit-size">
+                    <option value="">Zgjidh</option>
+                    <option value="xs">XS</option><option value="s">S</option>
+                    <option value="m">M</option><option value="l">L</option>
+                    <option value="xl">XL</option><option value="xxl">XXL</option>
+                </select>
+            </div>
+            <div class="edit-field">
+                <label>Gjinia</label>
+                <select id="edit-gender">
+                    <option value="femra">Femra</option>
+                    <option value="meshkuj">Meshkuj</option>
+                    <option value="unisex">Unisex</option>
+                </select>
+            </div>
+            <div class="edit-field">
+                <label>Gjendja</label>
+                <select id="edit-condition">
+                    <option value="E re">E re me etiketë</option>
+                    <option value="E re pa etiketë">E re pa etiketë</option>
+                    <option value="Pak e përdorur">Pak e përdorur</option>
+                    <option value="E përdorur">E përdorur</option>
+                </select>
+            </div>
+            <div class="edit-field">
+                <label>Përshkrimi</label>
+                <textarea id="edit-desc" rows="3" placeholder="Përshkruaj produktin..."></textarea>
+            </div>
+            <div class="edit-modal-actions">
+                <button class="btn-cancel-edit" id="btn-cancel-edit" type="button">Anulo</button>
+                <button class="btn-save-edit" id="btn-save-edit" type="button">Ruaj Ndryshimet</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Layout -->
     <div class="profile-container">
-        
-        <!-- Sidebar -->
         <aside class="profile-sidebar reveal">
             <div class="profile-avatar" id="profile-avatar">...</div>
             <h3 id="profile-name">Duke u ngarkuar...</h3>
             <p id="profile-meta">@përdorues • -</p>
-
             <div class="profile-stats">
-                <div class="stat">
-                    <h4 id="stat-listime">0</h4>
-                    <span>Listime</span>
-                </div>
-                <div class="stat">
-                    <h4 id="stat-shitura">0</h4>
-                    <span>Të shitura</span>
-                </div>
-                <div class="stat">
-                    <h4 id="stat-rating">⭐ 5.0</h4>
-                    <span>Vlerësimi</span>
-                </div>
+                <div class="stat"><h4 id="stat-listime">0</h4><span>Listime</span></div>
+                <div class="stat"><h4 id="stat-shitura">0</h4><span>Të shitura</span></div>
+                <div class="stat"><h4 id="stat-rating">⭐ 5.0</h4><span>Vlerësimi</span></div>
             </div>
-
             <ul class="profile-menu">
                 <li><a href="#" class="active">Dollapi Im</a></li>
-                <li><a href="saved.html">Të Ruajtura (Likes) ❤️</a></li>
-                <li><a href="blerjet.html">Blerjet e mia</a></li>
-                <li><a href="mesazhet.html">Mesazhet (2)</a></li>
-                <li><a href="#">Rregullimet</a></li>
-                <li><a href="#" id="logout-link" style="color: red; margin-top: 20px;">Shkyçu</a></li>
+                <li><a href="saved.html">Të Ruajtura ❤️</a></li>
+                <li><a href="mesazhet.html">Mesazhet</a></li>
+                <li><a href="#" id="logout-link" style="color:red;margin-top:20px;">Shkyçu</a></li>
             </ul>
         </aside>
 
-        <!-- Content -->
         <main class="profile-content reveal">
             <h2>Dollapi Im</h2>
-            
-            <div class="shop-grid" id="profile-items-grid" data-source="firebase">
-                <p id="profile-loading" style="grid-column: 1 / -1; text-align:center; color: var(--text-muted);">
-                    Duke i ngarkuar listimet nga Firebase...
+            <div class="shop-grid" id="profile-items-grid">
+                <p id="profile-loading" style="grid-column:1/-1;text-align:center;color:var(--text-muted);">
+                    Duke ngarkuar listimet...
                 </p>
             </div>
         </main>
     </div>
 
-    <!-- Cart Sidebar Overlay (Hidden by default) -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
             <h2>Shporta Jote</h2>
             <button class="close-cart" id="close-cart">×</button>
         </div>
-        <div class="cart-items">
-            <!-- Items will be added dynamically, for UI demo: -->
-            <p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Shporta është e zbrazët.<br>Shto disa produkte nga tregu!</p>
-        </div>
+        <div class="cart-items"></div>
         <div class="cart-footer">
-            <div class="cart-total">
-                <span>Totali:</span>
-                <span>0.00€</span>
-            </div>
-            <button class="btn-buy" style="width: 100%;" onclick="location.href='checkout.html'">Paguaj Tani</button>
+            <div class="cart-total"><span>Totali:</span><span>0.00€</span></div>
+            <button class="btn-buy" style="width:100%;" onclick="location.href='checkout.html'">Paguaj Tani</button>
         </div>
     </div>
 
-        <!-- Global Footer -->
-        <footer class="site-footer">
+    <footer class="site-footer">
         <div class="footer-grid">
             <div class="footer-col">
                 <a href="index.html" class="logo" style="color:white;">THRIFT<span>IZY</span></a>
-                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura në Ballkan. Bli, shit, dhe mbro mjedisin.</p>
+                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura në Ballkan.</p>
             </div>
-            <div class="footer-col">
-                <h3>Blerja</h3>
-                <ul>
-                    <li><a href="femra.html">Femra</a></li>
-                    <li><a href="meshkuj.html">Meshkuj</a></li>
-                    <li><a href="kepuce.html">Këpucë</a></li>
-                    <li><a href="aksesore.html">Aksesorë</a></li>
-                    <li><a href="saved.html">Të Ruajtura</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>Shitja</h3>
-                <ul>
-                    <li><a href="shit.html">Shit një artikull</a></li>
-                    <li><a href="profil.html">Profili Im</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>Llogaria</h3>
-                <ul>
-                    <li><a href="login.html">Kyçu</a></li>
-                    <li><a href="signup.html">Regjistrohu</a></li>
-                    <li><a href="mesazhet.html">Mesazhet</a></li>
-                </ul>
-            </div>
+            <div class="footer-col"><h3>Blerja</h3><ul>
+                <li><a href="femra.html">Femra</a></li>
+                <li><a href="meshkuj.html">Meshkuj</a></li>
+                <li><a href="kepuce.html">Këpucë</a></li>
+            </ul></div>
+            <div class="footer-col"><h3>Llogaria</h3><ul>
+                <li><a href="login.html">Kyçu</a></li>
+                <li><a href="signup.html">Regjistrohu</a></li>
+                <li><a href="mesazhet.html">Mesazhet</a></li>
+            </ul></div>
         </div>
         <div class="footer-bottom">© 2026 Thriftizy. Të gjitha të drejtat e rezervuara.</div>
     </footer>
 
 <script type="module" src="main.js"></script>
 <script type="module">
-    import {
-        auth,
-        db,
-        onAuthStateChanged,
-        signOut,
-        doc,
-        getDoc,
-        collection,
-        query,
-        where,
-        getDocs,
-        firebaseProductImageBackgroundCss
-    } from './firebase-config.js';
-    import {
-        bindProductCardGalleries,
-        galleryDataAttr,
-        renderProductMediaInner
-    } from './product-card-ui.js';
+import {
+    auth, db, storage,
+    onAuthStateChanged, signOut,
+    doc, getDoc, collection, query, where, getDocs,
+    updateDoc, deleteDoc,
+    ref, uploadBytes, getDownloadURL,
+    firebaseProductImageBackgroundCss
+} from './firebase-config.js';
+import { bindProductCardGalleries, galleryDataAttr, renderProductMediaInner } from './product-card-ui.js';
 
-    const avatarEl = document.getElementById('profile-avatar');
-    const nameEl = document.getElementById('profile-name');
-    const metaEl = document.getElementById('profile-meta');
-    const itemsGrid = document.getElementById('profile-items-grid');
-    const loadingEl = document.getElementById('profile-loading');
-    const statListimeEl = document.getElementById('stat-listime');
-    const statShituraEl = document.getElementById('stat-shitura');
-    const logoutLink = document.getElementById('logout-link');
+const avatarEl   = document.getElementById('profile-avatar');
+const nameEl     = document.getElementById('profile-name');
+const metaEl     = document.getElementById('profile-meta');
+const itemsGrid  = document.getElementById('profile-items-grid');
+const loadingEl  = document.getElementById('profile-loading');
+const statListEl = document.getElementById('stat-listime');
+const statSoldEl = document.getElementById('stat-shitura');
+const logoutLink = document.getElementById('logout-link');
 
-    function safeText(value, fallback = '-') {
-        if (value === null || value === undefined) return fallback;
-        const text = String(value).trim();
-        return text ? text : fallback;
+const modalOverlay  = document.getElementById('edit-modal-overlay');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const cancelEditBtn = document.getElementById('btn-cancel-edit');
+const saveEditBtn   = document.getElementById('btn-save-edit');
+const photoStrip    = document.getElementById('edit-photo-strip');
+const photoInput    = document.getElementById('edit-photo-input');
+
+let currentUser = null;
+let editingProductId = null;
+// Array of { url: string (existing) | file: File (new) }
+let editPhotos = [];
+
+/* ── helpers ── */
+function safeText(v, fb = '-') { return (v == null || String(v).trim() === '') ? fb : String(v).trim(); }
+function toPrice(p) { const n = parseFloat(p); return Number.isFinite(n) ? n.toFixed(2) + '€' : '0.00€'; }
+function isSold(p) { return p?.status === 'sold' || p?.isSold === true; }
+
+/* ── photo strip in modal ── */
+function renderEditPhotoStrip() {
+    photoStrip.innerHTML = '';
+    editPhotos.slice(0, 3).forEach((item, i) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'edit-photo-thumb';
+        const img = document.createElement('img');
+        img.src = item.url || URL.createObjectURL(item.file);
+        thumb.appendChild(img);
+        const rmBtn = document.createElement('button');
+        rmBtn.className = 'remove-photo';
+        rmBtn.textContent = '✕';
+        rmBtn.type = 'button';
+        rmBtn.onclick = () => { editPhotos.splice(i, 1); renderEditPhotoStrip(); };
+        thumb.appendChild(rmBtn);
+        photoStrip.appendChild(thumb);
+    });
+    if (editPhotos.length < 3) {
+        const add = document.createElement('div');
+        add.className = 'edit-add-photo';
+        add.textContent = '+';
+        add.onclick = () => photoInput.click();
+        photoStrip.appendChild(add);
+    }
+}
+
+photoInput.addEventListener('change', () => {
+    const files = Array.from(photoInput.files);
+    files.forEach(f => { if (editPhotos.length < 3) editPhotos.push({ file: f }); });
+    photoInput.value = '';
+    renderEditPhotoStrip();
+});
+
+/* ── open modal ── */
+function openEditModal(product) {
+    editingProductId = product.id;
+
+    // load existing photos
+    editPhotos = [];
+    if (Array.isArray(product.images)) {
+        product.images.slice(0, 3).forEach(u => { if (u) editPhotos.push({ url: u }); });
+    } else if (product.image) {
+        editPhotos.push({ url: product.image });
     }
 
-    function toPrice(price) {
-        const parsed = parseFloat(price);
-        return Number.isFinite(parsed) ? parsed.toFixed(2) + '€' : '0.00€';
-    }
+    document.getElementById('edit-title').value     = safeText(product.title, '');
+    document.getElementById('edit-price').value     = product.price || '';
+    document.getElementById('edit-brand').value     = safeText(product.brand, '');
+    document.getElementById('edit-color').value     = safeText(product.color, '');
+    document.getElementById('edit-material').value  = safeText(product.material, '');
+    document.getElementById('edit-size').value      = product.size || '';
+    document.getElementById('edit-gender').value    = product.gender || 'femra';
+    document.getElementById('edit-condition').value = product.condition || 'E re';
+    document.getElementById('edit-desc').value      = safeText(product.description, '');
 
-    function renderAddNewCard() {
-        const addCard = document.createElement('div');
-        addCard.className = 'product-card';
-        addCard.style.cssText = 'cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 300px; border: 2px dashed var(--secondary); background: transparent;';
-        addCard.onclick = () => { window.location.href = 'shit.html'; };
-        addCard.innerHTML = `
-            <div style="text-align: center; color: var(--text-muted);">
-                <div style="font-size: 3rem; color: var(--accent); margin-bottom: 10px;">+</div>
-                <h3>Shto Artikull të Ri</h3>
-            </div>
-        `;
-        itemsGrid.appendChild(addCard);
-    }
+    renderEditPhotoStrip();
+    modalOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
 
-    function isSold(product) {
-        return product?.status === 'sold' || product?.isSold === true || product?.sold === true;
-    }
+function closeModal() {
+    modalOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    editingProductId = null;
+    editPhotos = [];
+}
 
-    function openProduct(product) {
-        sessionStorage.setItem('current_product', JSON.stringify(product));
-        window.location.href = 'produkt.html';
-    }
-    window.openProfileProduct = openProduct;
+closeModalBtn.addEventListener('click', closeModal);
+cancelEditBtn.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 
-    function renderProducts(products) {
-        itemsGrid.innerHTML = '';
+function compressImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round(height * (maxWidth / width));
+                    width = maxWidth;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
 
-        if (!products.length) {
-            const empty = document.createElement('p');
-            empty.style.cssText = 'grid-column: 1 / -1; text-align:center; color: var(--text-muted);';
-            empty.textContent = 'Nuk keni listime aktive ende. Postoni artikullin e parë!';
-            itemsGrid.appendChild(empty);
-            renderAddNewCard();
-            return;
-        }
-
-        products.forEach((product) => {
-            const sold = isSold(product);
-            const badgeClass = sold ? 'badge badge-new' : 'badge badge-sale';
-            const badgeStyle = sold ? ' style="background: var(--secondary); color: var(--text-main);"' : '';
-            const badgeLabel = sold ? 'E Shitur' : 'Në Shitje';
-
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', () => openProduct(product));
-
-            const mediaFilter = sold ? 'filter: grayscale(92%); opacity: .88;' : '';
-            card.innerHTML = `
-                <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(product)}" style="background-image: ${firebaseProductImageBackgroundCss(product)}; background-size: cover; background-position: center; ${mediaFilter}">
-                    ${renderProductMediaInner(
-                        product,
-                        `<span class="${badgeClass}"${badgeStyle}>${badgeLabel}</span>`
-                    )}
-                </div>
-                <div class="product-info">
-                    <h4>${safeText(product.title, 'Artikull pa titull')}</h4>
-                    <p class="product-price">${toPrice(product.price)}</p>
-                </div>
-            `;
-            itemsGrid.appendChild(card);
-        });
-
-        bindProductCardGalleries(itemsGrid);
-        renderAddNewCard();
-    }
-
-    async function loadProfile(user) {
-        const userSnap = await getDoc(doc(db, 'users', user.uid));
-        const userData = userSnap.exists() ? userSnap.data() : {};
-
-        const fullName = safeText(userData.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
-        const firstLetter = fullName.charAt(0).toUpperCase();
-        const username = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
-        const location = safeText(userData.city || userData.country, 'Pa lokacion');
-
-        avatarEl.textContent = firstLetter;
-        nameEl.textContent = fullName;
-        metaEl.textContent = `${username} • ${location}`;
-
-        const productsQuery = query(collection(db, 'produktet'), where('sellerId', '==', user.uid));
-        const productsSnap = await getDocs(productsQuery);
-        const products = productsSnap.docs.map((productDoc) => ({ id: productDoc.id, ...productDoc.data() }));
-        products.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
-
-        statListimeEl.textContent = String(products.length);
-        statShituraEl.textContent = String(products.filter(isSold).length);
-
-        renderProducts(products);
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        try {
-            await loadProfile(user);
-        } catch (error) {
-            console.error('Gabim gjatë ngarkimit të profilit:', error);
-            if (loadingEl) {
-                loadingEl.textContent = 'Nuk u ngarkuan të dhënat nga Firebase. Provoni përsëri.';
+/* ── save edits ── */
+saveEditBtn.addEventListener('click', async () => {
+    if (!editingProductId) return;
+    saveEditBtn.disabled = true;
+    saveEditBtn.textContent = 'Duke ruajtur...';
+    try {
+        const finalUrls = [];
+        for (const item of editPhotos.slice(0, 3)) {
+            if (item.url) {
+                finalUrls.push(item.url);
+            } else if (item.file) {
+                saveEditBtn.textContent = 'Duke kompresuar foton...';
+                const base64Url = await compressImage(item.file);
+                finalUrls.push(base64Url);
             }
         }
+
+        const updates = {
+            title:       document.getElementById('edit-title').value.trim(),
+            price:       parseFloat(document.getElementById('edit-price').value) || 0,
+            brand:       document.getElementById('edit-brand').value.trim(),
+            color:       document.getElementById('edit-color').value.trim(),
+            material:    document.getElementById('edit-material').value.trim(),
+            size:        document.getElementById('edit-size').value,
+            gender:      document.getElementById('edit-gender').value,
+            condition:   document.getElementById('edit-condition').value,
+            description: document.getElementById('edit-desc').value.trim(),
+            images:      finalUrls,
+        };
+        if (finalUrls[0]) updates.image = finalUrls[0];
+
+        await updateDoc(doc(db, 'produktet', editingProductId), updates);
+        closeModal();
+        await loadProfile(currentUser);
+    } catch (err) {
+        alert('Gabim gjatë ruajtjes: ' + err.message);
+    } finally {
+        saveEditBtn.disabled = false;
+        saveEditBtn.textContent = 'Ruaj Ndryshimet';
+    }
+});
+
+/* ── delete product ── */
+async function deleteProduct(productId) {
+    if (!confirm('A jeni i sigurt? Produkti do të fshihet përgjithmonë.')) return;
+    try {
+        await deleteDoc(doc(db, 'produktet', productId));
+        await loadProfile(currentUser);
+    } catch (err) {
+        alert('Gabim gjatë fshirjes: ' + err.message);
+    }
+}
+
+/* ── render ── */
+function renderAddNewCard() {
+    const c = document.createElement('div');
+    c.className = 'product-card';
+    c.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:300px;border:2px dashed var(--secondary);background:transparent;';
+    c.onclick = () => window.location.href = 'shit.html';
+    c.innerHTML = `<div style="text-align:center;color:var(--text-muted);">
+        <div style="font-size:3rem;color:var(--accent);margin-bottom:10px;">+</div>
+        <h3>Shto Artikull të Ri</h3>
+    </div>`;
+    itemsGrid.appendChild(c);
+}
+
+function renderProducts(products) {
+    itemsGrid.innerHTML = '';
+    if (!products.length) {
+        const p = document.createElement('p');
+        p.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--text-muted);';
+        p.textContent = 'Nuk keni listime aktive. Postoni artikullin e parë!';
+        itemsGrid.appendChild(p);
+        renderAddNewCard();
+        return;
+    }
+
+    products.forEach(product => {
+        const sold = isSold(product);
+        const badgeLabel = sold ? 'E Shitur' : 'Në Shitje';
+        const badgeStyle = sold ? 'background:var(--secondary);color:var(--text-main);' : '';
+        const mediaFilter = sold ? 'filter:grayscale(90%);opacity:.85;' : '';
+
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <div class="img-wrapper firebase-prod-img-slot product-card-media"
+                 data-gallery="${galleryDataAttr(product)}"
+                 style="background-image:${firebaseProductImageBackgroundCss(product)};background-size:cover;background-position:center;cursor:pointer;${mediaFilter}">
+                ${renderProductMediaInner(product, `<span class="badge badge-sale" style="${badgeStyle}">${badgeLabel}</span>`)}
+            </div>
+            <div class="product-info" style="cursor:pointer;">
+                <h4>${safeText(product.title,'Artikull pa titull')}</h4>
+                <p class="product-price">${toPrice(product.price)}</p>
+            </div>
+            <div class="profile-card-actions">
+                <button class="btn-edit-prod" type="button" data-id="${product.id}">✏️ Edito</button>
+                <button class="btn-del-prod"  type="button" data-id="${product.id}">🗑️ Fshi</button>
+            </div>`;
+
+        card.querySelector('.img-wrapper').addEventListener('click', () => {
+            sessionStorage.setItem('current_product', JSON.stringify(product));
+            window.location.href = 'produkt.html';
+        });
+        card.querySelector('.product-info').addEventListener('click', () => {
+            sessionStorage.setItem('current_product', JSON.stringify(product));
+            window.location.href = 'produkt.html';
+        });
+        card.querySelector('.btn-edit-prod').addEventListener('click', () => openEditModal(product));
+        card.querySelector('.btn-del-prod').addEventListener('click', () => deleteProduct(product.id));
+
+        itemsGrid.appendChild(card);
     });
 
-    logoutLink?.addEventListener('click', async (event) => {
-        event.preventDefault();
-        try {
-            await signOut(auth);
-            window.location.href = 'index.html';
-        } catch (error) {
-            alert('Nuk u bë shkyçja: ' + error.message);
-        }
-    });
+    bindProductCardGalleries(itemsGrid);
+    renderAddNewCard();
+}
+
+/* ── load ── */
+async function loadProfile(user) {
+    const userSnap = await getDoc(doc(db, 'users', user.uid));
+    const ud = userSnap.exists() ? userSnap.data() : {};
+    const fullName  = safeText(ud.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
+    const username  = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
+    const location  = safeText(ud.city || ud.country, 'Pa lokacion');
+
+    avatarEl.textContent = fullName.charAt(0).toUpperCase();
+    nameEl.textContent   = fullName;
+    metaEl.textContent   = `${username} • ${location}`;
+
+    const snap = await getDocs(query(collection(db, 'produktet'), where('sellerId', '==', user.uid)));
+    const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    products.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+
+    statListEl.textContent = String(products.length);
+    statSoldEl.textContent = String(products.filter(isSold).length);
+    renderProducts(products);
+}
+
+onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    try { await loadProfile(user); }
+    catch (err) {
+        console.error(err);
+        if (loadingEl) loadingEl.textContent = 'Nuk u ngarkuan të dhënat. Provoni përsëri.';
+    }
+});
+
+logoutLink?.addEventListener('click', async e => {
+    e.preventDefault();
+    try { await signOut(auth); window.location.href = 'index.html'; }
+    catch (err) { alert('Nuk u bë shkyçja: ' + err.message); }
+});
 </script>
 </body>
 </html>

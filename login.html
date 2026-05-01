@@ -160,9 +160,11 @@
         const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
 
+        const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'profil.html';
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                window.location.href = 'profil.html';
+                window.location.href = redirectTo;
             }
         });
 
@@ -182,7 +184,7 @@
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = 'profil.html';
+                window.location.href = redirectTo;
             } catch (error) {
                 let message = 'Kyçja dështoi. Provoni përsëri.';
                 if (error.code === 'auth/invalid-credential') {

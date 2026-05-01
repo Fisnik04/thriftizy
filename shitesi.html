@@ -383,7 +383,7 @@
         };
 
         window.startChat = async () => {
-            const { auth, db, collection, addDoc, getDocs, query, where } = await import('./firebase-config.js');
+            const { auth, db, collection, addDoc, getDocs, getDoc, doc, query, where } = await import('./firebase-config.js');
             const user = auth.currentUser;
             if (!user) { window.location.href = 'login.html'; return; }
             if (sellerId === user.uid) { alert('Ky është profili yt!'); return; }
@@ -401,11 +401,31 @@
                 if (existing) {
                     convId = existing.id;
                 } else {
+                    // Lexo emrin e vërtetë të blerësit nga Firestore
+                    let buyerName = user.email?.split('@')[0] || 'Blerës';
+                    try {
+                        const buyerSnap = await getDoc(doc(db, 'users', user.uid));
+                        if (buyerSnap.exists()) {
+                            const bd = buyerSnap.data();
+                            buyerName = bd.fullName || bd.displayName || buyerName;
+                        }
+                    } catch (_) {}
+
+                    // Lexo emrin e vërtetë të shitësit nga Firestore
+                    let resolvedSellerName = sellerName || 'Shitës';
+                    try {
+                        const sellerSnap = await getDoc(doc(db, 'users', sellerId));
+                        if (sellerSnap.exists()) {
+                            const sd = sellerSnap.data();
+                            resolvedSellerName = sd.fullName || sd.displayName || resolvedSellerName;
+                        }
+                    } catch (_) {}
+
                     const newConv = await addDoc(collection(db, 'conversations'), {
                         participants: [user.uid, sellerId],
                         participantNames: {
-                            [user.uid]: user.email?.split('@')[0] || 'Blerës',
-                            [sellerId]: sellerName || 'Shitës'
+                            [user.uid]: buyerName,
+                            [sellerId]: resolvedSellerName
                         },
                         productId: '',
                         productTitle: 'Nga profili',
