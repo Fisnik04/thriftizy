@@ -54,6 +54,16 @@
             overflow: hidden;
         }
 
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 20px;
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            border-radius: 34px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .hero::after {
             content: '';
             position: absolute;
@@ -148,12 +158,14 @@
         }
 
         .hero-visual {
-            background: linear-gradient(145deg, #10b981 0%, #0f766e 40%, #3b82f6 100%);
+            background:
+                linear-gradient(180deg, rgba(15, 23, 42, 0.02), rgba(15, 23, 42, 0.18)),
+                url("assets/hero.png") center / cover no-repeat;
             border-radius: clamp(22px, 4vw, 36px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(4rem, 14vw, 7.5rem);
+            font-size: 0;
             min-height: min(520px, 55vh);
             box-shadow:
                 0 32px 64px rgba(15, 23, 42, 0.15),
@@ -165,9 +177,11 @@
         .hero-visual::after {
             content: '';
             position: absolute;
-            inset: -2px;
+            inset: 0;
             border-radius: inherit;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 40%);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 38%),
+                linear-gradient(to top, rgba(15, 23, 42, 0.18), transparent 54%);
             pointer-events: none;
         }
 
@@ -256,70 +270,122 @@
 
         .cats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .cat-card {
-            border-radius: 24px;
+            border-radius: 20px;
             overflow: hidden;
             position: relative;
             cursor: pointer;
-            aspect-ratio: 3/4;
+            aspect-ratio: 4/5;
             display: flex;
             align-items: flex-end;
-            transition: transform .3s, box-shadow .3s;
+            isolation: isolate;
+            background-color: #e2e8f0;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+            transition: transform .28s ease, box-shadow .28s ease;
         }
 
         .cat-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, .15);
+            transform: translateY(-5px);
+            box-shadow: 0 24px 48px rgba(15, 23, 42, .14);
+        }
+
+        .cat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--cat-image) center / cover no-repeat;
+            z-index: -2;
+            transition: transform .45s ease;
+        }
+
+        .cat-card:hover::before {
+            transform: scale(1.05);
+        }
+
+        .cat-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(to top, rgba(15, 23, 42, .82), rgba(15, 23, 42, .22) 52%, rgba(15, 23, 42, .04)),
+                radial-gradient(circle at 16% 12%, rgba(255, 255, 255, .28), transparent 34%);
+            z-index: -1;
         }
 
         .cat-card-body {
             position: relative;
             z-index: 2;
-            padding: 22px;
+            padding: 20px;
             color: white;
             width: 100%;
-            background: linear-gradient(to top, rgba(0, 0, 0, .6), transparent);
+            background: none;
         }
 
         .cat-card-body h3 {
-            font-size: 1.3rem;
+            font-size: 1.45rem;
             font-weight: 800;
             margin-bottom: 4px;
+            letter-spacing: 0;
         }
 
         .cat-card-body span {
             font-size: .82rem;
-            opacity: .9;
+            opacity: .92;
+            font-weight: 700;
+        }
+
+        .cat-card-body::after {
+            content: 'Shiko tani →';
+            display: inline-flex;
+            align-items: center;
+            margin-top: 14px;
+            min-height: 34px;
+            padding: 0 13px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .94);
+            color: #0f172a;
+            font-size: .78rem;
+            font-weight: 900;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, .16);
         }
 
         .cat-emoji {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 3.5rem;
-            opacity: .35;
+            top: 16px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, .9);
+            color: #0f172a;
+            font-size: 1.45rem;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+            opacity: 1;
         }
 
         .cat-f {
-            background: linear-gradient(135deg, #f472b6, #ec4899);
+            --cat-image: url("assets/femra_products.png");
         }
 
         .cat-m {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --cat-image: url("assets/clothes.png");
         }
 
         .cat-s {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            --cat-image: url("assets/sneakers.png");
         }
 
         .cat-a {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            --cat-image: url("assets/accessories.png");
         }
 
         .products-grid {
@@ -460,6 +526,36 @@
 
         .btn-cart:hover {
             background: #10b981;
+        }
+
+        .badge-sold {
+            background: #ef4444 !important;
+            color: white !important;
+        }
+
+        .product-sold {
+            opacity: 0.75;
+            filter: grayscale(0.2);
+        }
+
+        .product-sold .img-wrapper::after {
+            content: "I SHITUR";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            z-index: 4;
+        }
+
+        .btn-cart.sold {
+            background: #94a3b8 !important;
+            cursor: not-allowed;
         }
 
         .how-grid {
@@ -783,11 +879,30 @@
             }
 
             .cat-card-body {
-                padding: 14px;
+                padding: 15px;
             }
 
             .cat-card-body h3 {
-                font-size: 1.05rem;
+                font-size: 1.12rem;
+            }
+
+            .cat-card-body span {
+                font-size: .74rem;
+            }
+
+            .cat-card-body::after {
+                min-height: 30px;
+                margin-top: 10px;
+                padding: 0 10px;
+                font-size: .7rem;
+            }
+
+            .cat-emoji {
+                width: 38px;
+                height: 38px;
+                top: 12px;
+                right: 12px;
+                font-size: 1.1rem;
             }
 
             .products-grid {
@@ -867,6 +982,9 @@
         </div>
     </div>
 
+    <!-- SELLER NOTIFICATIONS -->
+    <div id="seller-notifications-container"></div>
+
     <!-- HERO -->
     <section class="hero">
         <div>
@@ -898,6 +1016,10 @@
 
     <!-- CATEGORIES -->
     <section class="section" style="background:white;padding:50px 8%;">
+        <div class="section-title home-cats-title">
+            <h2>Bli sipas kategorisë</h2>
+            <p>Zgjidh shpejt stilin që po kërkon.</p>
+        </div>
         <div class="cats-grid">
             <div class="cat-card cat-f" onclick="location.href='femra.html'">
                 <div class="cat-emoji">👗</div>
@@ -1099,17 +1221,19 @@
 
         function card(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
+            const isSold = p.status === 'sold';
             const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
-            const badge = isNew
-                ? `<span class="badge badge-new">E re</span>`
-                : `<span class="badge badge-used">Pak e përdorur</span>`;
+            const badge = isSold 
+                ? `<span class="badge badge-sold">I SHITUR</span>`
+                : (isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`);
+
             const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
             const pStr = encodeURIComponent(JSON.stringify(p));
             const overlays = `
         <button class="heart-icon" onclick="event.stopPropagation();heart(this,'${pStr}')">🤍</button>
         ${badge}`;
             return `
-    <div class="product-card" onclick="go('${pStr}')">
+    <div class="product-card ${isSold ? 'product-sold' : ''}" data-id="${p.id}" data-seller-id="${p.sellerId || ''}" onclick="go('${pStr}')">
       <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
         ${renderProductMediaInner(p, overlays)}
       </div>
@@ -1119,7 +1243,9 @@
         <div class="product-meta">${meta || '—'}</div>
         <div class="product-footer">
           <span class="product-price">${parseFloat(p.price).toFixed(2)}€</span>
-          <button class="btn-cart" onclick="event.stopPropagation();addCart('${pStr}')">+ Shportë</button>
+          ${isSold 
+            ? `<button class="btn-cart sold" disabled>I shitur</button>` 
+            : `<button class="btn-cart" onclick="event.stopPropagation();addCart('${pStr}')">+ Shportë</button>`}
         </div>
       </div>
     </div>`;
@@ -1143,7 +1269,7 @@
         window.addCart = encodedRaw => {
             const p = JSON.parse(decodeURIComponent(encodedRaw));
             let c = JSON.parse(localStorage.getItem('thriftizy_cart') || '[]');
-            c.push({ title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
+            c.push({ id: p.id, sellerId: p.sellerId || null, title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
             localStorage.setItem('thriftizy_cart', JSON.stringify(c));
             document.querySelectorAll('.cart-badge').forEach(b => b.textContent = c.length);
             document.getElementById('cart-sidebar')?.classList.add('open');
@@ -1190,27 +1316,6 @@
         }
     </script>
     <script type="module" src="main.js"></script>
-    <script>
-        (function () {
-            var t = document.getElementById('home-menu-toggle');
-            if (!t) return;
-            t.textContent = '☰';
-            t.addEventListener('click', function () {
-                document.body.classList.toggle('home-nav-drawer-open');
-                var open = document.body.classList.contains('home-nav-drawer-open');
-                t.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-            window.addEventListener('resize', function () {
-                if (window.innerWidth > 900) document.body.classList.remove('home-nav-drawer-open');
-            });
-            document.querySelectorAll('#mobile-nav-drawer-links a').forEach(function (a) {
-                a.addEventListener('click', function () {
-                    document.body.classList.remove('home-nav-drawer-open');
-                    t.setAttribute('aria-expanded', 'false');
-                });
-            });
-        })();
-    </script>
 </body>
 
 </html>

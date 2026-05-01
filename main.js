@@ -9,6 +9,7 @@ import {
     query,
     updateDoc,
     where,
+    onAuthStateChanged,
     serverTimestamp,
     firebaseProductImageBackgroundCss,
     firebaseProductImageUrlsForViewer,
@@ -43,11 +44,63 @@ function cartImageCssFromProductCard(productCard) {
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
+    if (!navbar) return;
     if (window.scrollY > 50) {
         navbar.classList.add('scrolled');
     } else {
         navbar.classList.remove('scrolled');
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const navbar = document.getElementById('navbar');
+    if (!navbar) return;
+
+    let menuToggle = document.getElementById('home-menu-toggle');
+    const navCenter = navbar.querySelector('.nav-center');
+
+    if (!menuToggle && navCenter) {
+        menuToggle = document.createElement('button');
+        menuToggle.type = 'button';
+        menuToggle.className = 'home-menu-toggle';
+        menuToggle.id = 'home-menu-toggle';
+        menuToggle.setAttribute('aria-controls', navCenter.querySelector('.nav-links')?.id || 'mobile-nav-drawer-links');
+        navbar.insertBefore(menuToggle, navCenter);
+    }
+
+    if (!menuToggle) return;
+
+    const setMobileMenuState = (open) => {
+        document.body.classList.toggle('home-nav-drawer-open', open);
+        menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        menuToggle.setAttribute('aria-label', open ? 'Mbyll menynë' : 'Hap menynë');
+        menuToggle.textContent = open ? '×' : '☰';
+    };
+
+    setMobileMenuState(false);
+
+    menuToggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setMobileMenuState(!document.body.classList.contains('home-nav-drawer-open'));
+    }, true);
+
+    navbar.querySelectorAll('.nav-links a').forEach((link) => {
+        link.addEventListener('click', () => setMobileMenuState(false), true);
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) setMobileMenuState(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setMobileMenuState(false);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (window.innerWidth > 900 || !document.body.classList.contains('home-nav-drawer-open')) return;
+        if (!navbar.contains(event.target)) setMobileMenuState(false);
+    });
 });
 
 // Reveal Elements on Scroll
@@ -420,10 +473,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (card) {
                 const title = card.querySelector('h4').textContent;
                 const priceText = card.querySelector('.product-price').textContent;
+                const id = card.getAttribute('data-id') || '';
+                const sellerId = card.getAttribute('data-seller-id') || '';
+                
                 // Extract number from price text (e.g. "45.00€" -> 45.00)
                 const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
 
-                cart.push({ title, price, image: cartImageCssFromProductCard(card) });
+                cart.push({ id, sellerId, title, price, image: cartImageCssFromProductCard(card) });
                 localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
 
                 updateCartUI();
@@ -634,21 +690,72 @@ document.addEventListener("DOMContentLoaded", () => {
                     const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
                     const total = Math.max(0, subtotal + 2 - 5);
 
-                    await addDoc(collection(db, 'porosite'), {
+                    const shippingInfo = {
+                        firstName: document.getElementById('ship-name')?.value || '',
+                        lastName: document.getElementById('ship-surname')?.value || '',
+                        address: document.getElementById('ship-address')?.value || '',
+                        city: document.getElementById('ship-city')?.value || '',
+                        country: document.getElementById('ship-country')?.value || '',
+                        phone: document.getElementById('ship-phone')?.value || ''
+                    };
+
+                    if (!shippingInfo.firstName || !shippingInfo.address || !shippingInfo.phone) {
+                        alert('Ju lutem plotësoni të gjitha fushat e detyrueshme të dërgesës.');
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = previousText;
+                        return;
+                    }
+
+                    // Create the main order record
+                    const orderRef = await addDoc(collection(db, 'porosite'), {
                         buyerId: user?.uid || null,
                         buyerEmail: user?.email || null,
-                        items: cartItems,
+                        items: cartItems.map(item => ({
+                            id: item.id || '',
+                            sellerId: item.sellerId || '',
+                            title: item.title || 'Produkti',
+                            price: item.price || 0,
+                            image: item.image || ''
+                        })),
+                        shippingInfo,
                         subtotal,
                         shipping: 2,
                         discount: 5,
                         totalAmount: total,
+                        paymentMethod: 'Cash on Delivery',
                         status: 'new',
                         createdAt: serverTimestamp()
                     });
 
+                    // Create individual sale records for each seller
+                    const salesPromises = cartItems.map(item => {
+                        const sId = item.sellerId || null;
+                        if (sId) {
+                            return addDoc(collection(db, 'shitjet'), {
+                                orderId: orderRef.id,
+                                sellerId: sId,
+                                buyerId: user?.uid || null,
+                                buyerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+                                buyerPhone: shippingInfo.phone,
+                                buyerAddress: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.country}`,
+                                item: {
+                                    id: item.id || '',
+                                    title: item.title || 'Produkti',
+                                    price: item.price || 0,
+                                    image: item.image || ''
+                                },
+                                status: 'new',
+                                createdAt: serverTimestamp()
+                            });
+                        }
+                        return Promise.resolve();
+                    });
+
+                    await Promise.all(salesPromises);
+
                     alert('Porosia u konfirmua me sukses!');
                     localStorage.removeItem('thriftizy_cart');
-                    window.location.href = 'blerjet.html';
+                    window.location.href = 'index.html'; // Redirect to home so they can see if they sold something too? Or just success.
                 } catch (error) {
                     console.error('Gabim gjatë ruajtjes së porosisë:', error);
                     alert('Porosia nuk u ruajt: ' + error.message);
@@ -879,6 +986,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 sellerLink.style.display = 'none';
             }
 
+            // Hide actions if the item belongs to the current user
+            onAuthStateChanged(auth, (user) => {
+                const isMyItem = (urlParams.get('myitem') !== null);
+                if (isMyItem || (user && sellerId && user.uid === sellerId)) {
+                    const actionContainer = document.querySelector('.product-actions-main');
+                    if (actionContainer) {
+                        actionContainer.innerHTML = `
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px;">
+                                <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 1rem;">Ky është artikulli juaj</p>
+                                <p style="margin: 4px 0 12px; font-size: 0.85rem; color: #64748b;">Nuk mund të blesh ose të dërgosh oferta për produktet tuaja.</p>
+                                <a href="profil.html" style="display: inline-block; padding: 10px 20px; background: var(--primary); color: white; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.88rem;">Shko te dollapi</a>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
             function productCartImage() {
                 return firebaseProductImageBackgroundCss(item);
             }
@@ -956,7 +1080,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const buyerData = buyerSnap.data();
                         buyerName = buyerData.fullName || buyerData.displayName || buyerData.email || buyerName;
                     }
-                } catch (_) {}
+                } catch (_) { }
                 return buyerName;
             }
 
@@ -1150,4 +1274,117 @@ document.addEventListener('DOMContentLoaded', () => {
             location.reload();
         });
     });
+
+    // -----------------------------------------
+    // SELLER NOTIFICATIONS LOGIC
+    // -----------------------------------------
+    async function checkSellerSales(userId) {
+        const container = document.getElementById('seller-notifications-container');
+        if (!container) return;
+
+        try {
+            const q = query(collection(db, 'shitjet'), where('sellerId', '==', userId), where('status', '==', 'new'));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <section style="max-width: 1200px; margin: 22px auto 0; padding: 0 20px;">
+                    <div style="background: linear-gradient(135deg, #ecfdf5, #eff6ff); border-radius: 22px; padding: 20px; border: 1px solid rgba(16, 185, 129, 0.25); box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:16px;">
+                            <div>
+                                <p style="margin:0 0 4px;color:#0f766e;font-size:.78rem;font-weight:900;text-transform:uppercase;">Njoftime për shitësin</p>
+                                <h3 style="margin:0;color:#0f172a;font-size:1.25rem;">Ke ${snap.size} porosi të re${snap.size === 1 ? '' : 'ja'}</h3>
+                            </div>
+                            <a href="profil.html" style="text-decoration:none;background:#0f172a;color:white;border-radius:999px;padding:10px 14px;font-weight:900;font-size:.82rem;white-space:nowrap;">Hap profilin</a>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+            `;
+
+            snap.docs.forEach(docSnap => {
+                const sale = docSnap.data();
+                html += `
+                    <article style="background:white;border:1px solid rgba(15,23,42,.08);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px;">
+                        <div style="display:flex;gap:12px;align-items:center;">
+                            <div style="width:58px;height:58px;border-radius:12px;background-image:${sale.item.image};background-size:cover;background-position:center;background-color:#e2e8f0;flex:0 0 auto;"></div>
+                            <div style="min-width:0;">
+                                <h4 style="font-size:.95rem;margin:0 0 2px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sale.item.title}</h4>
+                                <p style="font-size:.82rem;margin:0;color:#64748b;">${sale.buyerName || 'Blerës'} • ${sale.buyerPhone || 'pa telefon'}</p>
+                                <strong style="display:block;margin-top:4px;color:#10b981;">${parseFloat(sale.item.price || 0).toFixed(2)}€</strong>
+                            </div>
+                        </div>
+                        <div style="background:#f8fafc;border-radius:12px;padding:10px;color:#64748b;font-size:.8rem;line-height:1.35;">
+                            <b style="color:#0f172a;">Adresa:</b> ${sale.buyerAddress || '-'}
+                        </div>
+                        <button onclick="confirmSale('${docSnap.id}')" style="background:#10b981;color:white;border:none;padding:10px 12px;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;">Marko si të dërguar</button>
+                    </article>
+                `;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                </section>
+            `;
+            container.innerHTML = html;
+        } catch (err) {
+            console.error("Error fetching seller sales:", err);
+        }
+    }
+
+    window.confirmSale = async (saleId) => {
+        if (!confirm("A e keni nisur dërgesën për këtë porosi? Produkti do të shënohet si i shitur.")) return;
+        try {
+            const saleSnap = await getDoc(doc(db, 'shitjet', saleId));
+            if (saleSnap.exists()) {
+                const saleData = saleSnap.data();
+                const productId = saleData.item.id;
+                
+                // Update sale status
+                await updateDoc(doc(db, 'shitjet', saleId), { status: 'completed', completedAt: new Date() });
+                
+                // Update product status to sold
+                if (productId) {
+                    await updateDoc(doc(db, 'produktet', productId), { status: 'sold' });
+                }
+                
+                location.reload();
+            }
+        } catch (err) {
+            alert("Gabim gjatë përditësimit: " + err.message);
+        }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            checkSellerSales(user.uid);
+        }
+    });
+
+    // Mobile Menu Toggle Logic
+    const menuToggle = document.getElementById('home-menu-toggle');
+    if (menuToggle) {
+        menuToggle.textContent = '☰';
+        menuToggle.addEventListener('click', function () {
+            document.body.classList.toggle('home-nav-drawer-open');
+            const open = document.body.classList.contains('home-nav-drawer-open');
+            menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 900) {
+                document.body.classList.remove('home-nav-drawer-open');
+            }
+        });
+
+        document.querySelectorAll('#mobile-nav-drawer-links a').forEach(function (a) {
+            a.addEventListener('click', function () {
+                document.body.classList.remove('home-nav-drawer-open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
 });

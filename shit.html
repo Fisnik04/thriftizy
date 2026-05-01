@@ -85,11 +85,14 @@
 </head>
 
 <body>
-    <nav id="navbar">
+        <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
+            aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
-            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-            <ul class="nav-links">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
+            </div>
+            <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -101,7 +104,12 @@
                             id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-        <div class="nav-actions" id="nav-actions"></div>
+        <div class="nav-actions" id="nav-actions">
+            <button type="button" class="icon-btn" id="cart-icon" aria-label="Shporta">
+                <span class="cart-ico" aria-hidden="true">🛒</span>
+                <span class="cart-badge">0</span>
+            </button>
+        </div>
     </nav>
 
     <div id="sell-auth-loader">Duke verifikuar llogarinë...</div>
@@ -226,7 +234,9 @@
                         </div>
                         <div class="form-group">
                             <label>Qyteti *</label>
-                            <input type="text" id="sell-city" placeholder="P.sh. Prishtinë" required>
+                            <div id="sell-city-container">
+                                <input type="text" id="sell-city" placeholder="P.sh. Prishtinë" required>
+                            </div>
                         </div>
                     </div>
 
@@ -329,6 +339,38 @@
             });
             photoInput.value = '';
             renderStrip();
+        });
+
+        /* ── city logic ── */
+        const countrySelect = document.getElementById('sell-country');
+        const cityContainer = document.getElementById('sell-city-container');
+        const mkCities = ["Berovë", "Manastir", "Vallandovë", "Veles", "Vinicë", "Gjevgjeli", "Gostivar", "Dibrë", "Dellçevë", "Demir Hisar", "Kavadar", "Kërçovë", "Koçan", "Kratovë", "Kriva Pallankë", "Krushevë", "Kumanovë", "Brod", "Negotinë", "Ohër", "Prilep", "Probishtip", "Radovisht", "Resnjë", "Sveti Nikollë", "Shkup", "Strugë", "Strumicë", "Tetovë", "Shtip"];
+        const ksCities = ["Artanë", "Besianë", "Burim", "Dardanë", "Deçan", "Dragash", "Drenas", "Ferizaj", "Fushë Kosovë", "Gjakovë", "Gjilan", "Kastriot", "Kaçanik", "Klinë", "Leposaviq", "Lipjan", "Malishevë", "Mitrovicë", "Pejë", "Prishtinë", "Prizren", "Rahovec", "Skenderaj", "Shtërpcë", "Shtime", "Therandë", "Viti", "Vushtrri", "Zubin Potok", "Zveçan"];
+        const alCities = ["Berat", "Bulqizë", "Delvinë", "Devoll", "Dibër", "Durrës", "Elbasan", "Fier", "Gramsh", "Gjirokastër", "Has", "Kavajë", "Kolonjë", "Korçë", "Krujë", "Kucovë", "Kukës", "Kurbin", "Lezhë", "Librazhd", "Lushnjë", "Malësi e Madhe", "Mallakastër", "Mat", "Mirditë", "Peqin", "Përmet", "Pogradec", "Pukë", "Sarandë", "Skrapar", "Shkodër", "Tepelenë", "Tiranë", "Tropojë", "Vlorë"];
+
+        countrySelect.addEventListener('change', () => {
+            const country = countrySelect.value;
+            if (country === 'Maqedoni') {
+                let options = '<option value="" disabled selected>Zgjidh qytetin</option>';
+                mkCities.sort().forEach(c => {
+                    options += `<option value="${c}">${c}</option>`;
+                });
+                cityContainer.innerHTML = `<select id="sell-city" required>${options}</select>`;
+            } else if (country === 'Kosovë') {
+                let options = '<option value="" disabled selected>Zgjidh qytetin</option>';
+                ksCities.forEach(c => {
+                    options += `<option value="${c}">${c}</option>`;
+                });
+                cityContainer.innerHTML = `<select id="sell-city" required>${options}</select>`;
+            } else if (country === 'Shqipëri') {
+                let options = '<option value="" disabled selected>Zgjidh qytetin</option>';
+                alCities.sort().forEach(c => {
+                    options += `<option value="${c}">${c}</option>`;
+                });
+                cityContainer.innerHTML = `<select id="sell-city" required>${options}</select>`;
+            } else {
+                cityContainer.innerHTML = `<input type="text" id="sell-city" placeholder="P.sh. Qyteti juaj" required>`;
+            }
         });
 
         /* ── auth guard ── */

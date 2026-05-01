@@ -8,11 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            padding-top: 64px;
-            background: #f8fafc;
-            font-family: 'Outfit', sans-serif;
-        }
+        
 
         .page-hero {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%);
@@ -469,16 +465,28 @@
                 height: 200px;
             }
         }
+    
+        .badge-sold { background: #ef4444 !important; color: white !important; }
+        .product-sold { opacity: 0.75; filter: grayscale(0.2); }
+        .product-sold .img-wrapper::after {
+            content: "I SHITUR"; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; z-index: 4;
+        }
+        .btn-cart.sold { background: #94a3b8 !important; cursor: not-allowed; }
     </style>
 </head>
 
 <body>
 
-    <nav id="navbar">
+            <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
+            aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
-            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-            <ul class="nav-links">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
+            </div>
+            <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -490,7 +498,12 @@
                             id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-        <div class="nav-actions" id="nav-actions"></div>
+        <div class="nav-actions" id="nav-actions">
+            <button type="button" class="icon-btn" id="cart-icon" aria-label="Shporta">
+                <span class="cart-ico" aria-hidden="true">🛒</span>
+                <span class="cart-badge">0</span>
+            </button>
+        </div>
     </nav>
 
     <div class="cart-overlay" id="cart-overlay"></div>
@@ -635,8 +648,9 @@
 
         function renderCard(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
-            const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
-            const badge = isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`;
+            const isSold = p.status === "sold";
+            const isNew = p.condition === "E re me etiketë" || p.condition === "E re pa etiketë";
+            const badge = isSold ? `<span class="badge badge-sold">I SHITUR</span>` : (isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`);
 
             const metaParts = [];
             if (p.size) metaParts.push(`Madh. ${p.size}`);
@@ -647,7 +661,7 @@
                     <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
                     ${badge}`;
             return `
-            <div class="product-card" onclick="selectProduct('${p.id}')">
+            <div class="product-card ${isSold ? 'product-sold' : ''}" onclick="selectProduct('${p.id}')">
                 <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
                     ${renderProductMediaInner(p, overlays)}
                 </div>
@@ -673,7 +687,7 @@
             const p = allProducts.find(x => x.id === id);
             if (!p) return;
             let cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
-            cart.push({ title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
+            cart.push({ id: p.id, sellerId: p.sellerId || null, title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
             localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
             document.querySelectorAll('.cart-badge').forEach(b => b.textContent = cart.length);
             document.getElementById('cart-sidebar')?.classList.add('open');

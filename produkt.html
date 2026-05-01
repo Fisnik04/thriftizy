@@ -29,15 +29,36 @@
         .offer-modal-actions button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; }
         .offer-modal-cancel { background: #f1f5f9; color: #475569; }
         .offer-modal-submit { background: var(--primary, #0f172a); color: white; }
+        .btn-buy:disabled {
+            background: #94a3b8 !important;
+            cursor: not-allowed;
+        }
+        .sold-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            z-index: 10;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-        <nav id="navbar">
+                <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
+            aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
-            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-                        <ul class="nav-links">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
+            </div>
+            <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -45,10 +66,16 @@
                 <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-        <div class="nav-actions" id="nav-actions"></div>
+        <div class="nav-actions" id="nav-actions">
+            <button type="button" class="icon-btn" id="cart-icon" aria-label="Shporta">
+                <span class="cart-ico" aria-hidden="true">🛒</span>
+                <span class="cart-badge">0</span>
+            </button>
+        </div>
     </nav>
 
     <!-- Product Detail Section -->
@@ -126,7 +153,6 @@
                 <div class="seller-avatar" id="prod-seller-avatar">FF</div>
                 <div class="seller-details">
                     <h4 id="prod-seller-name">Shitet nga: Fisnik Fazlija</h4>
-                    <p>⭐ 4.9/5 (120 Vlerësime) • Aktiv sot</p>
                     <p id="prod-seller-location">📍 Lokacioni: —</p>
                     <a href="#" id="prod-seller-link" style="font-size: 0.85rem;">Shiko faqen e shitësit</a>
                 </div>
@@ -211,5 +237,144 @@
     </div>
 
     <script type="module" src="main.js"></script>
+    <script type="module">
+        import { db, doc, getDoc, auth, onAuthStateChanged, collection, addDoc, serverTimestamp, firebaseProductImageBackgroundCss, firebaseProductImageUrlsForViewer } from './firebase-config.js';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        let currentProductData = null;
+
+        async function loadProduct() {
+            if (!productId) {
+                alert("Produkti nuk u gjet!");
+                return;
+            }
+
+            const docSnap = await getDoc(doc(db, 'produktet', productId));
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                data.id = docSnap.id;
+                currentProductData = data;
+                renderProduct(data);
+            } else {
+                alert("Produkti nuk ekziston.");
+            }
+        }
+
+        function renderProduct(p) {
+            document.title = `${p.title} | Thriftizy`;
+            document.getElementById('prod-title').textContent = p.title;
+            document.getElementById('prod-price').textContent = `${parseFloat(p.price).toFixed(2)}€`;
+            document.getElementById('prod-brand').textContent = p.brand || '—';
+            document.getElementById('prod-size').textContent = p.size || '—';
+            document.getElementById('prod-condition').textContent = p.condition || '—';
+            document.getElementById('prod-color').textContent = p.color || '—';
+            document.getElementById('prod-material').textContent = p.material || '—';
+            document.getElementById('prod-category').textContent = p.category || '—';
+            document.getElementById('prod-gender').textContent = p.gender || '—';
+            document.getElementById('prod-country').textContent = p.country || '—';
+            document.getElementById('prod-city').textContent = p.city || '—';
+            document.getElementById('prod-id').textContent = p.id;
+            document.getElementById('prod-desc').textContent = p.description || 'Nuk ka përshkrim.';
+
+            const isSold = p.status === 'sold';
+            const buyBtn = document.getElementById('prod-add-cart');
+            const offerBtn = document.getElementById('prod-open-offer');
+            
+            if (isSold) {
+                buyBtn.textContent = 'I SHITUR';
+                buyBtn.disabled = true;
+                offerBtn.style.display = 'none';
+            }
+
+            const urls = firebaseProductImageUrlsForViewer(p);
+            const mainImg = document.getElementById('mainImage');
+            const thumbList = document.getElementById('prod-thumbnails');
+
+            if (urls.length > 0) {
+                mainImg.style.backgroundImage = `url(${urls[0]})`;
+                if (isSold) {
+                    mainImg.innerHTML = '<div class="sold-overlay">I SHITUR</div>';
+                }
+                thumbList.innerHTML = urls.map((url, i) => `
+                    <div class="thumb ${i === 0 ? 'active' : ''}" 
+                         style="background-image: url(${url});" 
+                         onclick="changeMainImage(this, '${url}')"></div>
+                `).join('');
+            }
+
+            // Seller info
+            document.getElementById('prod-seller-name').textContent = `Shitet nga: ${p.sellerName || 'Shitës'}`;
+            document.getElementById('prod-seller-location').textContent = `📍 Lokacioni: ${p.city || ''}, ${p.country || ''}`;
+            const avatar = document.getElementById('prod-seller-avatar');
+            avatar.textContent = (p.sellerName || 'S').charAt(0).toUpperCase();
+
+            document.getElementById('seller-profile-card').onclick = () => {
+                location.href = `shitesi.html?id=${p.sellerId}`;
+            };
+        }
+
+        window.changeMainImage = (el, url) => {
+            document.getElementById('mainImage').style.backgroundImage = `url(${url})`;
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        };
+
+        // Actions
+        document.getElementById('prod-add-cart').onclick = () => {
+            if (!currentProductData) return;
+            let cart = JSON.parse(localStorage.getItem('thriftizy_cart') || '[]');
+            cart.push({
+                id: currentProductData.id,
+                sellerId: currentProductData.sellerId,
+                title: currentProductData.title,
+                price: parseFloat(currentProductData.price),
+                image: firebaseProductImageBackgroundCss(currentProductData)
+            });
+            localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
+            
+            if (window.thriftizy_refreshCartUi) window.thriftizy_refreshCartUi();
+            if (window.thriftizy_openCartSidebar) window.thriftizy_openCartSidebar();
+        };
+
+        // Offer logic
+        const offerOverlay = document.getElementById('offer-modal-overlay');
+        document.getElementById('prod-open-offer').onclick = () => {
+            if (!currentProductData) return;
+            document.getElementById('offer-listed-hint').textContent = `Çmimi i listuar: ${currentProductData.price}€`;
+            offerOverlay.classList.add('open');
+        };
+        document.getElementById('offer-modal-cancel').onclick = () => offerOverlay.classList.remove('open');
+
+        document.getElementById('offer-modal-submit').onclick = async () => {
+            const price = document.getElementById('offer-price-input').value;
+            const note = document.getElementById('offer-note-input').value;
+            if (!price) { alert("Shkruani çmimin e ofertës."); return; }
+
+            const user = auth.currentUser;
+            if (!user) { alert("Duhet të kyçeni për të bërë ofertë."); return; }
+
+            try {
+                await addDoc(collection(db, 'ofertat'), {
+                    productId: currentProductData.id,
+                    productTitle: currentProductData.title,
+                    sellerId: currentProductData.sellerId,
+                    buyerId: user.uid,
+                    buyerName: user.displayName || user.email,
+                    offeredPrice: parseFloat(price),
+                    note: note,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                });
+                alert("Oferta u dërgua me sukses!");
+                offerOverlay.classList.remove('open');
+            } catch (e) {
+                alert("Gabim: " + e.message);
+            }
+        };
+
+        loadProduct();
+    </script>
 </body>
 </html>

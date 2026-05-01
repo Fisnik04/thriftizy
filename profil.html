@@ -225,6 +225,197 @@
             background: #10b981;
         }
 
+        .profile-alerts {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .profile-alert-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+        }
+
+        .profile-alert-card strong {
+            display: block;
+            color: #0f172a;
+            font-size: 1.45rem;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .profile-alert-card span {
+            color: #64748b;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .order-card,
+        .sale-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+        }
+
+        .order-card-head,
+        .sale-card-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .order-code,
+        .sale-code {
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 0.95rem;
+        }
+
+        .order-date,
+        .sale-date {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            font-size: 0.73rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .status-new {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #047857;
+        }
+
+        .order-items-list,
+        .sale-main-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .order-line,
+        .sale-main-row {
+            border-radius: 14px;
+            background: #f8fafc;
+            padding: 12px;
+        }
+
+        .order-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .order-line-img,
+        .sale-img {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background-color: #e2e8f0;
+            background-size: cover;
+            background-position: center;
+            flex: 0 0 auto;
+        }
+
+        .order-line-info,
+        .sale-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .order-line-title,
+        .sale-info h4 {
+            color: #0f172a;
+            font-weight: 800;
+            margin: 0 0 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .order-line-price,
+        .sale-price {
+            color: #10b981;
+            font-weight: 900;
+        }
+
+        .order-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed #cbd5e1;
+            font-weight: 900;
+        }
+
+        .sale-main-row {
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .sale-buyer-box {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+        }
+
+        .sale-buyer-box b {
+            display: block;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .sale-buyer-box span {
+            color: #64748b;
+            word-break: break-word;
+        }
+
+        .btn-sale-complete {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px 14px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-sale-complete:hover {
+            background: #10b981;
+        }
+
         #profile-modal-overlay {
             display: none;
             position: fixed;
@@ -257,6 +448,16 @@
 
         @media (max-width: 520px) {
 
+            .profile-alerts,
+            .sale-buyer-box {
+                grid-template-columns: 1fr;
+            }
+
+            .order-card-head,
+            .sale-card-head {
+                flex-direction: column;
+            }
+
             #profile-modal,
             #edit-modal {
                 padding: 24px 18px;
@@ -266,11 +467,14 @@
 </head>
 
 <body>
-    <nav id="navbar">
+        <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
+            aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
-            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-            <ul class="nav-links">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
+            </div>
+            <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -282,7 +486,12 @@
                             id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-        <div class="nav-actions" id="nav-actions"></div>
+        <div class="nav-actions" id="nav-actions">
+            <button type="button" class="icon-btn" id="cart-icon" aria-label="Shporta">
+                <span class="cart-ico" aria-hidden="true">🛒</span>
+                <span class="cart-badge">0</span>
+            </button>
+        </div>
     </nav>
 
     <!-- Edit Modal -->
@@ -408,10 +617,6 @@
                 <input type="text" id="profile-edit-name" placeholder="Emri dhe mbiemri">
             </div>
             <div class="edit-field">
-                <label>Qyteti</label>
-                <input type="text" id="profile-edit-city" placeholder="p.sh. Prishtinë">
-            </div>
-            <div class="edit-field">
                 <label>Shteti</label>
                 <select id="profile-edit-country">
                     <option value="">Zgjidh shtetin</option>
@@ -419,6 +624,12 @@
                     <option value="al">Shqipëri</option>
                     <option value="mk">Maqedoni</option>
                 </select>
+            </div>
+            <div class="edit-field">
+                <label>Qyteti</label>
+                <div id="profile-edit-city-container">
+                    <input type="text" id="profile-edit-city" placeholder="p.sh. Prishtinë">
+                </div>
             </div>
             <div class="edit-modal-actions">
                 <button class="btn-cancel-edit" id="btn-cancel-profile-edit" type="button">Anulo</button>
@@ -440,25 +651,46 @@
                 <div class="stat">
                     <h4 id="stat-shitura">0</h4><span>Të shitura</span>
                 </div>
-                <div class="stat">
-                    <h4 id="stat-rating">⭐ 5.0</h4><span>Vlerësimi</span>
-                </div>
             </div>
             <button class="btn-edit-profile" id="btn-edit-profile" type="button">Edito Profilin</button>
             <ul class="profile-menu">
-                <li><a href="#" class="active">Dollapi Im</a></li>
+                <li><a href="#" class="active" id="tab-dollapi">Dollapi Im</a></li>
+                <li><a href="#" id="tab-blerjet">Blerjet e mia</a></li>
+                <li><a href="#" id="tab-shitjet">Shitjet (Porositë)</a></li>
                 <li><a href="saved.html">Të Ruajtura ❤️</a></li>
                 <li><a href="mesazhet.html">Mesazhet</a></li>
                 <li><a href="#" id="logout-link" style="color:red;margin-top:20px;">Shkyçu</a></li>
             </ul>
         </aside>
 
-        <main class="profile-content reveal">
-            <h2>Dollapi Im</h2>
-            <div class="shop-grid" id="profile-items-grid">
-                <p id="profile-loading" style="grid-column:1/-1;text-align:center;color:var(--text-muted);">
-                    Duke ngarkuar listimet...
-                </p>
+        <main class="profile-content reveal" id="main-content">
+            <div class="profile-alerts" id="profile-alerts">
+                <div class="profile-alert-card"><strong>0</strong><span>Porosi të reja</span></div>
+                <div class="profile-alert-card"><strong>0</strong><span>Blerje aktive</span></div>
+                <div class="profile-alert-card"><strong>0</strong><span>Të përfunduara</span></div>
+            </div>
+
+            <div id="section-dollapi">
+                <h2>Dollapi Im</h2>
+                <div class="shop-grid" id="profile-items-grid">
+                    <p id="profile-loading" style="grid-column:1/-1;text-align:center;color:var(--text-muted);">
+                        Duke ngarkuar listimet...
+                    </p>
+                </div>
+            </div>
+
+            <div id="section-blerjet" style="display:none;">
+                <h2>Blerjet e mia</h2>
+                <div id="blerjet-list" style="display:flex; flex-direction:column; gap:15px;">
+                    <p style="text-align:center; color:var(--text-muted);">Duke ngarkuar blerjet...</p>
+                </div>
+            </div>
+
+            <div id="section-shitjet" style="display:none;">
+                <h2>Shitjet (Porositë e pranuara)</h2>
+                <div id="shitjet-list" style="display:flex; flex-direction:column; gap:15px;">
+                    <p style="text-align:center; color:var(--text-muted);">Duke ngarkuar shitjet...</p>
+                </div>
             </div>
         </main>
     </div>
@@ -522,6 +754,7 @@
         const loadingEl = document.getElementById('profile-loading');
         const statListEl = document.getElementById('stat-listime');
         const statSoldEl = document.getElementById('stat-shitura');
+        const profileAlertsEl = document.getElementById('profile-alerts');
         const logoutLink = document.getElementById('logout-link');
         const editProfileBtn = document.getElementById('btn-edit-profile');
         const profileModalOverlay = document.getElementById('profile-modal-overlay');
@@ -549,6 +782,19 @@
         function safeText(v, fb = '-') { return (v == null || String(v).trim() === '') ? fb : String(v).trim(); }
         function toPrice(p) { const n = parseFloat(p); return Number.isFinite(n) ? n.toFixed(2) + '€' : '0.00€'; }
         function isSold(p) { return p?.status === 'sold' || p?.isSold === true; }
+        function toDate(value) {
+            const seconds = value?.seconds;
+            if (!seconds) return 'Sot';
+            return new Date(seconds * 1000).toLocaleDateString('sq-AL', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        function statusText(status) {
+            if (status === 'completed') return 'E përfunduar';
+            if (status === 'cancelled') return 'E anuluar';
+            return 'Në pritje';
+        }
+        function statusClass(status) {
+            return status === 'completed' ? 'status-completed' : 'status-new';
+        }
         const countryLabels = { ks: 'Kosovë', al: 'Shqipëri', mk: 'Maqedoni' };
 
         function normalizeCountry(value) {
@@ -567,12 +813,48 @@
             return city || country || 'Pa lokacion';
         }
 
+        const mkCities = ["Berovë", "Manastir", "Vallandovë", "Veles", "Vinicë", "Gjevgjeli", "Gostivar", "Dibrë", "Dellçevë", "Demir Hisar", "Kavadar", "Kërçovë", "Koçan", "Kratovë", "Kriva Pallankë", "Krushevë", "Kumanovë", "Brod", "Negotinë", "Ohër", "Prilep", "Probishtip", "Radovisht", "Resnjë", "Sveti Nikollë", "Shkup", "Strugë", "Strumicë", "Tetovë", "Shtip"];
+        const ksCities = ["Artanë", "Besianë", "Burim", "Dardanë", "Deçan", "Dragash", "Drenas", "Ferizaj", "Fushë Kosovë", "Gjakovë", "Gjilan", "Kastriot", "Kaçanik", "Klinë", "Leposaviq", "Lipjan", "Malishevë", "Mitrovicë", "Pejë", "Prishtinë", "Prizren", "Rahovec", "Skenderaj", "Shtërpcë", "Shtime", "Therandë", "Viti", "Vushtrri", "Zubin Potok", "Zveçan"];
+        const alCities = ["Berat", "Bulqizë", "Delvinë", "Devoll", "Dibër", "Durrës", "Elbasan", "Fier", "Gramsh", "Gjirokastër", "Has", "Kavajë", "Kolonjë", "Korçë", "Krujë", "Kucovë", "Kukës", "Kurbin", "Lezhë", "Librazhd", "Lushnjë", "Malësi e Madhe", "Mallakastër", "Mat", "Mirditë", "Peqin", "Përmet", "Pogradec", "Pukë", "Sarandë", "Skrapar", "Shkodër", "Tepelenë", "Tiranë", "Tropojë", "Vlorë"];
+
+        function updateProfileCityField(country, initialValue = '') {
+            const cityContainer = document.getElementById('profile-edit-city-container');
+            if (country === 'mk') {
+                let options = `<option value="" ${!initialValue ? 'selected' : ''} disabled>Zgjidh qytetin</option>`;
+                mkCities.sort().forEach(c => {
+                    options += `<option value="${c}" ${c === initialValue ? 'selected' : ''}>${c}</option>`;
+                });
+                cityContainer.innerHTML = `<select id="profile-edit-city">${options}</select>`;
+            } else if (country === 'ks') {
+                let options = `<option value="" ${!initialValue ? 'selected' : ''} disabled>Zgjidh qytetin</option>`;
+                ksCities.forEach(c => {
+                    options += `<option value="${c}" ${c === initialValue ? 'selected' : ''}>${c}</option>`;
+                });
+                cityContainer.innerHTML = `<select id="profile-edit-city">${options}</select>`;
+            } else if (country === 'al') {
+                let options = `<option value="" ${!initialValue ? 'selected' : ''} disabled>Zgjidh qytetin</option>`;
+                alCities.sort().forEach(c => {
+                    options += `<option value="${c}" ${c === initialValue ? 'selected' : ''}>${c}</option>`;
+                });
+                cityContainer.innerHTML = `<select id="profile-edit-city">${options}</select>`;
+            } else {
+                cityContainer.innerHTML = `<input type="text" id="profile-edit-city" placeholder="p.sh. Qyteti juaj" value="${initialValue}">`;
+            }
+        }
+
+        profileCountrySelect.addEventListener('change', () => {
+            updateProfileCityField(profileCountrySelect.value);
+        });
+
         function openProfileModal() {
             if (!currentUser) return;
             const fallbackName = currentUser.displayName || currentUser.email?.split('@')[0] || '';
             profileNameInput.value = safeText(currentUserData.fullName || currentUserData.displayName, fallbackName);
-            profileCityInput.value = safeText(currentUserData.city, '');
-            profileCountrySelect.value = normalizeCountry(currentUserData.country || localStorage.getItem('thriftizy_country')) || '';
+
+            const countryCode = normalizeCountry(currentUserData.country || localStorage.getItem('thriftizy_country'));
+            profileCountrySelect.value = countryCode || '';
+            updateProfileCityField(countryCode, currentUserData.city || '');
+
             profileModalOverlay.classList.add('open');
             document.body.style.overflow = 'hidden';
             profileNameInput.focus();
@@ -591,7 +873,7 @@
         saveProfileEditBtn.addEventListener('click', async () => {
             if (!currentUser) return;
             const fullName = profileNameInput.value.trim();
-            const city = profileCityInput.value.trim();
+            const city = document.getElementById('profile-edit-city').value.trim();
             const country = profileCountrySelect.value;
             if (!fullName) {
                 alert('Shkruaj emrin e profilit.');
@@ -847,6 +1129,183 @@
         }
 
         /* ── load ── */
+        // --- TABS LOGIC ---
+        const tabDollapi = document.getElementById('tab-dollapi');
+        const tabBlerjet = document.getElementById('tab-blerjet');
+        const tabShitjet = document.getElementById('tab-shitjet');
+        const secDollapi = document.getElementById('section-dollapi');
+        const secBlerjet = document.getElementById('section-blerjet');
+        const secShitjet = document.getElementById('section-shitjet');
+
+        function switchTab(target) {
+            [tabDollapi, tabBlerjet, tabShitjet].forEach(t => t.classList.remove('active'));
+            [secDollapi, secBlerjet, secShitjet].forEach(s => s.style.display = 'none');
+
+            if (target === 'dollapi') {
+                tabDollapi.classList.add('active');
+                secDollapi.style.display = 'block';
+                loadProfile(currentUser);
+            } else if (target === 'blerjet') {
+                tabBlerjet.classList.add('active');
+                secBlerjet.style.display = 'block';
+                loadBlerjet();
+            } else if (target === 'shitjet') {
+                tabShitjet.classList.add('active');
+                secShitjet.style.display = 'block';
+                loadShitjet();
+            }
+        }
+
+        tabDollapi.onclick = (e) => { e.preventDefault(); switchTab('dollapi'); };
+        tabBlerjet.onclick = (e) => { e.preventDefault(); switchTab('blerjet'); };
+        tabShitjet.onclick = (e) => { e.preventDefault(); switchTab('shitjet'); };
+
+        async function loadBlerjet() {
+            const list = document.getElementById('blerjet-list');
+            list.innerHTML = '<p style="text-align:center;">Duke ngarkuar blerjet...</p>';
+            try {
+                const q = query(collection(db, 'porosite'), where('buyerId', '==', currentUser.uid));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    list.innerHTML = '<p style="text-align:center; color:#64748b; padding:40px;">Ende nuk keni bërë asnjë blerje.</p>';
+                    return;
+                }
+                const orders = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                let html = '';
+                orders.forEach(order => {
+                    const items = Array.isArray(order.items) ? order.items : [];
+                    html += `
+                        <article class="order-card">
+                            <div class="order-card-head">
+                                <div>
+                                    <div class="order-code">Porosia #${order.id.slice(0, 6).toUpperCase()}</div>
+                                    <div class="order-date">${toDate(order.createdAt)} • ${items.length} artikuj</div>
+                                </div>
+                                <span class="status-pill ${statusClass(order.status)}">${statusText(order.status)}</span>
+                            </div>
+                            <div class="order-items-list">
+                                ${items.map(item => `
+                                    <div class="order-line">
+                                        <div class="order-line-img" style="background-image:${item.image || 'none'};"></div>
+                                        <div class="order-line-info">
+                                            <div class="order-line-title">${safeText(item.title, 'Produkti')}</div>
+                                            <div class="order-line-price">${toPrice(item.price)}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="order-total-row">
+                                <span>Totali</span>
+                                <span>${toPrice(order.totalAmount)}</span>
+                            </div>
+                        </article>
+                    `;
+                });
+                list.innerHTML = html;
+            } catch (e) {
+                list.innerHTML = '<p style="color:red;">Gabim: ' + e.message + '</p>';
+            }
+        }
+
+        async function loadShitjet() {
+            const list = document.getElementById('shitjet-list');
+            list.innerHTML = '<p style="text-align:center;">Duke ngarkuar shitjet...</p>';
+            try {
+                const q = query(collection(db, 'shitjet'), where('sellerId', '==', currentUser.uid));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    list.innerHTML = '<p style="text-align:center; color:#64748b; padding:40px;">Ende nuk keni asnjë shitje të pranuar.</p>';
+                    return;
+                }
+
+                const sales = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                let html = '';
+                sales.forEach(sale => {
+                    html += `
+                        <article class="sale-card">
+                            <div class="sale-card-head">
+                                <div>
+                                    <div class="sale-code">Shitja #${sale.id.slice(0, 6).toUpperCase()}</div>
+                                    <div class="sale-date">${toDate(sale.createdAt)}</div>
+                                </div>
+                                <span class="status-pill ${statusClass(sale.status)}">${statusText(sale.status)}</span>
+                            </div>
+                            <div class="sale-main-row">
+                                <div class="sale-img" style="background-image:${sale.item?.image || 'none'};"></div>
+                                <div>
+                                    <h4 style="margin:0;">${safeText(sale.item?.title, 'Produkti')}</h4>
+                                    <p class="sale-price" style="margin:0;">${toPrice(sale.item?.price)}</p>
+                                </div>
+                            </div>
+                            <div class="sale-buyer-box">
+                                <div><b>Blerësi</b><span>${safeText(sale.buyerName)}</span></div>
+                                <div><b>Telefoni</b><span>${safeText(sale.buyerPhone)}</span></div>
+                                <div><b>Adresa</b><span>${safeText(sale.buyerAddress)}</span></div>
+                            </div>
+                            ${sale.status !== 'completed' ? `
+                                <button onclick="window.confirmSaleFromProfile('${sale.id}')" class="btn-sale-complete">Markoje si të dërguar</button>
+                            ` : ''}
+                        </article>
+                    `;
+                });
+                list.innerHTML = html;
+            } catch (e) {
+                list.innerHTML = '<p style="color:red;">Gabim: ' + e.message + '</p>';
+            }
+        }
+
+        window.confirmSaleFromProfile = async (saleId) => {
+            if (!confirm("A e keni nisur dërgesën për këtë porosi? Produkti do të shënohet si i shitur.")) return;
+            try {
+                const saleSnap = await getDoc(doc(db, 'shitjet', saleId));
+                if (saleSnap.exists()) {
+                    const saleData = saleSnap.data();
+                    const productId = saleData.item.id;
+                    
+                    await updateDoc(doc(db, 'shitjet', saleId), { status: 'completed', completedAt: new Date() });
+                    
+                    if (productId) {
+                        await updateDoc(doc(db, 'produktet', productId), { status: 'sold' });
+                    }
+                    
+                    await loadShitjet();
+                    await loadProfileAlerts();
+                }
+            } catch (err) {
+                alert("Gabim: " + err.message);
+            }
+        };
+
+        async function loadProfileAlerts() {
+            if (!currentUser || !profileAlertsEl) return;
+            try {
+                const [salesSnap, ordersSnap] = await Promise.all([
+                    getDocs(query(collection(db, 'shitjet'), where('sellerId', '==', currentUser.uid))),
+                    getDocs(query(collection(db, 'porosite'), where('buyerId', '==', currentUser.uid)))
+                ]);
+
+                const sales = salesSnap.docs.map(d => d.data());
+                const orders = ordersSnap.docs.map(d => d.data());
+                const newSales = sales.filter(s => s.status !== 'completed').length;
+                const activeOrders = orders.filter(o => o.status !== 'completed').length;
+                const completedSales = sales.filter(s => s.status === 'completed').length;
+
+                profileAlertsEl.innerHTML = `
+                    <div class="profile-alert-card"><strong>${newSales}</strong><span>Porosi të reja</span></div>
+                    <div class="profile-alert-card"><strong>${activeOrders}</strong><span>Blerje aktive</span></div>
+                    <div class="profile-alert-card"><strong>${completedSales}</strong><span>Shitje të mbyllura</span></div>
+                `;
+            } catch (err) {
+                console.warn('Njoftimet nuk u ngarkuan:', err);
+            }
+        }
+
         async function loadProfile(user) {
             const userSnap = await getDoc(doc(db, 'users', user.uid));
             const ud = userSnap.exists() ? userSnap.data() : {};
@@ -877,7 +1336,10 @@
         onAuthStateChanged(auth, async user => {
             if (!user) { window.location.href = 'login.html'; return; }
             currentUser = user;
-            try { await loadProfile(user); }
+            try {
+                await loadProfile(user);
+                await loadProfileAlerts();
+            }
             catch (err) {
                 console.error(err);
                 if (loadingEl) loadingEl.textContent = 'Nuk u ngarkuan të dhënat. Provoni përsëri.';

@@ -119,22 +119,31 @@
 </head>
 <body>
 
-    <nav id="navbar">
+        <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
+            aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
-            <div class="nav-search"><i>&#128269;</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
-            <ul class="nav-links">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
+            </div>
+            <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">K&euml;puc&euml;</a></li>
-                <li><a href="aksesore.html">Aksesor&euml;</a></li>
+                <li><a href="kepuce.html">Këpucë</a></li>
+                <li><a href="aksesore.html">Aksesorë</a></li>
                 <li><a href="shit.html">Posto</a></li>
                 <li><a href="profil.html">Profili</a></li>
-                <li class="nav-country"><a href="#" id="btn-change-country">&#128205; <span id="current-country">Kosov&euml;</span></a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
+                            id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-        <div class="nav-actions" id="nav-actions"></div>
+        <div class="nav-actions" id="nav-actions">
+            <button type="button" class="icon-btn" id="cart-icon" aria-label="Shporta">
+                <span class="cart-ico" aria-hidden="true">🛒</span>
+                <span class="cart-badge">0</span>
+            </button>
+        </div>
     </nav>
 
     <div class="seller-header">
@@ -143,7 +152,6 @@
         <div class="seller-info-big">
             <h1 id="s-name">Duke ngarkuar...</h1>
             <div class="seller-stats">
-                <span><span class="seller-stat-star" aria-hidden="true">&#9733;</span> 4.9 Rating</span>
                 <span>&#128230; <span id="s-count">0</span> produkte aktive</span>
                 <span>An&euml;tar&euml;suar s&euml; fundmi</span>
             </div>
