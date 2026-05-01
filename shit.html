@@ -35,12 +35,14 @@
             <form id="sell-form">
                 
                 <div class="form-group">
-                    <label>Fotografitë e Produktit</label>
-                    <input type="file" id="sell-image-upload" accept="image/*" style="display: none;">
+                    <label>Fotografitë e produktit (deri në 3)</label>
+                    <input type="file" id="sell-image-upload" accept="image/*" multiple style="display: none;">
                     <div class="image-upload-box" id="upload-box" onclick="document.getElementById('sell-image-upload').click()">
                         <i id="upload-icon">📸</i>
-                        <p id="upload-text">Kliko për të ngarkuar foto nga pajisja juaj</p>
+                        <p id="upload-text">Kliko për të zgjedhur foto (deri në 3 përnjëherë).</p>
                     </div>
+                    <div id="sell-photo-strip" style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                    <p id="sell-photo-hint" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Ruhen deri në 3 foto që shfaqen në kartë dhe te produkti.</p>
                 </div>
 
                 <div class="form-group">

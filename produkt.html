@@ -3,8 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xhaketë Xhins Vintage | Thriftizy</title>
+    <title>Produkti | Thriftizy</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .offer-modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 10050;
+            background: rgba(15,23,42,0.45); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .offer-modal-overlay.open { display: flex; }
+        .offer-modal {
+            background: white; border-radius: 20px; max-width: 420px; width: 100%;
+            padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            border: 1px solid var(--secondary, #e2e8f0);
+        }
+        .offer-modal h3 { margin: 0 0 8px; font-size: 1.25rem; color: var(--text-main, #0f172a); }
+        .offer-modal p.hint { margin: 0 0 16px; font-size: 0.88rem; color: var(--text-muted); }
+        .offer-modal label { display: block; font-size: 0.82rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+        .offer-modal input, .offer-modal textarea {
+            width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px;
+            border: 1px solid var(--secondary); font-family: inherit; font-size: 1rem; margin-bottom: 14px;
+        }
+        .offer-modal textarea { min-height: 72px; resize: vertical; }
+        .offer-modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .offer-modal-actions button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; }
+        .offer-modal-cancel { background: #f1f5f9; color: #475569; }
+        .offer-modal-submit { background: var(--primary, #0f172a); color: white; }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -30,11 +55,9 @@
     <div class="product-detail-container">
         <!-- Left: Image Gallery -->
         <div class="product-gallery reveal">
-            <div class="main-image" style="background-image: url('assets/clothes.png');" id="mainImage"></div>
-            <div class="thumbnail-list">
-                <div class="thumb active" style="background-image: url('assets/clothes.png');" onclick="document.getElementById('mainImage').style.backgroundImage = this.style.backgroundImage;"></div>
-                <div class="thumb" style="background-image: url('assets/clothes.png'); background-position: left;" onclick="document.getElementById('mainImage').style.backgroundImage = this.style.backgroundImage;"></div>
-                <div class="thumb" style="background-image: url('assets/clothes.png'); background-position: right;" onclick="document.getElementById('mainImage').style.backgroundImage = this.style.backgroundImage;"></div>
+            <div class="main-image" style="background-image: linear-gradient(135deg,#e2e8f0 0%,#cbd5e1 100%);" id="mainImage"></div>
+            <div class="thumbnail-list" id="prod-thumbnails">
+                <div class="thumb active" style="background-image: linear-gradient(135deg,#e2e8f0,#cbd5e1);" onclick="document.getElementById('mainImage').style.backgroundImage = this.style.backgroundImage;"></div>
             </div>
         </div>
 
@@ -67,29 +90,65 @@
                     <span class="attr-label">Materiali</span>
                     <span class="attr-value" id="prod-material">100% Pambuk (Xhins)</span>
                 </div>
+                <div class="attr-item">
+                    <span class="attr-label">Kategoria</span>
+                    <span class="attr-value" id="prod-category">—</span>
+                </div>
+                <div class="attr-item">
+                    <span class="attr-label">Gjinia</span>
+                    <span class="attr-value" id="prod-gender">—</span>
+                </div>
+                <div class="attr-item">
+                    <span class="attr-label">Shteti</span>
+                    <span class="attr-value" id="prod-country">—</span>
+                </div>
+                <div class="attr-item">
+                    <span class="attr-label">Qyteti</span>
+                    <span class="attr-value" id="prod-city">—</span>
+                </div>
+                <div class="attr-item">
+                    <span class="attr-label">ID produkti</span>
+                    <span class="attr-value" id="prod-id" style="font-size: 0.8rem;">—</span>
+                </div>
             </div>
 
             <!-- Actions -->
             <div class="product-actions-main">
-                <button class="btn-buy" onclick="alert('Produkti u shtua në shportë!')">Shto në shportë</button>
+                <button type="button" class="btn-buy" id="prod-add-cart">Shto në shportë</button>
                 <div class="secondary-actions">
-                    <button class="btn-offer" onclick="alert('Dërgoni një ofertë për këtë produkt.')">Bëj një ofertë</button>
-                    <button class="btn-message" onclick="location.href=\'mesazhet.html\'">Mesazh</button>
+                    <button type="button" class="btn-offer" id="prod-open-offer">Bëj një ofertë</button>
+                    <button type="button" class="btn-message" id="prod-open-messages">Mesazh</button>
                 </div>
             </div>
 
             <!-- Seller Info -->
-            <div class="seller-profile">
+            <div class="seller-profile" id="seller-profile-card" style="cursor: pointer;" title="Hap profilin e shitësit">
                 <div class="seller-avatar" id="prod-seller-avatar">FF</div>
                 <div class="seller-details">
                     <h4 id="prod-seller-name">Shitet nga: Fisnik Fazlija</h4>
                     <p>⭐ 4.9/5 (120 Vlerësime) • Aktiv sot</p>
+                    <a href="#" id="prod-seller-link" style="font-size: 0.85rem;">Shiko faqen e shitësit</a>
                 </div>
             </div>
 
-            <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-top: 10px;">
-                <p><strong>Përshkrimi:</strong><br>
-                Xhaketë origjinale Levi's e viteve 90. Është në gjendje perfekte, pa asnjë të gërvishtur apo njollë. Stili oversize i jep një pamje shumë "streetwear". Mund të lahet në lavatriçe pa problem.</p>
+            <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-top: 14px;">
+                <p><strong>Përshkrimi:</strong></p>
+                <p id="prod-desc">Përshkrimi ngarkohet nga produkti…</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="offer-modal-overlay" id="offer-modal-overlay" aria-hidden="true">
+        <div class="offer-modal" role="dialog" aria-labelledby="offer-modal-title">
+            <h3 id="offer-modal-title">Ofertë për këtë artikull</h3>
+            <p class="hint" id="offer-listed-hint">Çmimi i listuar: —</p>
+            <label for="offer-price-input">Çmimi i ofertës (€)</label>
+            <input type="number" id="offer-price-input" min="0" step="0.5" placeholder="p.sh. 18.50">
+            <label for="offer-note-input">Shënim për shitësin (opsionale)</label>
+            <textarea id="offer-note-input" placeholder="P.sh. A pranoni marrjen personale nesër?"></textarea>
+            <div class="offer-modal-actions">
+                <button type="button" class="offer-modal-cancel" id="offer-modal-cancel">Anulo</button>
+                <button type="button" class="offer-modal-submit" id="offer-modal-submit">Shto ofertën në shportë</button>
             </div>
         </div>
     </div>

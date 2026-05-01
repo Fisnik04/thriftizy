@@ -31,32 +31,32 @@
         
         <!-- Sidebar -->
         <aside class="profile-sidebar reveal">
-            <div class="profile-avatar">FF</div>
-            <h3>Fisnik Fazlija</h3>
-            <p>@fisnik.f • Prishtinë</p>
+            <div class="profile-avatar" id="profile-avatar">...</div>
+            <h3 id="profile-name">Duke u ngarkuar...</h3>
+            <p id="profile-meta">@përdorues • -</p>
 
             <div class="profile-stats">
                 <div class="stat">
-                    <h4>12</h4>
+                    <h4 id="stat-listime">0</h4>
                     <span>Listime</span>
                 </div>
                 <div class="stat">
-                    <h4>5</h4>
+                    <h4 id="stat-shitura">0</h4>
                     <span>Të shitura</span>
                 </div>
                 <div class="stat">
-                    <h4>⭐ 4.9</h4>
+                    <h4 id="stat-rating">⭐ 5.0</h4>
                     <span>Vlerësimi</span>
                 </div>
             </div>
 
             <ul class="profile-menu">
                 <li><a href="#" class="active">Dollapi Im</a></li>
-                <li><a href="#">Të Ruajtura (Likes) ❤️</a></li>
-                <li><a href="#">Blerjet e mia</a></li>
+                <li><a href="saved.html">Të Ruajtura (Likes) ❤️</a></li>
+                <li><a href="blerjet.html">Blerjet e mia</a></li>
                 <li><a href="mesazhet.html">Mesazhet (2)</a></li>
                 <li><a href="#">Rregullimet</a></li>
-                <li><a href="index.html" style="color: red; margin-top: 20px;">Shkyçu</a></li>
+                <li><a href="#" id="logout-link" style="color: red; margin-top: 20px;">Shkyçu</a></li>
             </ul>
         </aside>
 
@@ -64,41 +64,10 @@
         <main class="profile-content reveal">
             <h2>Dollapi Im</h2>
             
-            <div class="shop-grid">
-                <!-- Listed Item 1 -->
-                <div class="product-card" style="cursor: pointer;" onclick="location.href='produkt.html'">
-                    <span class="badge badge-sale">Në Shitje</span>
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/clothes.png'); background-size: cover; background-position: right;">
-                        <div class="product-actions">
-                            <button class="btn-cart" style="background: var(--text-muted);">Edito</button>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h4>Xhaketë Xhins Vintage 90s</h4>
-                        <p class="product-price">25.00€</p>
-                    </div>
-                </div>
-
-                <!-- Listed Item 2 -->
-                <div class="product-card" style="cursor: pointer;" onclick="location.href='produkt.html'">
-                    <span class="badge badge-new" style="background: var(--secondary); color: var(--text-main);">E Shitur</span>
-                    <div class="heart-icon">🤍</div>
-                    <div class="product-img" style="background-image: url('assets/sneakers.png'); background-size: cover; filter: grayscale(100%);">
-                    </div>
-                    <div class="product-info">
-                        <h4>Nike Air Force 1 Retro</h4>
-                        <p class="product-price">45.00€</p>
-                    </div>
-                </div>
-                
-                <!-- Add New -->
-                <div class="product-card" style="cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 300px; border: 2px dashed var(--secondary); background: transparent;" onclick="location.href='shit.html'">
-                    <div style="text-align: center; color: var(--text-muted);">
-                        <div style="font-size: 3rem; color: var(--accent); margin-bottom: 10px;">+</div>
-                        <h3>Shto Artikull të Ri</h3>
-                    </div>
-                </div>
+            <div class="shop-grid" id="profile-items-grid" data-source="firebase">
+                <p id="profile-loading" style="grid-column: 1 / -1; text-align:center; color: var(--text-muted);">
+                    Duke i ngarkuar listimet nga Firebase...
+                </p>
             </div>
         </main>
     </div>
@@ -160,5 +129,162 @@
     </footer>
 
 <script type="module" src="main.js"></script>
+<script type="module">
+    import {
+        auth,
+        db,
+        onAuthStateChanged,
+        signOut,
+        doc,
+        getDoc,
+        collection,
+        query,
+        where,
+        getDocs,
+        firebaseProductImageBackgroundCss
+    } from './firebase-config.js';
+    import {
+        bindProductCardGalleries,
+        galleryDataAttr,
+        renderProductMediaInner
+    } from './product-card-ui.js';
+
+    const avatarEl = document.getElementById('profile-avatar');
+    const nameEl = document.getElementById('profile-name');
+    const metaEl = document.getElementById('profile-meta');
+    const itemsGrid = document.getElementById('profile-items-grid');
+    const loadingEl = document.getElementById('profile-loading');
+    const statListimeEl = document.getElementById('stat-listime');
+    const statShituraEl = document.getElementById('stat-shitura');
+    const logoutLink = document.getElementById('logout-link');
+
+    function safeText(value, fallback = '-') {
+        if (value === null || value === undefined) return fallback;
+        const text = String(value).trim();
+        return text ? text : fallback;
+    }
+
+    function toPrice(price) {
+        const parsed = parseFloat(price);
+        return Number.isFinite(parsed) ? parsed.toFixed(2) + '€' : '0.00€';
+    }
+
+    function renderAddNewCard() {
+        const addCard = document.createElement('div');
+        addCard.className = 'product-card';
+        addCard.style.cssText = 'cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 300px; border: 2px dashed var(--secondary); background: transparent;';
+        addCard.onclick = () => { window.location.href = 'shit.html'; };
+        addCard.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted);">
+                <div style="font-size: 3rem; color: var(--accent); margin-bottom: 10px;">+</div>
+                <h3>Shto Artikull të Ri</h3>
+            </div>
+        `;
+        itemsGrid.appendChild(addCard);
+    }
+
+    function isSold(product) {
+        return product?.status === 'sold' || product?.isSold === true || product?.sold === true;
+    }
+
+    function openProduct(product) {
+        sessionStorage.setItem('current_product', JSON.stringify(product));
+        window.location.href = 'produkt.html';
+    }
+    window.openProfileProduct = openProduct;
+
+    function renderProducts(products) {
+        itemsGrid.innerHTML = '';
+
+        if (!products.length) {
+            const empty = document.createElement('p');
+            empty.style.cssText = 'grid-column: 1 / -1; text-align:center; color: var(--text-muted);';
+            empty.textContent = 'Nuk keni listime aktive ende. Postoni artikullin e parë!';
+            itemsGrid.appendChild(empty);
+            renderAddNewCard();
+            return;
+        }
+
+        products.forEach((product) => {
+            const sold = isSold(product);
+            const badgeClass = sold ? 'badge badge-new' : 'badge badge-sale';
+            const badgeStyle = sold ? ' style="background: var(--secondary); color: var(--text-main);"' : '';
+            const badgeLabel = sold ? 'E Shitur' : 'Në Shitje';
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => openProduct(product));
+
+            const mediaFilter = sold ? 'filter: grayscale(92%); opacity: .88;' : '';
+            card.innerHTML = `
+                <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(product)}" style="background-image: ${firebaseProductImageBackgroundCss(product)}; background-size: cover; background-position: center; ${mediaFilter}">
+                    ${renderProductMediaInner(
+                        product,
+                        `<span class="${badgeClass}"${badgeStyle}>${badgeLabel}</span>`
+                    )}
+                </div>
+                <div class="product-info">
+                    <h4>${safeText(product.title, 'Artikull pa titull')}</h4>
+                    <p class="product-price">${toPrice(product.price)}</p>
+                </div>
+            `;
+            itemsGrid.appendChild(card);
+        });
+
+        bindProductCardGalleries(itemsGrid);
+        renderAddNewCard();
+    }
+
+    async function loadProfile(user) {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        const userData = userSnap.exists() ? userSnap.data() : {};
+
+        const fullName = safeText(userData.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
+        const firstLetter = fullName.charAt(0).toUpperCase();
+        const username = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
+        const location = safeText(userData.city || userData.country, 'Pa lokacion');
+
+        avatarEl.textContent = firstLetter;
+        nameEl.textContent = fullName;
+        metaEl.textContent = `${username} • ${location}`;
+
+        const productsQuery = query(collection(db, 'produktet'), where('sellerId', '==', user.uid));
+        const productsSnap = await getDocs(productsQuery);
+        const products = productsSnap.docs.map((productDoc) => ({ id: productDoc.id, ...productDoc.data() }));
+        products.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+
+        statListimeEl.textContent = String(products.length);
+        statShituraEl.textContent = String(products.filter(isSold).length);
+
+        renderProducts(products);
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            await loadProfile(user);
+        } catch (error) {
+            console.error('Gabim gjatë ngarkimit të profilit:', error);
+            if (loadingEl) {
+                loadingEl.textContent = 'Nuk u ngarkuan të dhënat nga Firebase. Provoni përsëri.';
+            }
+        }
+    });
+
+    logoutLink?.addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        } catch (error) {
+            alert('Nuk u bë shkyçja: ' + error.message);
+        }
+    });
+</script>
 </body>
 </html>

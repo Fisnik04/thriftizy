@@ -1745,3 +1745,163 @@ nav.scrolled {
     color: #64748b;
     font-size: 0.9rem;
 }
+
+/* ── Produktet: kartat me deri në 3 foto & lightbox ── */
+.product-card-media {
+    position: relative;
+    background-color: #e2e8f0;
+    min-height: 200px;
+}
+
+.product-card-media .product-img,
+.product-card-media .tz-card-slide {
+    display: block;
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    vertical-align: bottom;
+}
+
+.product-card-media .card-slide-hidden {
+    display: none !important;
+}
+
+.card-photo-dots {
+    position: absolute;
+    bottom: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    z-index: 6;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.45);
+}
+
+.photo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    padding: 0;
+    border: none;
+    background: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+}
+
+.photo-dot.active {
+    background: #fff;
+    transform: scale(1.25);
+}
+
+.card-zoom-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 6;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.card-zoom-btn:hover {
+    transform: scale(1.06);
+}
+
+.product-card-media .heart-icon {
+    z-index: 7;
+}
+
+.tz-product-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 30000;
+    background: rgba(8, 10, 20, 0.92);
+    align-items: center;
+    justify-content: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
+}
+
+.tz-product-lightbox.open {
+    display: flex;
+}
+
+.tz-lb-close {
+    position: absolute;
+    top: calc(14px + env(safe-area-inset-top));
+    right: calc(14px + env(safe-area-inset-right));
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.tz-lb-prev,
+.tz-lb-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.tz-lb-prev {
+    left: calc(10px + env(safe-area-inset-left));
+}
+.tz-lb-next {
+    right: calc(10px + env(safe-area-inset-right));
+}
+
+.tz-lb-stage {
+    max-width: min(96vw, 1100px);
+    max-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tz-lb-img {
+    max-width: 100%;
+    max-height: min(85vh, 900px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.tz-lb-counter {
+    position: absolute;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.88rem;
+    font-weight: 600;
+}

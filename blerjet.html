@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blerjet e mia | Thriftizy</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav id="navbar">
+        <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <div class="nav-center">
+            <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Ballina</a></li>
+                <li><a href="femra.html">Femra</a></li>
+                <li><a href="meshkuj.html">Meshkuj</a></li>
+                <li><a href="kepuce.html">Këpucë</a></li>
+                <li><a href="aksesore.html">Aksesorë</a></li>
+                <li><a href="shit.html">Posto</a></li>
+                <li><a href="profil.html">Profili</a></li>
+                <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
+            </ul>
+        </div>
+        <div class="nav-actions" id="nav-actions"></div>
+    </nav>
+
+    <div class="profile-container">
+        <aside class="profile-sidebar reveal">
+            <div class="profile-avatar" id="buyer-avatar">...</div>
+            <h3 id="buyer-name">Duke u ngarkuar...</h3>
+            <p id="buyer-meta">@perdorues</p>
+
+            <ul class="profile-menu" style="margin-top: 30px;">
+                <li><a href="profil.html">Dollapi Im</a></li>
+                <li><a href="saved.html">Të Ruajtura (Likes) ❤️</a></li>
+                <li><a href="blerjet.html" class="active">Blerjet e mia</a></li>
+                <li><a href="mesazhet.html">Mesazhet</a></li>
+                <li><a href="#" id="logout-link" style="color: red; margin-top: 20px;">Shkyçu</a></li>
+            </ul>
+        </aside>
+
+        <main class="profile-content reveal">
+            <h2>Blerjet e mia</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Këtu shfaqen porositë që i ke konfirmuar nga checkout.
+            </p>
+
+            <div id="orders-list">
+                <p style="color: var(--text-muted);">Duke i ngarkuar blerjet nga Firebase...</p>
+            </div>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <a href="index.html" class="logo" style="color:white;">THRIFT<span>IZY</span></a>
+                <p style="color:#94a3b8;margin-top:14px;font-size:.88rem;">Platforma më e madhe e rrobave të përdorura në Ballkan.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Blerja</h3>
+                <ul>
+                    <li><a href="femra.html">Femra</a></li>
+                    <li><a href="meshkuj.html">Meshkuj</a></li>
+                    <li><a href="saved.html">Të Ruajtura</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Llogaria</h3>
+                <ul>
+                    <li><a href="profil.html">Profili Im</a></li>
+                    <li><a href="mesazhet.html">Mesazhet</a></li>
+                    <li><a href="login.html">Kyçu</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2026 Thriftizy. Të gjitha të drejtat e rezervuara.</div>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        import {
+            auth,
+            db,
+            onAuthStateChanged,
+            signOut,
+            collection,
+            query,
+            where,
+            getDocs,
+            doc,
+            getDoc
+        } from './firebase-config.js';
+
+        const ordersList = document.getElementById('orders-list');
+        const buyerAvatar = document.getElementById('buyer-avatar');
+        const buyerName = document.getElementById('buyer-name');
+        const buyerMeta = document.getElementById('buyer-meta');
+        const logoutLink = document.getElementById('logout-link');
+
+        function safeText(value, fallback = '-') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text || fallback;
+        }
+
+        function formatPrice(value) {
+            const num = parseFloat(value);
+            return Number.isFinite(num) ? num.toFixed(2) + '€' : '0.00€';
+        }
+
+        function orderDate(value) {
+            if (!value) return 'Pa datë';
+            if (value.seconds) return new Date(value.seconds * 1000).toLocaleString('sq-AL');
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 'Pa datë' : parsed.toLocaleString('sq-AL');
+        }
+
+        function renderOrders(orders) {
+            if (!orders.length) {
+                ordersList.innerHTML = '<p style="color: var(--text-muted);">Nuk ke blerje ende. Shto produkte në shportë dhe konfirmo porosinë.</p>';
+                return;
+            }
+
+            ordersList.innerHTML = orders.map((order) => {
+                const items = Array.isArray(order.items) ? order.items : [];
+                const itemRows = items.length
+                    ? items.map((item) => `<li>${safeText(item.title, 'Artikull')} - ${formatPrice(item.price)}</li>`).join('')
+                    : '<li>Pa artikuj të regjistruar</li>';
+
+                return `
+                    <div style="background:white; border:1px solid var(--secondary); border-radius:14px; padding:16px; margin-bottom:14px;">
+                        <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:10px;">
+                            <strong>Porosi #${order.id.slice(0, 8)}</strong>
+                            <span style="color:var(--text-muted); font-size:0.9rem;">${orderDate(order.createdAt)}</span>
+                        </div>
+                        <ul style="margin: 0 0 10px 18px; color: var(--text-main);">${itemRows}</ul>
+                        <div style="display:flex; justify-content:space-between; gap:10px;">
+                            <span>Statusi: <strong>${safeText(order.status, 'new')}</strong></span>
+                            <span>Totali: <strong>${formatPrice(order.totalAmount || order.total)}</strong></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadOrders(user) {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            const userData = userSnap.exists() ? userSnap.data() : {};
+            const fullName = safeText(userData.fullName, user.email?.split('@')[0] || 'Përdorues');
+
+            buyerAvatar.textContent = fullName.charAt(0).toUpperCase();
+            buyerName.textContent = fullName;
+            buyerMeta.textContent = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
+
+            const byBuyerId = await getDocs(query(collection(db, 'porosite'), where('buyerId', '==', user.uid)));
+            let orders = byBuyerId.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+            if (!orders.length && user.email) {
+                const byEmail = await getDocs(query(collection(db, 'porosite'), where('buyerEmail', '==', user.email)));
+                orders = byEmail.docs.map((d) => ({ id: d.id, ...d.data() }));
+            }
+
+            orders.sort((a, b) => {
+                const at = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt || 0).getTime();
+                const bt = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt || 0).getTime();
+                return bt - at;
+            });
+
+            renderOrders(orders);
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                await loadOrders(user);
+            } catch (error) {
+                console.error('Gabim gjatë ngarkimit të blerjeve:', error);
+                ordersList.innerHTML = '<p style="color:#ef4444;">Nuk u ngarkuan blerjet nga Firebase.</p>';
+            }
+        });
+
+        logoutLink?.addEventListener('click', async (event) => {
+            event.preventDefault();
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert('Nuk u bë shkyçja: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

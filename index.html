@@ -4,24 +4,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Thriftizy | Stil unik, veshje të perdorura</title>
+    <meta name="theme-color" content="#0f172a">
+    <title>Thriftizy | Stil unik, veshje të përdorura</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            padding-top: 64px;
+        body.page-home {
+            padding-top: 0;
             font-family: 'Outfit', sans-serif;
             background: #f8fafc;
         }
 
-        .hero {
-            min-height: 88vh;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        /* Navbar home: përshtatje me navbar-in fixed nga style.css */
+        body.page-home #navbar {
+            top: max(16px, env(safe-area-inset-top));
+        }
+
+        body.page-home .marquee-container {
+            margin-top: calc(88px + env(safe-area-inset-top, 0px));
+        }
+
+        .home-menu-toggle {
+            display: none;
             align-items: center;
-            padding: 60px 8%;
-            gap: 60px;
-            background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 14px;
+            background: rgba(15,23,42,0.06);
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: var(--text-main, #1e293b);
+            flex-shrink: 0;
+        }
+
+        .hero {
+            min-height: min(92vh, 900px);
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            align-items: center;
+            padding: clamp(32px, 6vw, 72px) clamp(20px, 6%, 96px);
+            gap: clamp(28px, 5vw, 64px);
+            background:
+                radial-gradient(ellipse 120% 80% at 100% 0%, rgba(16,185,129,0.12), transparent 50%),
+                radial-gradient(ellipse 100% 60% at 0% 100%, rgba(59,130,246,0.1), transparent 55%),
+                linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2394a3b8' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.9;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero > div {
+            position: relative;
+            z-index: 1;
         }
 
         .hero-badge {
@@ -38,11 +83,12 @@
         }
 
         .hero h1 {
-            font-size: 3.8rem;
+            font-size: clamp(2.15rem, 5vw + 1rem, 3.85rem);
             font-weight: 800;
             line-height: 1.1;
             color: #0f172a;
             margin-bottom: 20px;
+            letter-spacing: -0.02em;
         }
 
         .gradient-text {
@@ -102,14 +148,27 @@
         }
 
         .hero-visual {
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-            border-radius: 30px;
+            background: linear-gradient(145deg, #10b981 0%, #0f766e 40%, #3b82f6 100%);
+            border-radius: clamp(22px, 4vw, 36px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 7rem;
-            min-height: 500px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, .12);
+            font-size: clamp(4rem, 14vw, 7.5rem);
+            min-height: min(520px, 55vh);
+            box-shadow:
+                0 32px 64px rgba(15,23,42,0.15),
+                0 0 0 1px rgba(255,255,255,0.25) inset;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-visual::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 40%);
+            pointer-events: none;
         }
 
         .stats-row {
@@ -162,12 +221,12 @@
         }
 
         .section {
-            padding: 72px 8%;
+            padding: clamp(48px, 8vw, 88px) clamp(18px, 6%, 8%);
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 48px;
+            margin-bottom: clamp(28px, 4vw, 48px);
         }
 
         .section-title h2 {
@@ -484,13 +543,15 @@
 
         .cta-banner {
             background: linear-gradient(135deg, #0f172a, #1e293b);
-            padding: 80px 8%;
+            padding: clamp(56px, 12vw, 96px) clamp(20px, 6%, 8%);
             text-align: center;
             color: white;
+            margin-inline: clamp(12px, 3vw, 24px);
+            border-radius: 24px;
         }
 
         .cta-banner h2 {
-            font-size: 2.5rem;
+            font-size: clamp(1.65rem, 4vw, 2.5rem);
             font-weight: 800;
             margin-bottom: 16px;
         }
@@ -618,23 +679,92 @@
             font-weight: 700;
         }
 
-        @media(max-width:900px) {
-            .hero {
-                grid-template-columns: 1fr;
-                padding: 40px 5%;
+        body.page-home .cart-sidebar {
+            width: min(420px, 100vw - env(safe-area-inset-right, 0px));
+            right: calc(-1 * min(420px, 100vw));
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        body.page-home .cart-sidebar.open {
+            right: 0;
+        }
+
+        @media (max-width: 900px) {
+            body.page-home #navbar {
+                width: calc(100% - 20px);
+                max-width: none;
+                padding: 8px 14px;
+                gap: 10px;
+                border-radius: 20px;
+                flex-wrap: wrap;
                 min-height: auto;
+                height: auto;
             }
 
-            .hero h1 {
-                font-size: 2.4rem;
+            body.page-home .logo {
+                font-size: 1.35rem;
+            }
+
+            .home-menu-toggle {
+                display: flex;
+                order: 2;
+                margin-left: auto;
+            }
+
+            body.page-home:not(.home-nav-drawer-open) #navbar .nav-center .nav-links {
+                display: none;
+            }
+
+            body.page-home.home-nav-drawer-open #navbar .nav-center .nav-links {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 0;
+                padding: 8px 0 4px;
+                border-top: 1px solid rgba(15,23,42,0.08);
+                margin-top: 4px;
+            }
+
+            body.page-home.home-nav-drawer-open #navbar .nav-center .nav-links li {
+                width: 100%;
+            }
+
+            body.page-home.home-nav-drawer-open #navbar .nav-center .nav-links a {
+                display: block;
+                padding: 10px 4px;
+            }
+
+            body.page-home #navbar .nav-center {
+                order: 4;
+                flex: 1 1 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            body.page-home #navbar .nav-actions {
+                order: 3;
+            }
+
+            body.page-home #navbar .nav-search {
+                max-width: none;
+                order: -1;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                min-height: auto;
+                padding-top: clamp(24px, 8vw, 48px);
             }
 
             .hero-visual {
-                display: none;
+                min-height: 220px;
+                max-height: 320px;
             }
 
             .cats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
             }
 
             .how-grid,
@@ -647,39 +777,63 @@
             }
         }
 
-        @media(max-width:600px) {
+        @media (max-width: 600px) {
             .cats-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .cat-card-body {
+                padding: 14px;
+            }
+
+            .cat-card-body h3 {
+                font-size: 1.05rem;
             }
 
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
             }
 
             .product-img {
-                height: 200px;
+                height: min(200px, 42vw);
             }
 
             .stats-row {
-                gap: 20px;
+                flex-wrap: wrap;
+                gap: 16px 24px;
             }
 
             .stat-item h3 {
-                font-size: 1.5rem;
+                font-size: 1.45rem;
+            }
+
+            body.page-home .cart-sidebar {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+            body.page-home .cart-sidebar:not(.open) {
+                right: -100%;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 
-<body>
+<body class="page-home">
 
     <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
+        <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links" aria-expanded="false" aria-label="Hap menyën"></button>
         <div class="nav-center">
             <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..." id="home-search">
             </div>
-                                    <ul class="nav-links">
+                                    <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
                 <li><a href="femra.html">Femra</a></li>
                 <li><a href="meshkuj.html">Meshkuj</a></li>
@@ -690,7 +844,12 @@
                 <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
             </ul>
         </div>
-        <div class="nav-actions" id="nav-actions"></div>
+        <div class="nav-actions" id="nav-actions">
+            <button type="button" class="icon-btn" id="cart-icon" aria-label="Shporta">
+                <span class="cart-ico" aria-hidden="true">🛒</span>
+                <span class="cart-badge">0</span>
+            </button>
+        </div>
     </nav>
 
     <div class="marquee-container">
@@ -914,22 +1073,34 @@
     </footer>
 
     <script type="module">
-        import { db, collection, getDocs, query, orderBy } from './firebase-config.js';
+        import { db, collection, getDocs, query, orderBy, firebaseProductImageBackgroundCss } from './firebase-config.js';
+        import {
+            bindProductCardGalleries,
+            galleryDataAttr,
+            renderProductMediaInner
+        } from './product-card-ui.js';
+
+        function bindHomeTriGrids() {
+            bindProductCardGalleries(document.getElementById('latest-grid'));
+            bindProductCardGalleries(document.getElementById('femra-grid'));
+            bindProductCardGalleries(document.getElementById('meshkuj-grid'));
+        }
 
         function card(p) {
+            const imgBg = firebaseProductImageBackgroundCss(p);
             const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
             const badge = isNew
                 ? `<span class="badge badge-new">E re</span>`
                 : `<span class="badge badge-used">Pak e përdorur</span>`;
             const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
             const pStr = encodeURIComponent(JSON.stringify(p));
+            const overlays = `
+        <button class="heart-icon" onclick="event.stopPropagation();heart(this,'${pStr}')">🤍</button>
+        ${badge}`;
             return `
     <div class="product-card" onclick="go('${pStr}')">
-      <div class="img-wrapper">
-        <img class="product-img" src="${p.image}" alt="${p.title}" loading="lazy"
-             onerror="this.style.background='#f1f5f9'">
-        <button class="heart-icon" onclick="event.stopPropagation();heart(this,'${pStr}')">🤍</button>
-        ${badge}
+      <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
+        ${renderProductMediaInner(p, overlays)}
       </div>
       <div class="product-info">
         <div class="product-brand">${p.brand || ''}</div>
@@ -956,11 +1127,12 @@
         window.addCart = encodedRaw => {
             const p = JSON.parse(decodeURIComponent(encodedRaw));
             let c = JSON.parse(localStorage.getItem('thriftizy_cart') || '[]');
-            c.push({ title: p.title, price: parseFloat(p.price), image: `url('${p.image}')` });
+            c.push({ title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
             localStorage.setItem('thriftizy_cart', JSON.stringify(c));
             document.querySelectorAll('.cart-badge').forEach(b => b.textContent = c.length);
             document.getElementById('cart-sidebar')?.classList.add('open');
             document.getElementById('cart-overlay')?.classList.add('open');
+            window.thriftizy_refreshCartUi?.();
         };
 
         const empty = (label) => `<div class="empty-home">
@@ -995,12 +1167,34 @@
             document.getElementById('meshkuj-grid').innerHTML =
                 m.length ? m.slice(0, 4).map(card).join('') : empty('Asnjë produkt për meshkuj.');
 
+            bindHomeTriGrids();
         } catch (e) {
             document.getElementById('latest-grid').innerHTML =
                 `<div class="empty-home"><h3>⚠️ ${e.message}</h3></div>`;
         }
     </script>
     <script type="module" src="main.js"></script>
+    <script>
+        (function () {
+            var t = document.getElementById('home-menu-toggle');
+            if (!t) return;
+            t.textContent = '☰';
+            t.addEventListener('click', function () {
+                document.body.classList.toggle('home-nav-drawer-open');
+                var open = document.body.classList.contains('home-nav-drawer-open');
+                t.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 900) document.body.classList.remove('home-nav-drawer-open');
+            });
+            document.querySelectorAll('#mobile-nav-drawer-links a').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    document.body.classList.remove('home-nav-drawer-open');
+                    t.setAttribute('aria-expanded', 'false');
+                });
+            });
+        })();
+    </script>
 </body>
 
 </html>

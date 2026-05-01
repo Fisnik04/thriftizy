@@ -678,7 +678,12 @@
     </div>
 
     <script type="module">
-        import { db, collection, getDocs, query, where } from './firebase-config.js';
+        import { db, collection, getDocs, query, where, firebaseProductImageBackgroundCss } from './firebase-config.js';
+        import {
+            bindProductCardGalleries,
+            galleryDataAttr,
+            renderProductMediaInner
+        } from './product-card-ui.js';
 
         const grid = document.getElementById('product-grid');
         const countEl = document.getElementById('count-badge');
@@ -689,16 +694,17 @@
 
         // ── Render Card ──
         function renderCard(p) {
+            const imgBg = firebaseProductImageBackgroundCss(p);
             const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
             const badge = isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`;
             const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
+            const overlays = `
+                    <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
+                    ${badge}`;
             return `
             <div class="product-card" onclick="selectProduct('${p.id}')">
-                <div class="img-wrapper">
-                    <img class="product-img" src="${p.image}" alt="${p.title}" loading="lazy"
-                         onerror="this.style.background='#f1f5f9'">
-                    <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
-                    ${badge}
+                <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
+                    ${renderProductMediaInner(p, overlays)}
                 </div>
                 <div class="product-info">
                     <div class="product-brand">${p.brand || ''}</div>
@@ -724,11 +730,12 @@
             const p = allProducts.find(x => x.id === id);
             if (!p) return;
             let cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
-            cart.push({ title: p.title, price: parseFloat(p.price), image: `url('${p.image}')` });
+            cart.push({ title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
             localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
             document.querySelectorAll('.cart-badge').forEach(b => b.textContent = cart.length);
             document.getElementById('cart-sidebar')?.classList.add('open');
             document.getElementById('cart-overlay')?.classList.add('open');
+            window.thriftizy_refreshCartUi?.();
         };
 
         // ── Heart ──
@@ -769,6 +776,7 @@
             grid.innerHTML = filtered.length
                 ? filtered.map(renderCard).join('')
                 : `<div class="empty-state"><h2>🛍️ Asnjë produkt</h2><p>Provo të ndryshosh filtrat.</p></div>`;
+            bindProductCardGalleries(grid);
         }
 
         window.applyFilters = applyFilters;

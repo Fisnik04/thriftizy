@@ -137,14 +137,14 @@
 
             <div class="divider">ose</div>
 
-            <form class="login-form" onsubmit="event.preventDefault(); window.location.href='index.html';">
-                <input type="email" placeholder="Email-i juaj" required>
-                <input type="password" placeholder="Fjalëkalimi" required>
-                <button type="submit" class="btn-submit">Kyçu</button>
+            <form class="login-form" id="login-form">
+                <input type="email" id="login-email" placeholder="Email-i juaj" required>
+                <input type="password" id="login-password" placeholder="Fjalëkalimi" required>
+                <button type="submit" class="btn-submit" id="login-btn">Kyçu</button>
             </form>
 
             <div class="login-footer">
-                Nuk keni llogari? <a href="#">Regjistrohu këtu</a>
+                Nuk keni llogari? <a href="signup.html">Regjistrohu këtu</a>
             </div>
             <div class="login-footer" style="margin-top: 10px;">
                 <a href="index.html" style="color: var(--text-muted); font-weight: normal;">&larr; Kthehu në dyqan</a>
@@ -152,5 +152,52 @@
         </div>
     </div>
     <script type="module" src="main.js"></script>
+    <script type="module">
+        import { auth, signInWithEmailAndPassword, onAuthStateChanged } from './firebase-config.js';
+
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'profil.html';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            if (!email || !password) {
+                alert('Ju lutem plotësoni email-in dhe fjalëkalimin.');
+                return;
+            }
+
+            const originalText = loginBtn.textContent;
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Duke u kyçur...';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'profil.html';
+            } catch (error) {
+                let message = 'Kyçja dështoi. Provoni përsëri.';
+                if (error.code === 'auth/invalid-credential') {
+                    message = 'Email ose fjalëkalim i pasaktë.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Shumë tentativa. Provoni pas pak.';
+                } else if (error.code === 'auth/user-disabled') {
+                    message = 'Kjo llogari është çaktivizuar.';
+                }
+                alert(message);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = originalText;
+            }
+        });
+    </script>
 </body>
 </html>

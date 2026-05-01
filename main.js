@@ -1,3 +1,41 @@
+import {
+    db,
+    auth,
+    doc,
+    getDoc,
+    addDoc,
+    collection,
+    serverTimestamp,
+    firebaseProductImageBackgroundCss,
+    firebaseProductImageUrlsForViewer,
+    FIREBASE_PRODUCT_IMAGE_MISSING_BG
+} from './firebase-config.js';
+import { openProductLightbox } from './product-card-ui.js';
+
+/** Fotot për shportë: vetëm nga Firebase URL / img në kartë, jo foto demo `assets/`. */
+function cartImageCssFromProductCard(productCard) {
+    if (!productCard) return FIREBASE_PRODUCT_IMAGE_MISSING_BG;
+    const imgEl =
+        productCard.querySelector('img.product-card-photo') ||
+        productCard.querySelector('img.product-img');
+    if (imgEl && imgEl.getAttribute('src')) {
+        const src = imgEl.getAttribute('src').trim();
+        if (src && !/\bassets\//i.test(src)) return firebaseProductImageBackgroundCss({ image: src });
+    }
+    const wrap = productCard.querySelector('.img-wrapper');
+    const wBg = (wrap && wrap.style && wrap.style.backgroundImage) || '';
+    if (wBg && /\bassets\//i.test(wBg)) return FIREBASE_PRODUCT_IMAGE_MISSING_BG;
+    if (wBg && (String(wBg).startsWith('url(') || wBg.includes('linear-gradient'))) return wBg;
+
+    const ph = productCard.querySelector('.product-img');
+    if (ph && ph !== imgEl) {
+        const dBg = ph.style.backgroundImage || '';
+        if (dBg && /\bassets\//i.test(dBg)) return FIREBASE_PRODUCT_IMAGE_MISSING_BG;
+        if (dBg && String(dBg).startsWith('url(')) return dBg;
+    }
+    return FIREBASE_PRODUCT_IMAGE_MISSING_BG;
+}
+
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
@@ -202,10 +240,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         likedItems.forEach(item => {
+            const thumbBg = firebaseProductImageBackgroundCss(item);
             const cardHTML = `
                 <div class="product-card" style="cursor: pointer;">
                     <div class="heart-icon liked">❤️</div>
-                    <div class="product-img" style="background-image: ${item.image}; background-size: cover; background-position: center;">
+                    <div class="product-img" style="background-image: ${thumbBg}; background-size: cover; background-position: center;">
                         <div class="product-actions">
                             <button class="btn-cart">Shto në shportë</button>
                         </div>
@@ -243,8 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const card = e.target.closest('.product-card');
                 const title = card.querySelector('h4').textContent;
                 const price = parseFloat(card.querySelector('.product-price').textContent.replace(/[^0-9.]/g, ''));
-                const imgStyle = card.querySelector('.product-img').style.backgroundImage;
-                cart.push({ title, price, image: imgStyle });
+                cart.push({ title, price, image: cartImageCssFromProductCard(card) });
                 localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
                 updateCartUI();
                 toggleCart();
@@ -290,17 +328,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // REAL SHOPPING CART LOGIC (Local Storage)
     // -----------------------------------------
     const addToCartBtns = document.querySelectorAll('.btn-cart');
-    const cartBadge = document.querySelector('.cart-badge');
+    const cartBadges = document.querySelectorAll('.cart-badge');
     const cartItemsContainer = document.querySelector('.cart-items');
     const cartTotalElement = document.querySelector('.cart-total span:last-child');
     
     let cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
 
+    function escapeCartText(str) {
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/"/g, '&quot;');
+    }
+
     function updateCartUI() {
-        if (!cartBadge || !cartItemsContainer || !cartTotalElement) return;
-        
-        cartBadge.textContent = cart.length;
-        
+        cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+        if (!cartBadges.length || !cartItemsContainer || !cartTotalElement) return;
+
+        cartBadges.forEach(b => { b.textContent = cart.length; });
+
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Shporta është e zbrazët.<br>Shto disa produkte!</p>';
             cartTotalElement.textContent = '0.00€';
@@ -311,13 +357,24 @@ document.addEventListener("DOMContentLoaded", () => {
         let total = 0;
 
         cart.forEach((item, index) => {
-            total += item.price;
+            const linePrice = typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0;
+            total += linePrice;
+            const listed = typeof item.listedPrice === 'number' ? item.listedPrice : parseFloat(item.listedPrice);
+            const offerExtra = item.isOffer
+                ? `<p style="font-size:0.78rem;color:#64748b;margin:4px 0 0;line-height:1.35;">Ofertë${Number.isFinite(listed) ? `: ${listed.toFixed(2)}€ → ${linePrice.toFixed(2)}€` : `: ${linePrice.toFixed(2)}€`}</p>${item.offerNote ? `<p style="font-size:0.74rem;color:#94a3b8;margin-top:4px;line-height:1.35;">"${escapeCartText(item.offerNote)}"</p>` : ''}`
+                : '';
+            const cartBg = item.image && String(item.image).trim()
+                ? String(item.image).trim().startsWith('url(') || String(item.image).trim().startsWith('linear-gradient')
+                    ? item.image
+                    : `url('${String(item.image).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')`
+                : FIREBASE_PRODUCT_IMAGE_MISSING_BG;
             const cartItemHTML = `
                 <div class="cart-item">
-                    <div class="cart-item-img" style="background-image: ${item.image};"></div>
+                    <div class="cart-item-img" style="background-image: ${cartBg}; background-size: cover; background-position: center;"></div>
                     <div class="cart-item-info" style="flex: 1;">
-                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">${item.title}</h4>
-                        <p style="color: var(--primary); font-weight: 700;">${item.price.toFixed(2)}€</p>
+                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">${item.isOffer ? '<span style="font-size:0.7rem;color:#92400e;font-weight:800;text-transform:uppercase;">OFERTË • </span>' : ''}${escapeCartText(item.title)}</h4>
+                        <p style="color: var(--primary); font-weight: 700;">${linePrice.toFixed(2)}€</p>
+                        ${offerExtra}
                         <button class="cart-item-remove" data-index="${index}" style="color: red; font-size: 0.85rem; cursor: pointer; border:none; background:none; padding:0; margin-top:5px; text-decoration:underline;">Largo</button>
                     </div>
                 </div>
@@ -340,6 +397,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize UI on load
     updateCartUI();
+    window.thriftizy_refreshCartUi = updateCartUI;
+    window.thriftizy_openCartSidebar = () => {
+        if (cartSidebar && cartOverlay) {
+            cartSidebar.classList.add('open');
+            cartOverlay.classList.add('open');
+        }
+    };
 
     addToCartBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -352,9 +416,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const priceText = card.querySelector('.product-price').textContent;
                 // Extract number from price text (e.g. "45.00€" -> 45.00)
                 const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-                const imgStyle = card.querySelector('.product-img').style.backgroundImage;
 
-                cart.push({ title, price, image: imgStyle });
+                cart.push({ title, price, image: cartImageCssFromProductCard(card) });
                 localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
                 
                 updateCartUI();
@@ -389,25 +452,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const sellForm = document.getElementById('sell-form');
     const imageUpload = document.getElementById('sell-image-upload');
     const uploadBox = document.getElementById('upload-box');
-    let uploadedImageBase64 = "url('assets/clothes.png')"; // Default
+    const sellPhotoStrip = document.getElementById('sell-photo-strip');
+    const sellPhotoHint = document.getElementById('sell-photo-hint');
+    /** Deri në 3 data URL që ruhen dhe në `sessionStorage`/listë lokale për produkt */
+    let sellUploadedDataUrls = [];
+
+    function syncSellUploadUi() {
+        if (!uploadBox) return;
+        const preview = firebaseProductImageBackgroundCss(
+            sellUploadedDataUrls.length ? { image: sellUploadedDataUrls[0] } : {}
+        );
+        uploadBox.style.backgroundImage = preview;
+        uploadBox.style.backgroundSize = 'cover';
+        uploadBox.style.backgroundPosition = 'center';
+        const iconEl = document.getElementById('upload-icon');
+        const textEl = document.getElementById('upload-text');
+        if (sellUploadedDataUrls.length) {
+            if (iconEl) iconEl.style.display = 'none';
+            if (textEl) {
+                textEl.style.color = 'white';
+                textEl.style.textShadow = '0 2px 4px rgba(0,0,0,0.8)';
+                textEl.textContent =
+                    sellUploadedDataUrls.length +
+                    ' foto — kliko për të zgjedhur përsëri (max. 3)';
+            }
+        } else {
+            if (iconEl) iconEl.style.display = '';
+            if (textEl) {
+                textEl.style.color = '';
+                textEl.style.textShadow = '';
+                textEl.textContent = 'Kliko për të zgjedhur foto (deri në 3 përnjëherë).';
+            }
+        }
+        if (sellPhotoStrip) {
+            sellPhotoStrip.innerHTML = sellUploadedDataUrls
+                .map(
+                    (src) =>
+                        `<span style="width:76px;height:76px;border-radius:12px;overflow:hidden;border:1px solid var(--glass-border,#e2e8f0);flex-shrink:0;">
+                            <img src="${String(src).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></span>`
+                )
+                .join('');
+        }
+        if (sellPhotoHint) {
+            sellPhotoHint.textContent =
+                sellUploadedDataUrls.length >= 3
+                    ? 'Keni më shumën e lejuar (3 foto).'
+                    : 'Mund të shtoni ende ' +
+                      (3 - sellUploadedDataUrls.length) +
+                      ' foto (ose zgjidhni përsëri për të ndryshuar).';
+        }
+    }
 
     if (imageUpload && uploadBox) {
-        imageUpload.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
+        uploadBox.style.backgroundImage = FIREBASE_PRODUCT_IMAGE_MISSING_BG;
+        syncSellUploadUi();
+        imageUpload.addEventListener('change', function () {
+            const files = Array.from(this.files || []).filter((f) => f.type.startsWith('image/')).slice(0, 3);
+            this.value = '';
+            if (!files.length) return;
+            let remaining = files.length;
+            const next = [];
+            files.forEach((file) => {
                 const reader = new FileReader();
-                reader.addEventListener('load', function() {
-                    uploadedImageBase64 = `url('${this.result}')`;
-                    uploadBox.style.backgroundImage = uploadedImageBase64;
-                    uploadBox.style.backgroundSize = 'cover';
-                    uploadBox.style.backgroundPosition = 'center';
-                    document.getElementById('upload-icon').style.display = 'none';
-                    document.getElementById('upload-text').style.color = 'white';
-                    document.getElementById('upload-text').style.textShadow = '0 2px 4px rgba(0,0,0,0.8)';
-                    document.getElementById('upload-text').textContent = 'Foto u ngarkua (Kliko për ta ndryshuar)';
+                reader.addEventListener('load', () => {
+                    next.push(reader.result);
+                    remaining -= 1;
+                    if (remaining !== 0) return;
+                    sellUploadedDataUrls = next.slice(0, 3);
+                    syncSellUploadUi();
                 });
                 reader.readAsDataURL(file);
-            }
+            });
         });
     }
 
@@ -416,10 +531,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sellForm) {
         sellForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (!sellUploadedDataUrls.length) {
+                alert('Ngarkoni të paktën një foto (deri në 3).');
+                return;
+            }
             const title = document.getElementById('sell-title').value;
             const price = parseFloat(document.getElementById('sell-price').value).toFixed(2);
             
-            myItems.push({ title, price: price + '€', image: uploadedImageBase64 });
+            myItems.push({
+                title,
+                price: price + '€',
+                images: [...sellUploadedDataUrls].slice(0, 3)
+            });
             localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
             
             alert('Artikulli u postua me sukses!');
@@ -433,6 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const shopGrid = document.querySelector('.profile-content .shop-grid');
         if (!shopGrid) return;
+        if (shopGrid.dataset.source === 'firebase') return;
         
         document.querySelectorAll('.dynamic-my-item').forEach(el => el.remove());
 
@@ -440,7 +564,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const cardHTML = `
                 <div class="product-card dynamic-my-item" style="cursor: pointer;" onclick="location.href='produkt.html?myitem=${index}'">
                     <span class="badge badge-sale" style="background: var(--primary);">E Re (Nga ju)</span>
-                    <div class="product-img" style="background-image: ${item.image}; background-size: cover; background-position: center;">
+                    <div class="product-img" style="background-image: ${firebaseProductImageBackgroundCss(item)}; background-size: cover; background-position: center;">
                         <div class="product-actions">
                             <button class="btn-cart" style="background: red;" onclick="event.stopPropagation(); removeMyItem(${index})">Fshi</button>
                         </div>
@@ -490,16 +614,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (confirmBtn) {
-            confirmBtn.addEventListener('click', () => {
+            confirmBtn.addEventListener('click', async () => {
                 if (cartItems.length === 0) {
                     alert('Shporta është e zbrazët! Kthehuni në dyqan për të shtuar produkte.');
                     return;
                 }
-                
-                alert('Porosia u konfirmua me sukses! Faleminderit që zgjodhët Thriftizy.');
-                // Clear the cart
-                localStorage.removeItem('thriftizy_cart');
-                window.location.href = 'index.html';
+
+                confirmBtn.disabled = true;
+                const previousText = confirmBtn.textContent;
+                confirmBtn.textContent = 'Duke konfirmuar...';
+                try {
+                    const user = auth.currentUser;
+                    const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+                    const total = Math.max(0, subtotal + 2 - 5);
+
+                    await addDoc(collection(db, 'porosite'), {
+                        buyerId: user?.uid || null,
+                        buyerEmail: user?.email || null,
+                        items: cartItems,
+                        subtotal,
+                        shipping: 2,
+                        discount: 5,
+                        totalAmount: total,
+                        status: 'new',
+                        createdAt: serverTimestamp()
+                    });
+
+                    alert('Porosia u konfirmua me sukses!');
+                    localStorage.removeItem('thriftizy_cart');
+                    window.location.href = 'blerjet.html';
+                } catch (error) {
+                    console.error('Gabim gjatë ruajtjes së porosisë:', error);
+                    alert('Porosia nuk u ruajt: ' + error.message);
+                } finally {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = previousText;
+                }
             });
         }
     }
@@ -509,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -----------------------------------------
     // DYNAMIC PRODUCT PAGE (produkt.html)
     // -----------------------------------------
-    function initDynamicProduct() {
+    async function initDynamicProduct() {
         if (!window.location.pathname.includes('produkt.html')) return;
         
         let item = null;
@@ -544,42 +694,245 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             
-            // Update Main Image
-            const mainImgEl = document.getElementById('mainImage');
-            if(mainImgEl) {
-                if (item.image && item.image.startsWith('url(')) {
-                    mainImgEl.style.backgroundImage = item.image;
-                } else if (item.image) {
-                    mainImgEl.style.backgroundImage = `url('${item.image}')`;
+            const viewerUrls = firebaseProductImageUrlsForViewer(item);
+
+            function bgCssFromHref(href) {
+                if (!href) return '';
+                const safe = String(href).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                return `url('${safe}')`;
+            }
+
+            let galIdx = 0;
+
+            function showGalleryIndex(i) {
+                galIdx =
+                    viewerUrls.length > 0
+                        ? Math.max(0, Math.min(Number(i) || 0, viewerUrls.length - 1))
+                        : 0;
+
+                const mainImgElInner = document.getElementById('mainImage');
+                const thumbListEl = document.getElementById('prod-thumbnails');
+
+                if (mainImgElInner) {
+                    if (viewerUrls.length) {
+                        mainImgElInner.style.backgroundImage =
+                            bgCssFromHref(viewerUrls[galIdx]) || firebaseProductImageBackgroundCss(item);
+                    } else if (item.image && String(item.image).startsWith('url(')) {
+                        mainImgElInner.style.backgroundImage = item.image;
+                    } else if (item.image) {
+                        const fb = bgCssFromHref(item.image);
+                        mainImgElInner.style.backgroundImage =
+                            fb || firebaseProductImageBackgroundCss(item);
+                    } else {
+                        mainImgElInner.style.backgroundImage = firebaseProductImageBackgroundCss(item);
+                    }
+
+                    mainImgElInner.style.cursor = viewerUrls.length ? 'zoom-in' : '';
+                }
+
+                if (thumbListEl) {
+                    [...thumbListEl.querySelectorAll('.thumb')].forEach((tb, ti) =>
+                        tb.classList.toggle('active', viewerUrls.length > 1 && ti === galIdx));
                 }
             }
-            
-            // Update Thumbnails
-            const thumbs = document.querySelectorAll('.thumb');
-            if(thumbs.length > 0 && item.image) {
-                let imgStyle = item.image.startsWith('url(') ? item.image : `url('${item.image}')`;
-                thumbs[0].style.backgroundImage = imgStyle;
+
+            const mainImgEl = document.getElementById('mainImage');
+            const thumbList = document.getElementById('prod-thumbnails');
+
+            if (thumbList) {
+                if (viewerUrls.length > 1) {
+                    thumbList.innerHTML = viewerUrls
+                        .map(
+                            (u, j) =>
+                                `<button type="button" class="thumb${j === 0 ? ' active' : ''}" aria-label="Foto ${j + 1}"
+                                    style="background-image:${bgCssFromHref(u)};background-size:cover;background-position:center;border:none;"></button>`
+                        )
+                        .join('');
+                } else {
+                    thumbList.innerHTML = '';
+                }
+
+                thumbList.onclick = function (event) {
+                    const btn = event.target.closest('.thumb');
+                    if (!btn || !thumbList.contains(btn)) return;
+                    const j = [...thumbList.children].indexOf(btn);
+                    if (j < 0) return;
+                    showGalleryIndex(j);
+                };
             }
-            
-            // Update Attributes (if available in item)
-            if(document.getElementById('prod-brand') && item.brand) document.getElementById('prod-brand').textContent = item.brand;
-            if(document.getElementById('prod-size') && item.size) document.getElementById('prod-size').textContent = item.size;
-            if(document.getElementById('prod-condition') && item.condition) document.getElementById('prod-condition').textContent = item.condition;
-            if(document.getElementById('prod-color') && item.color) document.getElementById('prod-color').textContent = item.color;
-            if(document.getElementById('prod-material') && item.material) document.getElementById('prod-material').textContent = item.material;
-            
-            // Update Description
-            if(document.getElementById('prod-desc') && item.description) {
-                document.getElementById('prod-desc').textContent = item.description;
+
+            showGalleryIndex(0);
+
+            if (mainImgEl) {
+                mainImgEl.onclick = null;
+                if (viewerUrls.length) {
+                    mainImgEl.onclick = () => openProductLightbox(viewerUrls, galIdx);
+                }
             }
+
+            const dash = '—';
+            function setProdAttr(attrId, value) {
+                const el = document.getElementById(attrId);
+                if (!el) return;
+                const t = value == null ? '' : String(value).trim();
+                el.textContent = t !== '' ? t : dash;
+            }
+            const genderLabels = { femra: 'Femra', meshkuj: 'Meshkuj', unisex: 'Unisex' };
+            const countryLabels = { ks: 'Kosovë', al: 'Shqipëri', mk: 'Maqedoni' };
+
+            setProdAttr('prod-brand', item.brand);
+            setProdAttr('prod-size', item.size);
+            setProdAttr('prod-condition', item.condition);
+            setProdAttr('prod-color', item.color);
+            setProdAttr('prod-material', item.material);
+            setProdAttr('prod-category', item.category || item.type || item.subcategory);
+            const g = item.gender;
+            setProdAttr('prod-gender', genderLabels[g] || g);
+            const c = item.country;
+            setProdAttr('prod-country', c !== undefined && c !== null && String(c).trim() !== ''
+                ? (countryLabels[String(c)] || c)
+                : '');
+            setProdAttr('prod-city', item.city);
+            setProdAttr('prod-id', item.id || '');
+
+            const descEl = document.getElementById('prod-desc');
+            if (descEl) {
+                descEl.textContent = (item.description && String(item.description).trim())
+                    ? item.description.trim()
+                    : 'Nuk ka përshkrim të shtuar për këtë artikull.';
+            }
+
+            if (item.title) document.title = String(item.title) + ' | Thriftizy';
             
             // Update Seller Details
-            if(document.getElementById('prod-seller-name') && item.sellerName) {
-                document.getElementById('prod-seller-name').textContent = 'Shitet nga: ' + item.sellerName;
+            const sellerId = item.sellerId || item.uid || '';
+            let sellerName = item.sellerName || item.seller || '';
+            if (!sellerName && sellerId) {
+                try {
+                    const sellerSnap = await getDoc(doc(db, 'users', sellerId));
+                    if (sellerSnap.exists()) {
+                        const sellerData = sellerSnap.data();
+                        sellerName = sellerData.fullName || sellerData.displayName || sellerData.email || '';
+                    }
+                } catch (error) {
+                    console.error('Nuk u ngarkua shitësi nga Firebase:', error);
+                }
             }
-            if(document.getElementById('prod-seller-avatar') && item.sellerName) {
-                document.getElementById('prod-seller-avatar').textContent = item.sellerName.charAt(0).toUpperCase();
+            if (!sellerName) sellerName = 'Shitës';
+            if(document.getElementById('prod-seller-name')) {
+                document.getElementById('prod-seller-name').textContent = 'Shitet nga: ' + sellerName;
             }
+            if(document.getElementById('prod-seller-avatar')) {
+                document.getElementById('prod-seller-avatar').textContent = sellerName.charAt(0).toUpperCase();
+            }
+
+            const sellerProfileCard = document.getElementById('seller-profile-card');
+            const sellerLink = document.getElementById('prod-seller-link');
+            if (sellerProfileCard && sellerId) {
+                const sellerUrl = `shitesi.html?id=${encodeURIComponent(sellerId)}&name=${encodeURIComponent(sellerName)}`;
+                sellerProfileCard.onclick = () => { window.location.href = sellerUrl; };
+                if (sellerLink) {
+                    sellerLink.href = sellerUrl;
+                    sellerLink.onclick = (event) => {
+                        event.stopPropagation();
+                    };
+                }
+            } else if (sellerLink) {
+                sellerLink.style.display = 'none';
+            }
+
+            function productCartImage() {
+                return firebaseProductImageBackgroundCss(item);
+            }
+
+            function addLineToCart(line) {
+                const raw = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+                raw.push(line);
+                localStorage.setItem('thriftizy_cart', JSON.stringify(raw));
+                window.thriftizy_refreshCartUi?.();
+                window.thriftizy_openCartSidebar?.();
+            }
+
+            const listedNum = parseFloat(item.price);
+
+            document.getElementById('prod-add-cart')?.addEventListener('click', () => {
+                addLineToCart({
+                    title: item.title || 'Artikull',
+                    price: Number.isFinite(listedNum) ? listedNum : 0,
+                    listedPrice: Number.isFinite(listedNum) ? listedNum : undefined,
+                    image: productCartImage(),
+                    productId: item.id || '',
+                    sellerId: item.sellerId || item.uid || ''
+                });
+            });
+
+            document.getElementById('prod-open-messages')?.addEventListener('click', () => {
+                window.location.href = 'mesazhet.html';
+            });
+
+            const offerOverlay = document.getElementById('offer-modal-overlay');
+            const offerHint = document.getElementById('offer-listed-hint');
+            const offerInput = document.getElementById('offer-price-input');
+            const offerNote = document.getElementById('offer-note-input');
+
+            document.getElementById('prod-open-offer')?.addEventListener('click', () => {
+                if (!offerOverlay) return;
+                if (offerHint) {
+                    offerHint.textContent = Number.isFinite(listedNum)
+                        ? `Çmimi i listuar: ${listedNum.toFixed(2)}€`
+                        : 'Shkruaj çmimin që ofron.';
+                }
+                if (offerInput) {
+                    offerInput.value = '';
+                    if (Number.isFinite(listedNum)) {
+                        offerInput.placeholder = 'p.sh. ' + Math.max(0, Math.round(listedNum * 0.9 * 100) / 100).toFixed(2);
+                    }
+                }
+                if (offerNote) offerNote.value = '';
+                offerOverlay.classList.add('open');
+                offerOverlay.setAttribute('aria-hidden', 'false');
+                offerInput?.focus();
+            });
+
+            document.getElementById('offer-modal-cancel')?.addEventListener('click', () => {
+                offerOverlay?.classList.remove('open');
+                offerOverlay?.setAttribute('aria-hidden', 'true');
+            });
+
+            offerOverlay?.addEventListener('click', (e) => {
+                if (e.target === offerOverlay) {
+                    offerOverlay.classList.remove('open');
+                    offerOverlay.setAttribute('aria-hidden', 'true');
+                }
+            });
+
+            document.querySelector('.offer-modal')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            document.getElementById('offer-modal-submit')?.addEventListener('click', () => {
+                const val = parseFloat(offerInput?.value || '');
+                if (!Number.isFinite(val) || val <= 0) {
+                    alert('Fut një çmim të vlefshëm për ofertën (€).');
+                    return;
+                }
+                if (Number.isFinite(listedNum) && val > listedNum + 0.009) {
+                    alert('Çmimi i ofertës zakonisht duhet të jetë më i ulët ose i njëjtë me çmimin e listuar.');
+                    return;
+                }
+                addLineToCart({
+                    title: item.title || 'Artikull',
+                    price: val,
+                    listedPrice: Number.isFinite(listedNum) ? listedNum : undefined,
+                    isOffer: true,
+                    offerNote: (offerNote?.value || '').trim() || undefined,
+                    image: productCartImage(),
+                    productId: item.id || '',
+                    sellerId: item.sellerId || item.uid || ''
+                });
+                offerOverlay?.classList.remove('open');
+                offerOverlay?.setAttribute('aria-hidden', 'true');
+            });
         }
     }
     

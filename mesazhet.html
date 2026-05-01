@@ -130,6 +130,16 @@
             cursor: pointer;
             font-weight: 800;
         }
+        .chat-empty {
+            padding: 24px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-align: center;
+        }
+        .chat-input button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -154,58 +164,315 @@
     <div class="chat-container reveal">
         <div class="chat-box">
             <!-- Sidebar list -->
-            <div class="chat-list">
-                <div class="chat-list-item active">
-                    <div class="chat-avatar">E</div>
-                    <div class="chat-info">
-                        <h4>Erand (Shitësi)</h4>
-                        <p>A mundesh pak më lirë?</p>
-                    </div>
-                </div>
-                <div class="chat-list-item">
-                    <div class="chat-avatar" style="background: var(--accent);">B</div>
-                    <div class="chat-info">
-                        <h4>Blerina</h4>
-                        <p>Po, masa është e saktë.</p>
-                    </div>
-                </div>
+            <div class="chat-list" id="chat-list">
+                <div class="chat-empty">Duke ngarkuar bisedat...</div>
             </div>
 
             <!-- Chat Window -->
             <div class="chat-main">
                 <div class="chat-header">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="chat-avatar">E</div>
+                        <div class="chat-avatar" id="active-avatar">-</div>
                         <div>
-                            <h3 style="font-size: 1.1rem;">Erand <span style="font-size: 0.8rem; color: var(--text-muted);">@erandi99</span></h3>
-                            <span style="font-size: 0.8rem; color: var(--accent);">Online tani</span>
+                            <h3 id="active-name" style="font-size: 1.1rem;">Zgjidh një bisedë</h3>
+                            <span id="active-status" style="font-size: 0.8rem; color: var(--accent);">-</span>
                         </div>
                     </div>
-                    <div class="chat-product">
-                        <img src="assets/clothes.png" alt="Xhaketë">
+                    <div class="chat-product" id="active-product">
+                        <div id="active-product-image" role="img" aria-label="Produkt" style="width:40px;height:40px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0;"></div>
                         <div>
                             <span style="font-size: 0.8rem; display: block; color: var(--text-muted);">Për produktin:</span>
-                            <span style="font-weight: 800; font-size: 0.9rem;">Xhaketë Vintage (25€)</span>
+                            <span id="active-product-title" style="font-weight: 800; font-size: 0.9rem;">-</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="chat-messages" id="chat-messages">
-                    <div class="msg received">Përshëndetje! Jam i interesuar për xhaketën.</div>
-                    <div class="msg sent">Përshëndetje! Po, është e disponueshme. 😊</div>
-                    <div class="msg received">A mundesh me lëshu çmimin pak më lirë? A bën 20€?</div>
-                    <div class="msg sent">Mund ta bëjmë 22€ dhe marr përsipër gjysmën e postës.</div>
-                    <div class="msg received">Në rregull, jam dakord. Do e bëj porosinë tani. Faleminderit!</div>
+                    <div class="chat-empty">Nuk ka mesazhe për të shfaqur.</div>
                 </div>
 
-                <form class="chat-input" onsubmit="event.preventDefault(); let val = document.getElementById('msg-input').value; if(val){ document.getElementById('chat-messages').innerHTML += `<div class='msg sent'>${val}</div>`; document.getElementById('msg-input').value = ''; document.getElementById('chat-messages').scrollTop = 10000; }">
+                <form class="chat-input" id="chat-form">
                     <input type="text" id="msg-input" placeholder="Shkruaj një mesazh...">
-                    <button type="submit">Dërgo</button>
+                    <button type="submit" id="send-btn" disabled>Dërgo</button>
                 </form>
             </div>
         </div>
     </div>
 
     <script type="module" src="main.js"></script>
+    <script type="module">
+        import {
+            auth,
+            db,
+            onAuthStateChanged,
+            collection,
+            query,
+            where,
+            onSnapshot,
+            addDoc,
+            doc,
+            getDoc,
+            updateDoc,
+            serverTimestamp,
+            firebaseProductImageBackgroundCss
+        } from './firebase-config.js';
+
+        const chatListEl = document.getElementById('chat-list');
+        const chatMessagesEl = document.getElementById('chat-messages');
+        const activeAvatarEl = document.getElementById('active-avatar');
+        const activeNameEl = document.getElementById('active-name');
+        const activeStatusEl = document.getElementById('active-status');
+        const activeProductTitleEl = document.getElementById('active-product-title');
+        const activeProductImageEl = document.getElementById('active-product-image');
+        const chatFormEl = document.getElementById('chat-form');
+        const msgInputEl = document.getElementById('msg-input');
+        const sendBtnEl = document.getElementById('send-btn');
+
+        let currentUser = null;
+        let conversations = [];
+        let activeConversationId = null;
+        let unsubscribeMessages = null;
+        let unsubscribeConversations = null;
+
+        function safeText(value, fallback = '-') {
+            if (value === null || value === undefined) return fallback;
+            const text = String(value).trim();
+            return text || fallback;
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function sortByDateDesc(items, key) {
+            return [...items].sort((a, b) => {
+                const av = a[key];
+                const bv = b[key];
+                const at = av?.seconds ? av.seconds * 1000 : new Date(av || 0).getTime();
+                const bt = bv?.seconds ? bv.seconds * 1000 : new Date(bv || 0).getTime();
+                return bt - at;
+            });
+        }
+
+        function getOtherUserId(conv) {
+            const parts = conv.participants || [];
+            return parts.find((id) => id !== currentUser.uid) || '';
+        }
+
+        function getOtherUserName(conv) {
+            const otherId = getOtherUserId(conv);
+            if (conv.participantNames && otherId && conv.participantNames[otherId]) {
+                return conv.participantNames[otherId];
+            }
+            return 'Përdorues';
+        }
+
+        async function enrichConversationNames(rawConversations) {
+            const enriched = await Promise.all(rawConversations.map(async (conv) => {
+                const otherId = (conv.participants || []).find((id) => id !== currentUser.uid);
+                if (!otherId) return conv;
+                if (conv.participantNames && conv.participantNames[otherId]) return conv;
+
+                try {
+                    const userSnap = await getDoc(doc(db, 'users', otherId));
+                    let otherName = 'Përdorues';
+                    if (userSnap.exists()) {
+                        const data = userSnap.data();
+                        otherName = safeText(data.fullName || data.displayName || data.email, 'Përdorues');
+                    }
+                    return {
+                        ...conv,
+                        participantNames: {
+                            ...(conv.participantNames || {}),
+                            [otherId]: otherName
+                        }
+                    };
+                } catch (error) {
+                    console.error('Gabim gjatë leximit të user-it për chat:', error);
+                    return conv;
+                }
+            }));
+
+            return enriched;
+        }
+
+        function renderConversationList() {
+            if (!conversations.length) {
+                chatListEl.innerHTML = '<div class="chat-empty">Nuk keni ende biseda. Hapni profilin e një shitësi dhe klikoni "Dërgo Mesazh".</div>';
+                return;
+            }
+
+            chatListEl.innerHTML = conversations.map((conv) => {
+                const otherName = getOtherUserName(conv);
+                const lastText = safeText(conv.lastMessage, 'Nuk ka mesazhe ende');
+                const firstLetter = safeText(otherName, '?').charAt(0).toUpperCase();
+                const activeClass = conv.id === activeConversationId ? 'active' : '';
+                return `
+                    <div class="chat-list-item ${activeClass}" data-conv-id="${conv.id}">
+                        <div class="chat-avatar">${firstLetter}</div>
+                        <div class="chat-info">
+                            <h4>${escapeHtml(otherName)}</h4>
+                            <p>${escapeHtml(lastText)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            chatListEl.querySelectorAll('.chat-list-item').forEach((item) => {
+                item.addEventListener('click', () => {
+                    const convId = item.getAttribute('data-conv-id');
+                    if (convId) openConversation(convId);
+                });
+            });
+        }
+
+        function renderHeader(conv) {
+            const otherName = getOtherUserName(conv);
+            activeAvatarEl.textContent = safeText(otherName, '?').charAt(0).toUpperCase();
+            activeNameEl.textContent = otherName;
+            activeStatusEl.textContent = 'Bisedë aktive';
+
+            const title = safeText(conv.productTitle, 'Nga profili');
+            activeProductTitleEl.textContent = title;
+            const bgProd = firebaseProductImageBackgroundCss({ image: conv.productImage });
+            activeProductImageEl.style.backgroundImage = bgProd;
+        }
+
+        function renderMessages(messages) {
+            if (!messages.length) {
+                chatMessagesEl.innerHTML = '<div class="chat-empty">Nuk ka mesazhe ende. Shkruaj i pari.</div>';
+                return;
+            }
+
+            chatMessagesEl.innerHTML = messages.map((msg) => {
+                const sent = msg.senderId === currentUser.uid;
+                const cls = sent ? 'sent' : 'received';
+                return `<div class="msg ${cls}">${escapeHtml(safeText(msg.text, ''))}</div>`;
+            }).join('');
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+
+        function watchMessages(conversationId) {
+            if (unsubscribeMessages) unsubscribeMessages();
+            const messagesRef = collection(db, 'conversations', conversationId, 'messages');
+
+            unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
+                const messages = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+                messages.sort((a, b) => {
+                    const at = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt || 0).getTime();
+                    const bt = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt || 0).getTime();
+                    return at - bt;
+                });
+                renderMessages(messages);
+            }, (error) => {
+                console.error('Gabim gjatë leximit të mesazheve:', error);
+                chatMessagesEl.innerHTML = '<div class="chat-empty">Nuk u ngarkuan mesazhet.</div>';
+            });
+        }
+
+        function openConversation(conversationId) {
+            const conv = conversations.find((c) => c.id === conversationId);
+            if (!conv) return;
+
+            activeConversationId = conversationId;
+            renderConversationList();
+            renderHeader(conv);
+            watchMessages(conversationId);
+            sendBtnEl.disabled = false;
+            window.location.hash = conversationId;
+        }
+
+        async function sendMessage(text) {
+            if (!activeConversationId || !currentUser) return;
+            const cleaned = text.trim();
+            if (!cleaned) return;
+
+            const conversationRef = doc(db, 'conversations', activeConversationId);
+            const messagesRef = collection(db, 'conversations', activeConversationId, 'messages');
+            await addDoc(messagesRef, {
+                text: cleaned,
+                senderId: currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+            await updateDoc(conversationRef, {
+                lastMessage: cleaned,
+                lastAt: serverTimestamp()
+            });
+        }
+
+        function loadConversations(user) {
+            const q = query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid));
+            if (unsubscribeConversations) unsubscribeConversations();
+
+            unsubscribeConversations = onSnapshot(q, async (snap) => {
+                const raw = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+                const withNames = await enrichConversationNames(raw);
+                conversations = sortByDateDesc(withNames, 'lastAt');
+
+                const currentlySelected = activeConversationId;
+                renderConversationList();
+
+                if (!conversations.length) {
+                    activeConversationId = null;
+                    sendBtnEl.disabled = true;
+                    chatMessagesEl.innerHTML = '<div class="chat-empty">Nuk ka mesazhe për të shfaqur.</div>';
+                    return;
+                }
+
+                if (currentlySelected && conversations.some((c) => c.id === currentlySelected)) {
+                    openConversation(currentlySelected);
+                    return;
+                }
+
+                const hashId = window.location.hash ? window.location.hash.slice(1) : '';
+                const initial = conversations.find((c) => c.id === hashId) || conversations[0];
+                openConversation(initial.id);
+            }, (error) => {
+                console.error('Gabim gjatë ngarkimit të bisedave:', error);
+                chatListEl.innerHTML = '<div class="chat-empty">Nuk u ngarkuan bisedat.</div>';
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+            try {
+                loadConversations(user);
+            } catch (error) {
+                console.error('Gabim gjatë ngarkimit të bisedave:', error);
+                chatListEl.innerHTML = '<div class="chat-empty">Nuk u ngarkuan bisedat.</div>';
+                chatMessagesEl.innerHTML = '<div class="chat-empty">Kontrollo Firestore Rules dhe provo përsëri.</div>';
+            }
+        });
+
+        chatFormEl.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const text = msgInputEl.value;
+            if (!text.trim()) return;
+
+            sendBtnEl.disabled = true;
+            const original = sendBtnEl.textContent;
+            sendBtnEl.textContent = 'Duke dërguar...';
+            try {
+                await sendMessage(text);
+                msgInputEl.value = '';
+            } catch (error) {
+                console.error('Gabim gjatë dërgimit:', error);
+                alert('Mesazhi nuk u dërgua: ' + error.message);
+            } finally {
+                sendBtnEl.disabled = !activeConversationId;
+                sendBtnEl.textContent = original;
+            }
+        });
+    </script>
 </body>
 </html>
