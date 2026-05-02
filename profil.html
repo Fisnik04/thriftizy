@@ -826,19 +826,27 @@
         /* ── helpers ── */
         function safeText(v, fb = '-') { return (v == null || String(v).trim() === '') ? fb : String(v).trim(); }
         function toPrice(p) { const n = parseFloat(p); return Number.isFinite(n) ? n.toFixed(2) + '€' : '0.00€'; }
+        function orderDisplayTotal(order) {
+            const itemTotal = (Array.isArray(order.items) ? order.items : [])
+                .reduce((sum, item) => sum + (parseFloat(item?.price) || 0), 0);
+            const savedTotal = parseFloat(order.totalAmount ?? order.total);
+            if (!Number.isFinite(savedTotal)) return itemTotal;
+            return savedTotal < itemTotal ? itemTotal : savedTotal;
+        }
         function isSold(p) { return p?.status === 'sold' || p?.isSold === true; }
         function toDate(value) {
             const seconds = value?.seconds;
             if (!seconds) return 'Sot';
             return new Date(seconds * 1000).toLocaleDateString('sq-AL', { day: '2-digit', month: 'short', year: 'numeric' });
         }
-        function statusText(status) {
-            if (status === 'completed') return 'E përfunduar';
+        function statusText(status, type = 'order') {
+            if (status === 'completed') return type === 'sale' ? 'E përfunduar' : 'E blerë';
+            if (status === 'partially_completed') return 'Pjesërisht e blerë';
             if (status === 'cancelled') return 'E anuluar';
             return 'Në pritje';
         }
         function statusClass(status) {
-            return status === 'completed' ? 'status-completed' : 'status-new';
+            return (status === 'completed' || status === 'partially_completed') ? 'status-completed' : 'status-new';
         }
         const countryLabels = { ks: 'Kosovë', al: 'Shqipëri', mk: 'Maqedoni' };
 
@@ -1276,19 +1284,89 @@
         tabBlerjet.onclick = (e) => { e.preventDefault(); switchTab('blerjet'); };
         tabShitjet.onclick = (e) => { e.preventDefault(); switchTab('shitjet'); };
 
+        function orderFingerprint(order) {
+            const items = Array.isArray(order.items) ? order.items : [];
+            const itemKey = items
+                .map(item => String(item?.id || item?.productId || item?.title || '').trim().toLowerCase())
+                .filter(Boolean)
+                .sort()
+                .join('|');
+            const total = Number.parseFloat(orderDisplayTotal(order) || 0).toFixed(2);
+            return `${itemKey}::${total}`;
+        }
+
+        function dedupeRecentOrders(orders) {
+            const kept = [];
+            const seen = new Map();
+            orders.forEach(order => {
+                const key = orderFingerprint(order);
+                const createdSeconds = order.createdAt?.seconds || 0;
+                const previous = seen.get(key);
+                if (previous && Math.abs(createdSeconds - previous.createdSeconds) <= 300) return;
+                seen.set(key, { createdSeconds });
+                kept.push(order);
+            });
+            return kept;
+        }
+
+        async function syncOrderStatusFromSale(saleData, completedSaleId) {
+            const orderId = saleData?.orderId;
+            if (!orderId) return;
+
+            const salesSnap = await getDocs(query(collection(db, 'shitjet'), where('orderId', '==', orderId)));
+            const relatedSales = salesSnap.docs.map(d => ({
+                id: d.id,
+                ...d.data(),
+                status: d.id === completedSaleId ? 'completed' : d.data().status
+            }));
+            const allCompleted = relatedSales.length > 0 && relatedSales.every(sale => sale.status === 'completed');
+
+            await updateDoc(doc(db, 'porosite', orderId), {
+                status: allCompleted ? 'completed' : 'partially_completed',
+                updatedAt: new Date()
+            });
+        }
+
+        function orderStatusFromBuyerSales(order, buyerSales) {
+            const orderItemIds = new Set((Array.isArray(order.items) ? order.items : [])
+                .map(item => String(item?.id || item?.productId || '').trim())
+                .filter(Boolean));
+            const relatedSales = buyerSales.filter(sale =>
+                sale.orderId === order.id ||
+                (sale.item?.id && orderItemIds.has(String(sale.item.id).trim()))
+            );
+            if (!relatedSales.length) return order.status;
+            if (relatedSales.every(sale => sale.status === 'completed')) return 'completed';
+            if (relatedSales.some(sale => sale.status === 'completed')) return 'partially_completed';
+            return order.status;
+        }
+
+        async function loadBuyerSales(userId) {
+            try {
+                const snap = await getDocs(query(collection(db, 'shitjet'), where('buyerId', '==', userId)));
+                return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (err) {
+                console.warn('Statuset e shitjeve për blerësin nuk u ngarkuan:', err);
+                return [];
+            }
+        }
+
         async function loadBlerjet() {
             const list = document.getElementById('blerjet-list');
             list.innerHTML = '<p style="text-align:center;">Duke ngarkuar blerjet...</p>';
             try {
-                const q = query(collection(db, 'porosite'), where('buyerId', '==', currentUser.uid));
-                const snap = await getDocs(q);
+                const snap = await getDocs(query(collection(db, 'porosite'), where('buyerId', '==', currentUser.uid)));
                 if (snap.empty) {
                     list.innerHTML = '<p style="text-align:center; color:#64748b; padding:40px;">Ende nuk keni bërë asnjë blerje.</p>';
                     return;
                 }
-                const orders = snap.docs
-                    .map(d => ({ id: d.id, ...d.data() }))
-                    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                const buyerSales = await loadBuyerSales(currentUser.uid);
+                const orders = dedupeRecentOrders(snap.docs
+                    .map(d => {
+                        const order = { id: d.id, ...d.data() };
+                        return { ...order, status: orderStatusFromBuyerSales(order, buyerSales) };
+                    })
+                    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
 
                 let html = '';
                 orders.forEach(order => {
@@ -1315,7 +1393,7 @@
                             </div>
                             <div class="order-total-row">
                                 <span>Totali</span>
-                                <span>${toPrice(order.totalAmount)}</span>
+                                <span>${toPrice(orderDisplayTotal(order))}</span>
                             </div>
                         </article>
                     `;
@@ -1350,7 +1428,7 @@
                                     <div class="sale-code">Shitja #${sale.id.slice(0, 6).toUpperCase()}</div>
                                     <div class="sale-date">${toDate(sale.createdAt)}</div>
                                 </div>
-                                <span class="status-pill ${statusClass(sale.status)}">${statusText(sale.status)}</span>
+                                <span class="status-pill ${statusClass(sale.status)}">${statusText(sale.status, 'sale')}</span>
                             </div>
                             <div class="sale-main-row">
                                 <div class="sale-img" style="background-image:${sale.item?.image || 'none'};"></div>
@@ -1385,6 +1463,7 @@
                     const productId = saleData.item.id;
 
                     await updateDoc(doc(db, 'shitjet', saleId), { status: 'completed', completedAt: new Date() });
+                    await syncOrderStatusFromSale({ ...saleData, status: 'completed' }, saleId);
 
                     if (productId) {
                         await updateDoc(doc(db, 'produktet', productId), { status: 'sold' });
@@ -1407,7 +1486,11 @@
                 ]);
 
                 const sales = salesSnap.docs.map(d => d.data());
-                const orders = ordersSnap.docs.map(d => d.data());
+                const buyerSales = await loadBuyerSales(currentUser.uid);
+                const orders = dedupeRecentOrders(ordersSnap.docs.map(d => {
+                    const order = { id: d.id, ...d.data() };
+                    return { ...order, status: orderStatusFromBuyerSales(order, buyerSales) };
+                }));
                 const newSales = sales.filter(s => s.status !== 'completed').length;
                 const activeOrders = orders.filter(o => o.status !== 'completed').length;
                 const completedSales = sales.filter(s => s.status === 'completed').length;

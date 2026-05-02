@@ -7,26 +7,46 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .chat-container {
-            padding: 100px 5% 50px;
-            max-width: 1000px;
+            padding: 108px 4% 34px;
+            max-width: 1180px;
             margin: 0 auto;
-            height: 90vh;
+            height: 100vh;
             display: flex;
         }
         .chat-box {
             display: flex;
             width: 100%;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-radius: 18px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
             border: 1px solid var(--secondary);
             overflow: hidden;
+            min-height: 0;
         }
         .chat-list {
-            width: 300px;
+            width: 330px;
             border-right: 1px solid var(--secondary);
             background: #f8fafc;
             overflow-y: auto;
+        }
+        .chat-list-title {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: rgba(248, 250, 252, 0.96);
+            backdrop-filter: blur(12px);
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid var(--secondary);
+        }
+        .chat-list-title h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #0f172a;
+        }
+        .chat-list-title p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 0.82rem;
         }
         .chat-list-item {
             padding: 16px 20px;
@@ -38,8 +58,12 @@
             transition: var(--transition);
             position: relative;
         }
-        .chat-list-item:hover, .chat-list-item.active {
+        .chat-list-item:hover,
+        .chat-list-item.active {
             background: white;
+        }
+        .chat-list-item.active {
+            box-shadow: inset 4px 0 0 var(--primary);
         }
         .chat-avatar {
             width: 50px;
@@ -54,8 +78,14 @@
             flex-shrink: 0;
         }
         .chat-info { flex: 1; min-width: 0; }
-        .chat-info h4 { font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-info p { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-info h4 { font-size: 0.98rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-info p { font-size: 0.84rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-list-time {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
         .btn-delete-chat {
             opacity: 0;
             background: none;
@@ -80,13 +110,15 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
         .chat-header {
-            padding: 20px;
+            padding: 18px 20px;
             border-bottom: 1px solid var(--secondary);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
         }
         .chat-product {
             display: flex;
@@ -94,7 +126,9 @@
             gap: 10px;
             background: #f1f5f9;
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 12px;
+            min-width: 0;
+            max-width: 340px;
         }
         .chat-product img {
             width: 40px;
@@ -108,35 +142,66 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             background: #f8fafc;
         }
+        .msg-wrap {
+            max-width: 74%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .msg-wrap.sent {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .msg-wrap.received {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
         .msg {
-            max-width: 70%;
             padding: 12px 18px;
-            border-radius: 20px;
+            border-radius: 18px;
             font-size: 0.95rem;
             white-space: pre-wrap;
             line-height: 1.4;
+            overflow-wrap: anywhere;
         }
         .msg.received {
             background: white;
-            align-self: flex-start;
             border-bottom-left-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .msg.sent {
             background: var(--primary);
             color: white;
-            align-self: flex-end;
             border-bottom-right-radius: 5px;
         }
+        .msg-time {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0 6px;
+        }
+        .msg-image {
+            display: block;
+            width: min(320px, 64vw);
+            max-height: 360px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: #e2e8f0;
+            cursor: pointer;
+        }
+        .msg-caption {
+            margin-top: 8px;
+        }
         .chat-input {
-            padding: 20px;
+            padding: 14px 16px;
             border-top: 1px solid var(--secondary);
             display: flex;
             gap: 10px;
             background: white;
+            align-items: center;
         }
         .chat-input input {
             flex: 1;
@@ -144,6 +209,7 @@
             border-radius: 50px;
             border: 1px solid var(--secondary);
             outline: none;
+            min-width: 0;
         }
         .chat-input button {
             background: var(--primary);
@@ -151,6 +217,77 @@
             border: none;
             padding: 0 25px;
             border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        #send-btn {
+            height: 46px;
+            min-width: 96px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 22px rgba(16, 185, 129, 0.22);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+            flex: 0 0 auto;
+        }
+        #send-btn:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(16, 185, 129, 0.28);
+        }
+        #send-btn:not(:disabled):active {
+            transform: translateY(0);
+            box-shadow: 0 8px 18px rgba(16, 185, 129, 0.2);
+        }
+        .btn-attach {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid var(--secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 900;
+            flex: 0 0 auto;
+        }
+        .btn-attach:hover {
+            background: #e2e8f0;
+        }
+        .image-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px 0;
+            border-top: 1px solid var(--secondary);
+            background: white;
+        }
+        .image-preview.active {
+            display: flex;
+        }
+        .image-preview img {
+            width: 54px;
+            height: 54px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #e2e8f0;
+        }
+        .image-preview span {
+            flex: 1;
+            min-width: 0;
+            color: #64748b;
+            font-size: 0.84rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .image-preview button {
+            border: none;
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 10px;
+            padding: 8px 10px;
             cursor: pointer;
             font-weight: 800;
         }
@@ -163,6 +300,159 @@
         .chat-input button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+        @media (max-width: 820px) {
+            .chat-container {
+                padding: 84px 0 0;
+                height: 100dvh;
+                max-width: none;
+            }
+            .chat-box {
+                flex-direction: column;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+                height: 100%;
+            }
+            .chat-list {
+                width: 100%;
+                height: 112px;
+                display: flex;
+                align-items: stretch;
+                overflow-x: auto;
+                overflow-y: hidden;
+                border-right: 0;
+                border-bottom: 1px solid var(--secondary);
+                flex: 0 0 auto;
+                scrollbar-width: thin;
+            }
+            .chat-list-title {
+                position: static;
+                min-width: 104px;
+                padding: 14px 12px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                border-bottom: 0;
+                border-right: 1px solid var(--secondary);
+            }
+            .chat-list-title h2 {
+                display: block;
+                font-size: 0.98rem;
+            }
+            .chat-list-title p,
+            .chat-info p,
+            .chat-list-time,
+            .btn-delete-chat {
+                display: none;
+            }
+            .chat-list-item {
+                min-width: 92px;
+                max-width: 104px;
+                padding: 12px 8px;
+                justify-content: center;
+                flex-direction: column;
+                gap: 8px;
+                border-bottom: 0;
+                border-right: 1px solid var(--secondary);
+            }
+            .chat-list-item.active {
+                box-shadow: inset 0 -4px 0 var(--primary);
+            }
+            .chat-avatar {
+                width: 42px;
+                height: 42px;
+                font-size: 0.9rem;
+            }
+            .chat-info {
+                width: 100%;
+            }
+            .chat-info h4 {
+                font-size: 0.74rem;
+                text-align: center;
+                margin: 0;
+            }
+            .chat-main {
+                min-height: 0;
+                flex: 1;
+            }
+            .chat-header {
+                padding: 12px 14px;
+                align-items: center;
+                flex-direction: row;
+            }
+            .chat-header > div:first-child {
+                min-width: 0;
+                flex: 1;
+            }
+            #active-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            #active-name {
+                font-size: 0.98rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 42vw;
+            }
+            #active-status {
+                display: none;
+            }
+            .chat-product {
+                max-width: 38vw;
+                padding: 8px;
+                flex: 0 0 auto;
+            }
+            .chat-product div:last-child {
+                min-width: 0;
+            }
+            #active-product-title {
+                display: block;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .chat-messages {
+                padding: 14px 12px;
+                gap: 9px;
+            }
+            .msg-wrap {
+                max-width: 86%;
+            }
+            .msg {
+                padding: 10px 13px;
+                font-size: 0.92rem;
+                border-radius: 16px;
+            }
+            .msg-image {
+                width: min(260px, 70vw);
+                max-height: 300px;
+            }
+            .image-preview {
+                padding: 8px 10px 0;
+            }
+            .chat-input {
+                padding: 10px;
+                gap: 8px;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            }
+            .chat-input input {
+                height: 44px;
+                padding: 0 13px;
+                font-size: 0.92rem;
+            }
+            .btn-attach {
+                width: 44px;
+                height: 44px;
+            }
+            #send-btn {
+                height: 44px;
+                min-width: 72px;
+                padding: 0 14px;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
@@ -198,6 +488,10 @@
         <div class="chat-box">
             <!-- Sidebar list -->
             <div class="chat-list" id="chat-list">
+                <div class="chat-list-title">
+                    <h2>Mesazhet</h2>
+                    <p>Bisedat e fundit</p>
+                </div>
                 <div class="chat-empty">Duke ngarkuar bisedat...</div>
             </div>
 
@@ -224,7 +518,15 @@
                     <div class="chat-empty">Nuk ka mesazhe për të shfaqur.</div>
                 </div>
 
+                <div class="image-preview" id="image-preview" aria-live="polite">
+                    <img id="image-preview-img" alt="Foto e zgjedhur">
+                    <span id="image-preview-name">Foto e zgjedhur</span>
+                    <button type="button" id="clear-image-btn">Hiq</button>
+                </div>
+
                 <form class="chat-input" id="chat-form">
+                    <input type="file" id="image-input" accept="image/*" style="display:none;">
+                    <button type="button" class="btn-attach" id="attach-btn" title="Dërgo foto" aria-label="Dërgo foto">+</button>
                     <input type="text" id="msg-input" placeholder="Shkruaj një mesazh...">
                     <button type="submit" id="send-btn" disabled>Dërgo</button>
                 </form>
@@ -262,12 +564,19 @@
         const chatFormEl = document.getElementById('chat-form');
         const msgInputEl = document.getElementById('msg-input');
         const sendBtnEl = document.getElementById('send-btn');
+        const attachBtnEl = document.getElementById('attach-btn');
+        const imageInputEl = document.getElementById('image-input');
+        const imagePreviewEl = document.getElementById('image-preview');
+        const imagePreviewImgEl = document.getElementById('image-preview-img');
+        const imagePreviewNameEl = document.getElementById('image-preview-name');
+        const clearImageBtnEl = document.getElementById('clear-image-btn');
 
         let currentUser = null;
         let conversations = [];
         let activeConversationId = null;
         let unsubscribeMessages = null;
         let unsubscribeConversations = null;
+        let selectedImageFile = null;
 
         function safeText(value, fallback = '-') {
             if (value === null || value === undefined) return fallback;
@@ -294,6 +603,37 @@
             });
         }
 
+        function timestampMs(value) {
+            if (!value) return 0;
+            if (value.seconds) return value.seconds * 1000;
+            const parsed = new Date(value).getTime();
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        function messageTime(value) {
+            const ms = timestampMs(value);
+            if (!ms) return 'tani';
+            return new Date(ms).toLocaleTimeString('sq-AL', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
+
+        function refreshRelativeTimes() {
+            document.querySelectorAll('[data-time-ms]').forEach((el) => {
+                const ms = Number(el.getAttribute('data-time-ms'));
+                if (Number.isFinite(ms) && ms > 0) {
+                    el.textContent = messageTime(ms);
+                }
+            });
+        }
+
+        function timeAttr(value) {
+            const ms = timestampMs(value);
+            return ms ? `data-time-ms="${ms}"` : '';
+        }
+
         function getOtherUserId(conv) {
             const parts = conv.participants || [];
             return parts.find((id) => id !== currentUser.uid) || '';
@@ -305,6 +645,79 @@
                 return conv.participantNames[otherId];
             }
             return 'Përdorues';
+        }
+
+        function updateSendState() {
+            const hasText = Boolean(msgInputEl.value.trim());
+            const hasImage = Boolean(selectedImageFile);
+            const hasConversation = Boolean(activeConversationId && currentUser && !msgInputEl.disabled);
+            sendBtnEl.disabled = !hasConversation || (!hasText && !hasImage);
+        }
+
+        function clearSelectedImage() {
+            selectedImageFile = null;
+            imageInputEl.value = '';
+            imagePreviewImgEl.removeAttribute('src');
+            imagePreviewNameEl.textContent = 'Foto e zgjedhur';
+            imagePreviewEl.classList.remove('active');
+            updateSendState();
+        }
+
+        function setSelectedImage(file) {
+            if (!file) {
+                clearSelectedImage();
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                alert('Ju lutem zgjidhni një foto.');
+                clearSelectedImage();
+                return;
+            }
+            if (file.size > 6 * 1024 * 1024) {
+                alert('Fotoja është shumë e madhe. Zgjidhni një foto deri në 6MB.');
+                clearSelectedImage();
+                return;
+            }
+
+            selectedImageFile = file;
+            imagePreviewImgEl.src = URL.createObjectURL(file);
+            imagePreviewNameEl.textContent = file.name || 'Foto e zgjedhur';
+            imagePreviewEl.classList.add('active');
+            updateSendState();
+        }
+
+        function compressImage(file, maxWidth = 900, quality = 0.72) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        async function uploadMessageImage(file) {
+            return {
+                imageUrl: await compressImage(file),
+                imageName: file.name || 'foto'
+            };
         }
 
         async function enrichConversationNames(rawConversations) {
@@ -360,12 +773,18 @@
         }
 
         function renderConversationList() {
+            const listTitle = `
+                <div class="chat-list-title">
+                    <h2>Mesazhet</h2>
+                    <p>Bisedat e fundit</p>
+                </div>
+            `;
             if (!conversations.length) {
                 chatListEl.innerHTML = '<div class="chat-empty">Nuk keni ende biseda. Hapni profilin e një shitësi dhe klikoni "Dërgo Mesazh".</div>';
                 return;
             }
 
-            chatListEl.innerHTML = conversations.map((conv) => {
+            chatListEl.innerHTML = listTitle + conversations.map((conv) => {
                 const otherName = getOtherUserName(conv);
                 const lastText = safeText(conv.lastMessage, 'Nuk ka mesazhe ende');
                 const firstLetter = safeText(otherName, '?').charAt(0).toUpperCase();
@@ -455,8 +874,24 @@
             chatMessagesEl.innerHTML = messages.map((msg) => {
                 const sent = msg.senderId === currentUser.uid;
                 const cls = sent ? 'sent' : 'received';
-                return `<div class="msg ${cls}">${escapeHtml(safeText(msg.text, ''))}</div>`;
+                const text = safeText(msg.text, '');
+                const imageUrl = safeText(msg.imageUrl, '');
+                const imageHtml = imageUrl
+                    ? `<a href="${escapeHtml(imageUrl)}" target="_blank" rel="noopener"><img class="msg-image" src="${escapeHtml(imageUrl)}" alt="Foto e dërguar"></a>`
+                    : '';
+                const textHtml = text ? `<div class="${imageUrl ? 'msg-caption' : ''}">${escapeHtml(text)}</div>` : '';
+                const body = imageHtml || textHtml
+                    ? `${imageHtml}${textHtml}`
+                    : escapeHtml(safeText(msg.text, ''));
+                const ms = timestampMs(msg.createdAt);
+                return `
+                    <div class="msg-wrap ${cls}">
+                        <div class="msg ${cls}">${body}</div>
+                        <div class="msg-time" ${ms ? `data-time-ms="${ms}"` : ''}>${messageTime(msg.createdAt)}</div>
+                    </div>
+                `;
             }).join('');
+            refreshRelativeTimes();
             chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
         }
 
@@ -492,29 +927,38 @@
                 sendBtnEl.disabled = true;
                 msgInputEl.placeholder = "Nuk mund t'i dërgoni mesazh vetes.";
                 msgInputEl.disabled = true;
+                attachBtnEl.disabled = true;
             } else {
-                sendBtnEl.disabled = false;
+                attachBtnEl.disabled = false;
                 msgInputEl.placeholder = "Shkruaj një mesazh...";
                 msgInputEl.disabled = false;
+                updateSendState();
             }
 
             window.location.hash = conversationId;
         }
 
-        async function sendMessage(text) {
+        async function sendMessage(text, imageFile) {
             if (!activeConversationId || !currentUser) return;
             const cleaned = text.trim();
-            if (!cleaned) return;
+            if (!cleaned && !imageFile) return;
 
             const conversationRef = doc(db, 'conversations', activeConversationId);
             const messagesRef = collection(db, 'conversations', activeConversationId, 'messages');
+            const imageData = imageFile ? await uploadMessageImage(imageFile) : {};
+            const lastMessage = imageData.imageUrl
+                ? (cleaned ? `Foto: ${cleaned}` : 'Dërgoi një foto')
+                : cleaned;
+
             await addDoc(messagesRef, {
                 text: cleaned,
                 senderId: currentUser.uid,
+                type: imageData.imageUrl ? 'image' : 'text',
+                ...imageData,
                 createdAt: serverTimestamp()
             });
             await updateDoc(conversationRef, {
-                lastMessage: cleaned,
+                lastMessage,
                 lastAt: serverTimestamp()
             });
         }
@@ -568,22 +1012,39 @@
             }
         });
 
+        attachBtnEl.addEventListener('click', () => {
+            if (attachBtnEl.disabled) return;
+            imageInputEl.click();
+        });
+
+        imageInputEl.addEventListener('change', () => {
+            setSelectedImage(imageInputEl.files?.[0]);
+        });
+
+        clearImageBtnEl.addEventListener('click', clearSelectedImage);
+
+        msgInputEl.addEventListener('input', updateSendState);
+
         chatFormEl.addEventListener('submit', async (event) => {
             event.preventDefault();
             const text = msgInputEl.value;
-            if (!text.trim()) return;
+            const imageFile = selectedImageFile;
+            if (!text.trim() && !imageFile) return;
 
             sendBtnEl.disabled = true;
+            attachBtnEl.disabled = true;
             const original = sendBtnEl.textContent;
             sendBtnEl.textContent = 'Duke dërguar...';
             try {
-                await sendMessage(text);
+                await sendMessage(text, imageFile);
                 msgInputEl.value = '';
+                clearSelectedImage();
             } catch (error) {
                 console.error('Gabim gjatë dërgimit:', error);
                 alert('Mesazhi nuk u dërgua: ' + error.message);
             } finally {
-                sendBtnEl.disabled = !activeConversationId;
+                attachBtnEl.disabled = !activeConversationId;
+                updateSendState();
                 sendBtnEl.textContent = original;
             }
         });

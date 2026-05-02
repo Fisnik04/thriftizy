@@ -41,6 +41,62 @@ function cartImageCssFromProductCard(productCard) {
     return FIREBASE_PRODUCT_IMAGE_MISSING_BG;
 }
 
+function safeReadCart() {
+    try {
+        return JSON.parse(localStorage.getItem('thriftizy_cart') || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function cartItemKey(item) {
+    return String(item?.id || item?.productId || item?.title || '').trim().toLowerCase();
+}
+
+function uniqueCartItems(items) {
+    const seen = new Set();
+    return (Array.isArray(items) ? items : []).filter((item) => {
+        const key = cartItemKey(item);
+        if (!key) return true;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+function checkoutSignature(items, userId) {
+    const ids = uniqueCartItems(items)
+        .map((item) => cartItemKey(item))
+        .filter(Boolean)
+        .sort()
+        .join('|');
+    return `${userId || 'guest'}::${ids}`;
+}
+
+function checkoutSelectedShippingCost() {
+    const text = document.getElementById('shipping-cost-display')?.textContent || '';
+    const parsed = Number.parseFloat(text.replace(/[^0-9.]/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+async function syncOrderStatusFromSale(saleData, completedSaleId) {
+    const orderId = saleData?.orderId;
+    if (!orderId) return;
+
+    const salesSnap = await getDocs(query(collection(db, 'shitjet'), where('orderId', '==', orderId)));
+    const relatedSales = salesSnap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+        status: d.id === completedSaleId ? 'completed' : d.data().status
+    }));
+    const allCompleted = relatedSales.length > 0 && relatedSales.every((sale) => sale.status === 'completed');
+
+    await updateDoc(doc(db, 'porosite', orderId), {
+        status: allCompleted ? 'completed' : 'partially_completed',
+        updatedAt: new Date()
+    });
+}
+
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
@@ -647,11 +703,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function initCheckout() {
         if (!window.location.pathname.includes('checkout.html')) return;
 
-        let cartItems = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+        let cartItems = uniqueCartItems(safeReadCart());
+        localStorage.setItem('thriftizy_cart', JSON.stringify(cartItems));
         const subtotalLabel = document.getElementById('checkout-subtotal-label');
         const subtotalPrice = document.getElementById('checkout-subtotal-price');
         const totalPrice = document.getElementById('checkout-total-price');
         const confirmBtn = document.getElementById('btn-confirm-checkout');
+        let checkoutSubmitting = false;
 
         if (subtotalLabel && subtotalPrice && totalPrice) {
             let sub = 0;
@@ -660,25 +718,39 @@ document.addEventListener("DOMContentLoaded", () => {
             subtotalLabel.textContent = `Nëntotali (${cartItems.length} artikuj)`;
             subtotalPrice.textContent = sub.toFixed(2) + '€';
 
-            let finalPrice = sub + 2.00 - 5.00; // + Shipping - Discount
-            if (finalPrice < 0) finalPrice = 0;
+            const finalPrice = sub + checkoutSelectedShippingCost();
             totalPrice.textContent = finalPrice.toFixed(2) + '€';
         }
 
         if (confirmBtn) {
             confirmBtn.addEventListener('click', async () => {
+                cartItems = uniqueCartItems(safeReadCart());
+                localStorage.setItem('thriftizy_cart', JSON.stringify(cartItems));
+
+                if (checkoutSubmitting) return;
+
                 if (cartItems.length === 0) {
                     alert('Shporta është e zbrazët! Kthehuni në dyqan për të shtuar produkte.');
                     return;
                 }
 
+                const user = auth.currentUser;
+                const lockKey = 'thriftizy_checkout_pending_signature';
+                const signature = checkoutSignature(cartItems, user?.uid);
+                if (localStorage.getItem(lockKey) === signature) {
+                    alert('Kjo porosi tashme eshte duke u derguar. Ju lutem prisni pak.');
+                    return;
+                }
+
+                checkoutSubmitting = true;
+                localStorage.setItem(lockKey, signature);
                 confirmBtn.disabled = true;
                 const previousText = confirmBtn.textContent;
                 confirmBtn.textContent = 'Duke konfirmuar...';
                 try {
-                    const user = auth.currentUser;
                     const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
-                    const total = Math.max(0, subtotal + 2 - 5);
+                    const shippingCost = checkoutSelectedShippingCost();
+                    const total = subtotal + shippingCost;
 
                     const shippingInfo = {
                         firstName: document.getElementById('ship-name')?.value || '',
@@ -691,6 +763,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (!shippingInfo.firstName || !shippingInfo.address || !shippingInfo.phone) {
                         alert('Ju lutem plotësoni të gjitha fushat e detyrueshme të dërgesës.');
+                        localStorage.removeItem(lockKey);
                         confirmBtn.disabled = false;
                         confirmBtn.textContent = previousText;
                         return;
@@ -709,8 +782,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         })),
                         shippingInfo,
                         subtotal,
-                        shipping: 2,
-                        discount: 5,
+                        shipping: shippingCost,
+                        discount: 0,
                         totalAmount: total,
                         paymentMethod: 'Cash on Delivery',
                         status: 'new',
@@ -745,11 +818,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     alert('Porosia u konfirmua me sukses!');
                     localStorage.removeItem('thriftizy_cart');
+                    localStorage.removeItem(lockKey);
                     window.location.href = 'index.html'; // Redirect to home so they can see if they sold something too? Or just success.
                 } catch (error) {
                     console.error('Gabim gjatë ruajtjes së porosisë:', error);
                     alert('Porosia nuk u ruajt: ' + error.message);
+                    localStorage.removeItem(lockKey);
                 } finally {
+                    checkoutSubmitting = false;
                     confirmBtn.disabled = false;
                     confirmBtn.textContent = previousText;
                 }
@@ -1343,6 +1419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Update sale status
                 await updateDoc(doc(db, 'shitjet', saleId), { status: 'completed', completedAt: new Date() });
+                await syncOrderStatusFromSale({ ...saleData, status: 'completed' }, saleId);
 
                 // Update product status to sold
                 if (productId) {

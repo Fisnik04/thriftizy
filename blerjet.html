@@ -110,11 +110,50 @@
             return Number.isFinite(num) ? num.toFixed(2) + '€' : '0.00€';
         }
 
+        function orderDisplayTotal(order) {
+            const itemTotal = (Array.isArray(order.items) ? order.items : [])
+                .reduce((sum, item) => sum + (parseFloat(item?.price) || 0), 0);
+            const savedTotal = parseFloat(order.totalAmount ?? order.total);
+            if (!Number.isFinite(savedTotal)) return itemTotal;
+            return savedTotal < itemTotal ? itemTotal : savedTotal;
+        }
+
         function orderDate(value) {
             if (!value) return 'Pa datë';
             if (value.seconds) return new Date(value.seconds * 1000).toLocaleString('sq-AL');
             const parsed = new Date(value);
             return Number.isNaN(parsed.getTime()) ? 'Pa datë' : parsed.toLocaleString('sq-AL');
+        }
+
+        function statusText(status) {
+            if (status === 'completed') return 'E blerë';
+            if (status === 'partially_completed') return 'Pjesërisht e blerë';
+            if (status === 'cancelled') return 'E anuluar';
+            return 'Në pritje';
+        }
+
+        function orderStatusFromBuyerSales(order, buyerSales) {
+            const orderItemIds = new Set((Array.isArray(order.items) ? order.items : [])
+                .map((item) => String(item?.id || item?.productId || '').trim())
+                .filter(Boolean));
+            const relatedSales = buyerSales.filter((sale) =>
+                sale.orderId === order.id ||
+                (sale.item?.id && orderItemIds.has(String(sale.item.id).trim()))
+            );
+            if (!relatedSales.length) return order.status;
+            if (relatedSales.every((sale) => sale.status === 'completed')) return 'completed';
+            if (relatedSales.some((sale) => sale.status === 'completed')) return 'partially_completed';
+            return order.status;
+        }
+
+        async function loadBuyerSales(userId) {
+            try {
+                const snap = await getDocs(query(collection(db, 'shitjet'), where('buyerId', '==', userId)));
+                return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+            } catch (error) {
+                console.warn('Statuset e shitjeve për blerësin nuk u ngarkuan:', error);
+                return [];
+            }
         }
 
         function renderOrders(orders) {
@@ -137,8 +176,8 @@
                         </div>
                         <ul style="margin: 0 0 10px 18px; color: var(--text-main);">${itemRows}</ul>
                         <div style="display:flex; justify-content:space-between; gap:10px;">
-                            <span>Statusi: <strong>${safeText(order.status, 'new')}</strong></span>
-                            <span>Totali: <strong>${formatPrice(order.totalAmount || order.total)}</strong></span>
+                            <span>Statusi: <strong>${statusText(order.status)}</strong></span>
+                            <span>Totali: <strong>${formatPrice(orderDisplayTotal(order))}</strong></span>
                         </div>
                     </div>
                 `;
@@ -155,12 +194,18 @@
             buyerMeta.textContent = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
 
             const byBuyerId = await getDocs(query(collection(db, 'porosite'), where('buyerId', '==', user.uid)));
+            const buyerSales = await loadBuyerSales(user.uid);
             let orders = byBuyerId.docs.map((d) => ({ id: d.id, ...d.data() }));
 
             if (!orders.length && user.email) {
                 const byEmail = await getDocs(query(collection(db, 'porosite'), where('buyerEmail', '==', user.email)));
                 orders = byEmail.docs.map((d) => ({ id: d.id, ...d.data() }));
             }
+
+            orders = orders.map((order) => ({
+                ...order,
+                status: orderStatusFromBuyerSales(order, buyerSales)
+            }));
 
             orders.sort((a, b) => {
                 const at = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt || 0).getTime();
