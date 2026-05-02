@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        
-
         .page-hero {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%);
             padding: 48px 20px 32px;
@@ -465,21 +463,42 @@
                 height: 200px;
             }
         }
-    
-        .badge-sold { background: #ef4444 !important; color: white !important; }
-        .product-sold { opacity: 0.75; filter: grayscale(0.2); }
-        .product-sold .img-wrapper::after {
-            content: "I SHITUR"; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35);
-            color: white; display: flex; align-items: center; justify-content: center;
-            font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; z-index: 4;
+
+        .badge-sold {
+            background: #ef4444 !important;
+            color: white !important;
         }
-        .btn-cart.sold { background: #94a3b8 !important; cursor: not-allowed; }
+
+        .product-sold {
+            opacity: 0.75;
+            filter: grayscale(0.2);
+        }
+
+        .product-sold .img-wrapper::after {
+            content: "I SHITUR";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            z-index: 4;
+        }
+
+        .btn-cart.sold {
+            background: #94a3b8 !important;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
 <body>
 
-            <nav id="navbar">
+    <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
         <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
             aria-expanded="false" aria-label="Hap menyën"></button>
@@ -649,29 +668,62 @@
         function renderCard(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
             const isSold = p.status === "sold";
-            const isNew = p.condition === "E re me etiketë" || p.condition === "E re pa etiketë";
-            const badge = isSold ? `<span class="badge badge-sold">I SHITUR</span>` : (isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`);
 
-            const metaParts = [];
-            if (p.size) metaParts.push(`Madh. ${p.size}`);
-            if (p.color) metaParts.push(`Ngjyra: ${p.color}`);
-            if (p.material) metaParts.push(`Mat: ${p.material}`);
-            const meta = metaParts.join(' • ');
-            const overlays = `
-                    <button class="heart-icon" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
-                    ${badge}`;
+            // Badge logic
+            let badgeHtml = '';
+            if (isSold) {
+                badgeHtml = `<span class="tz3-badge tz3-badge-sold">I shitur</span>`;
+            } else {
+                const cond = p.condition || 'E re';
+                if (cond === 'E re me etiketë' || cond === 'E re pa etiketë') {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-new">E re</span>`;
+                } else {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-used">Pak e përdorur</span>`;
+                }
+            }
+
+            // Seller Info - Robust Fallback
+            let sName = p.sellerName || p.displayName || p.seller || 'Shitës';
+            if (sName === 'Shitës' && p.sellerEmail) {
+                sName = p.sellerEmail.split('@')[0];
+            }
+            const sInitial = sName.charAt(0).toUpperCase();
+
+            // Meta Pills
+            const pills = [
+                p.size ? `<span class="tz3-pill">${p.size}</span>` : '',
+                p.color ? `<span class="tz3-pill">${p.color}</span>` : '',
+                p.material ? `<span class="tz3-pill">${p.material}</span>` : ''
+            ].filter(Boolean).join('');
+
             return `
-            <div class="product-card ${isSold ? 'product-sold' : ''}" onclick="selectProduct('${p.id}')">
-                <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
-                    ${renderProductMediaInner(p, overlays)}
+            <div class="tz3-card ${isSold ? 'tz3-sold-card' : ''}" onclick="selectProduct('${p.id}')">
+                <div class="tz3-img-wrap">
+                    <div class="firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;height:100%;">
+                        ${renderProductMediaInner(p, '')}
+                    </div>
+                    ${badgeHtml}
+                    ${isSold ? `
+                    <div class="tz3-sold-overlay">
+                        <span class="tz3-sold-tag">I Shitur</span>
+                    </div>` : `
+                    <button class="tz3-heart" onclick="event.stopPropagation(); toggleHeart(this, '${p.id}')">🤍</button>
+                    <div class="tz3-overlay">
+                        <button class="tz3-btn-cart" onclick="event.stopPropagation(); addCart('${p.id}')">+ Shportë</button>
+                    </div>`}
                 </div>
-                <div class="product-info">
-                    <div class="product-brand">${p.brand || 'No Brand'} • <span style="color:#64748b; font-weight:400;">${p.sellerName || 'Shitës'}</span></div>
-                    <h4>${p.title}</h4>
-                    <div class="product-meta">${meta || '—'}</div>
-                    <div class="product-footer">
-                        <span class="product-price">${parseFloat(p.price).toFixed(2)}€</span>
-                        <button class="btn-cart" onclick="event.stopPropagation(); addCart('${p.id}')">+ Shportë</button>
+                <div class="tz3-body">
+                    <div class="tz3-brand-row">
+                        <div class="tz3-brand">${p.brand || 'No Brand'}</div>
+                        <div class="tz3-seller">
+                            <span class="tz3-avatar">${sInitial}</span>
+                            ${sName}
+                        </div>
+                    </div>
+                    <p class="tz3-title">${p.title}</p>
+                    <div class="tz3-meta">${pills}</div>
+                    <div class="tz3-footer">
+                        <span class="tz3-price">${parseFloat(p.price).toFixed(2)}€</span>
                     </div>
                 </div>
             </div>`;

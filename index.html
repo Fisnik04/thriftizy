@@ -1222,33 +1222,66 @@
         function card(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
             const isSold = p.status === 'sold';
-            const isNew = p.condition === 'E re me etiketë' || p.condition === 'E re pa etiketë';
-            const badge = isSold 
-                ? `<span class="badge badge-sold">I SHITUR</span>`
-                : (isNew ? `<span class="badge badge-new">E re</span>` : `<span class="badge badge-used">Pak e përdorur</span>`);
-
-            const meta = [p.size ? 'Madh. ' + p.size : '', p.color, p.material].filter(Boolean).join(' • ');
             const pStr = encodeURIComponent(JSON.stringify(p));
-            const overlays = `
-        <button class="heart-icon" onclick="event.stopPropagation();heart(this,'${pStr}')">🤍</button>
-        ${badge}`;
+
+            // Badge logic
+            let badgeHtml = '';
+            if (isSold) {
+                badgeHtml = `<span class="tz3-badge tz3-badge-sold">I shitur</span>`;
+            } else {
+                const cond = p.condition || 'E re';
+                if (cond === 'E re me etiketë' || cond === 'E re pa etiketë') {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-new">E re</span>`;
+                } else {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-used">Pak e përdorur</span>`;
+                }
+            }
+
+            // Seller Info - Robust Fallback
+            let sName = p.sellerName || p.displayName || p.seller || 'Shitës';
+            if (sName === 'Shitës' && p.sellerEmail) {
+                sName = p.sellerEmail.split('@')[0];
+            }
+            const sInitial = sName.charAt(0).toUpperCase();
+
+            // Meta Pills
+            const pills = [
+                p.size ? `<span class="tz3-pill">${p.size}</span>` : '',
+                p.color ? `<span class="tz3-pill">${p.color}</span>` : '',
+                p.material ? `<span class="tz3-pill">${p.material}</span>` : ''
+            ].filter(Boolean).join('');
+
             return `
-    <div class="product-card ${isSold ? 'product-sold' : ''}" data-id="${p.id}" data-seller-id="${p.sellerId || ''}">
-      <div class="img-wrapper firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
-        ${renderProductMediaInner(p, overlays)}
-      </div>
-      <div class="product-info">
-        <div class="product-brand">${p.brand || 'No Brand'} • <span style="color:#64748b; font-weight:400;">${p.sellerName || 'Shitës'}</span></div>
-        <h4>${p.title}</h4>
-        <div class="product-meta">${meta || '—'}</div>
-        <div class="product-footer">
-          <span class="product-price">${parseFloat(p.price).toFixed(2)}€</span>
-          ${isSold 
-            ? `<button class="btn-cart sold" disabled>I shitur</button>` 
-            : `<button class="btn-cart" onclick="event.stopPropagation();addCart('${pStr}')">+ Shportë</button>`}
-        </div>
-      </div>
-    </div>`;
+            <div class="tz3-card ${isSold ? 'tz3-sold-card' : ''}" onclick="go('${pStr}')">
+                <div class="tz3-img-wrap">
+                    <div class="firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;height:100%;">
+                        ${renderProductMediaInner(p, '')}
+                    </div>
+                    ${badgeHtml}
+                    ${isSold ? `
+                    <div class="tz3-sold-overlay">
+                        <span class="tz3-sold-tag">I Shitur</span>
+                    </div>` : `
+                    <button class="tz3-heart" onclick="event.stopPropagation();heart(this,'${pStr}')">🤍</button>
+                    <div class="tz3-overlay">
+                        <button class="tz3-btn-cart" onclick="event.stopPropagation();addCart('${pStr}')">+ Shportë</button>
+                    </div>`}
+                </div>
+                <div class="tz3-body">
+                    <div class="tz3-brand-row">
+                        <div class="tz3-brand">${p.brand || 'No Brand'}</div>
+                        <div class="tz3-seller">
+                            <span class="tz3-avatar">${sInitial}</span>
+                            ${sName}
+                        </div>
+                    </div>
+                    <p class="tz3-title">${p.title}</p>
+                    <div class="tz3-meta">${pills}</div>
+                    <div class="tz3-footer">
+                        <span class="tz3-price">${parseFloat(p.price).toFixed(2)}€</span>
+                    </div>
+                </div>
+            </div>`;
         }
 
         window.go = encodedRaw => {
@@ -1262,8 +1295,18 @@
             const p = JSON.parse(decodeURIComponent(encodedRaw));
             let l = JSON.parse(localStorage.getItem('thriftizy_likes') || '[]');
             const i = l.findIndex(x => x.title === p.title);
-            if (i === -1) { l.push(p); btn.innerHTML = '❤️'; } else { l.splice(i, 1); btn.innerHTML = '🤍'; }
+            if (i === -1) {
+                l.push(p);
+                btn.innerHTML = '❤️';
+                btn.classList.add('liked');
+            } else {
+                l.splice(i, 1);
+                btn.innerHTML = '🤍';
+                btn.classList.remove('liked');
+            }
             localStorage.setItem('thriftizy_likes', JSON.stringify(l));
+            btn.style.transform = 'scale(1.3)';
+            setTimeout(() => btn.style.transform = '', 200);
         };
 
         window.addCart = encodedRaw => {

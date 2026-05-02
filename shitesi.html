@@ -7,91 +7,248 @@
     <title>Profili i Shitësit | Thriftizy</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <style>        body { background: #f1f5f9; padding-top: 120px; }
+    <style>
+        body {
+            background: #f1f5f9;
+            padding-top: 120px;
+        }
 
         .seller-header {
-            max-width: 1000px; margin: 0 auto 40px; padding: 40px;
-            background: white; border-radius: 32px;
-            display: flex; align-items: center; gap: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 40px;
+            background: white;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
             border: 1px solid #e2e8f0;
             position: relative;
         }
 
         .seller-avatar-big {
-            width: 120px; height: 120px; border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
             flex-shrink: 0;
         }
 
-        .seller-info-big { flex: 1; }
-        .seller-info-big h1 { 
-            font-size: 2.2rem; color: #0f172a; margin: 0 0 12px; 
-            font-weight: 800; letter-spacing: -0.5px;
+        .seller-info-big {
+            flex: 1;
         }
-        
-        .seller-stats { display: flex; gap: 12px; flex-wrap: wrap; }
-        .seller-stats span { 
-            font-size: 0.85rem; color: #64748b; font-weight: 600;
-            background: #f8fafc; padding: 6px 16px; border-radius: 99px;
+
+        .seller-info-big h1 {
+            font-size: 2.2rem;
+            color: #0f172a;
+            margin: 0 0 12px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .seller-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .seller-stats span {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            background: #f8fafc;
+            padding: 6px 16px;
+            border-radius: 99px;
             border: 1px solid #f1f5f9;
-            display: inline-flex; align-items: center; gap: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-contact {
-            padding: 14px 28px; background: #0f172a; color: white;
-            border: none; border-radius: 16px; font-weight: 700; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; gap: 10px; font-family: inherit;
+            padding: 14px 28px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
         }
-        .btn-contact:hover { background: #1e293b; transform: translateY(-2px); }
 
-        .products-section { max-width: 1000px; margin: 0 auto 80px; padding: 0 20px; }
-        .products-section h2 { font-size: 1.4rem; margin-bottom: 24px; color: #0f172a; font-weight: 800; }
+        .btn-contact:hover {
+            background: #1e293b;
+            transform: translateY(-2px);
+        }
+
+        .products-section {
+            max-width: 1000px;
+            margin: 0 auto 80px;
+            padding: 0 20px;
+        }
+
+        .products-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 24px;
+            color: #0f172a;
+            font-weight: 800;
+        }
 
         .products-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 24px;
         }
 
         .product-card {
-            background: white; border-radius: 24px; overflow: hidden;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid #f1f5f9; position: relative;
-            display: flex; flex-direction: column;
+            border: 1px solid #f1f5f9;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
-        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
-        .seller-card-hit { cursor: pointer; flex: 1; }
-        .img-wrapper { height: 320px; overflow: hidden; position: relative; background: #f8fafc; }
-        .product-img { width: 100%; height: 100%; object-fit: cover; }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        .seller-card-hit {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .img-wrapper {
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+            background: #f8fafc;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .product-badge {
-            position: absolute; top: 16px; left: 16px;
-            background: white; padding: 6px 12px; border-radius: 12px; 
-            font-size: 0.7rem; font-weight: 800; color: #0f172a; z-index: 2;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #0f172a;
+            z-index: 2;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
-        .product-info { padding: 20px; }
-        .product-brand { color: #10b981; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
-        .product-title { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-        .product-price { font-size: 1.2rem; font-weight: 800; color: #0f172a; }
-        .product-meta { display: flex; justify-content: space-between; margin-top: 14px; color: #94a3b8; font-size: 0.85rem; }
 
-        .seller-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 20px; }
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-brand {
+            color: #10b981;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 14px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .seller-card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 20px 20px;
+        }
+
         .seller-card-actions button {
-            padding: 12px; border-radius: 14px; font-weight: 700; font-size: 0.85rem;
-            cursor: pointer; border: none; transition: all 0.2s; font-family: inherit;
+            padding: 12px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: inherit;
         }
-        .btn-card-open { background: #f1f5f9; color: #0f172a; }
-        .btn-card-cart { background: #0f172a; color: white; }
-        .btn-card-cart:hover { opacity: 0.9; }
 
-        .loading-state, .empty-state { grid-column: 1/-1; text-align: center; padding: 80px; color: #94a3b8; }
-        .firebase-prod-img-slot.min-h-img { min-height: 320px; }
+        .btn-card-open {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .btn-card-cart {
+            background: #0f172a;
+            color: white;
+        }
+
+        .btn-card-cart:hover {
+            opacity: 0.9;
+        }
+
+        .loading-state,
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 80px;
+            color: #94a3b8;
+        }
+
+        .firebase-prod-img-slot.min-h-img {
+            min-height: 320px;
+        }
 
         @media (max-width: 768px) {
-            .seller-header { flex-direction: column; text-align: center; padding: 40px 20px; }
-            .seller-stats { justify-content: center; }
-            .btn-contact { width: 100%; justify-content: center; }
-            .img-wrapper { height: 260px; }
+            .seller-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 40px 20px;
+            }
+
+            .seller-stats {
+                justify-content: center;
+            }
+
+            .btn-contact {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .img-wrapper {
+                height: 260px;
+            }
         }
     </style>
 </head>
@@ -231,7 +388,7 @@
                 nameEl.textContent = sellerName;
                 nameEl.style.display = 'block';
             }
-            
+
             const avatar = document.getElementById('s-avatar');
             if (avatar) {
                 if (avatar.style.backgroundImage && avatar.style.backgroundImage !== 'none') {
@@ -348,30 +505,68 @@
                             : p.gender === 'meshkuj'
                                 ? 'Meshkuj'
                                 : 'Unisex';
-                    const pid = encodeURIComponent(String(p.id || ''));
-                    const badgeHtml = `<span class="product-badge">${escHtml(p.condition || 'E re')}</span>`;
+                    
+                    const isSold = p.status === "sold";
+                    const pid = String(p.id || '');
+                    
+                    // Badge logic
+                    let badgeHtml = '';
+                    if (isSold) {
+                        badgeHtml = `<span class="tz3-badge tz3-badge-sold">I shitur</span>`;
+                    } else {
+                        const cond = p.condition || 'E re';
+                        if (cond === 'E re me etiketë' || cond === 'E re pa etiketë') {
+                            badgeHtml = `<span class="tz3-badge tz3-badge-new">E re</span>`;
+                        } else {
+                            badgeHtml = `<span class="tz3-badge tz3-badge-used">Pak e përdorur</span>`;
+                        }
+                    }
+
+                    // Seller Info - Robust Fallback
+                    let sName = p.sellerName || sellerName || 'Shitës';
+                    if (sName === 'Shitës' && p.sellerEmail) {
+                        sName = p.sellerEmail.split('@')[0];
+                    }
+                    const sInitial = sName.charAt(0).toUpperCase();
+
+                    // Meta Pills
+                    const pills = [
+                        p.size ? `<span class="tz3-pill">${escHtml(p.size)}</span>` : '',
+                        p.color ? `<span class="tz3-pill">${escHtml(p.color)}</span>` : '',
+                        p.material ? `<span class="tz3-pill">${escHtml(p.material)}</span>` : ''
+                    ].filter(Boolean).join('');
 
                     return `
-                        <article class="product-card">
-                            <div class="seller-card-hit" role="button" tabindex="0" onclick="openSellerProductById('${pid}')" onkeydown="if(event.key==='Enter')openSellerProductById('${pid}')">
-                                <div class="img-wrapper firebase-prod-img-slot product-card-media min-h-img" data-gallery="${galleryDataAttr(pShow)}" style="background-image:${imgBg};background-size:cover;background-position:center;">
-                                    ${renderProductMediaInner(pShow, badgeHtml)}
-                                </div>
-                                <div class="product-info">
-                                    <div class="product-brand">${escHtml(p.brand || 'Pa markë')}</div>
-                                    <div class="product-title">${escHtml(p.title || '')}</div>
-                                    <div class="product-price">${euroAmount(p.price)}</div>
-                                    <div class="product-meta">
-                                        <span>Madh.: ${escHtml(p.size || '—')}</span>
-                                        <span>${escHtml(genderLbl)}</span>
-                                    </div>
+                    <div class="tz3-card ${isSold ? 'tz3-sold-card' : ''}" onclick="openSellerProductById('${pid}')">
+                        <div class="tz3-img-wrap">
+                            <div class="firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(pShow)}" style="background-image:${imgBg};background-size:cover;background-position:center;height:100%;">
+                                ${renderProductMediaInner(pShow, '')}
+                            </div>
+                            ${badgeHtml}
+                            ${isSold ? `
+                            <div class="tz3-sold-overlay">
+                                <span class="tz3-sold-tag">I Shitur</span>
+                            </div>` : `
+                            <button class="tz3-heart" onclick="event.stopPropagation(); toggleHeart(this, '${pid}')">🤍</button>
+                            <div class="tz3-overlay">
+                                <button class="tz3-btn-cart" onclick="event.stopPropagation(); sellerQuickAddCart('${pid}')">+ Shportë</button>
+                            </div>`}
+                        </div>
+                        <div class="tz3-body">
+                            <div class="tz3-brand-row">
+                                <div class="tz3-brand">${escHtml(p.brand || 'No Brand')}</div>
+                                <div class="tz3-seller">
+                                    <span class="tz3-avatar">${sInitial}</span>
+                                    ${escHtml(sName)}
                                 </div>
                             </div>
-                            <div class="seller-card-actions">
-                                <button type="button" class="btn-card-open" onclick="event.stopPropagation(); openSellerProductById('${pid}')">Shiko</button>
-                                <button type="button" class="btn-card-cart" onclick="event.stopPropagation(); sellerQuickAddCart('${pid}')">+ Shportë</button>
+                            <p class="tz3-title">${escHtml(p.title)}</p>
+                            <div class="tz3-meta">${pills}</div>
+                            <div class="tz3-footer">
+                                <span class="tz3-price">${parseFloat(p.price).toFixed(2)}€</span>
                             </div>
-                        </article>`;
+                        </div>
+                    </div>`;
                 }).join('');
 
                 bindProductCardGalleries(grid);

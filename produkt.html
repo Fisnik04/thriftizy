@@ -56,7 +56,7 @@
         }
     </style>
 </head>
-<body>
+<body class="page-product">
     <!-- Navbar -->
                 <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
@@ -165,7 +165,7 @@
                 </div>
             </div>
 
-            <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-top: 14px;">
+            <div class="product-description-block">
                 <p><strong>Përshkrimi:</strong></p>
                 <p id="prod-desc">Përshkrimi ngarkohet nga produkti…</p>
             </div>
@@ -249,8 +249,17 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
         let currentProductData = null;
+
+        function resetProductScroll() {
+            window.scrollTo(0, 0);
+            requestAnimationFrame(() => window.scrollTo(0, 0));
+            [120, 350, 800, 1400].forEach((delay) => {
+                setTimeout(() => window.scrollTo(0, 0), delay);
+            });
+        }
 
         async function loadProduct() {
             if (!productId) {
@@ -264,6 +273,7 @@
                 data.id = docSnap.id;
                 currentProductData = data;
                 renderProduct(data);
+                resetProductScroll();
             } else {
                 alert("Produkti nuk ekziston.");
             }

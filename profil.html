@@ -497,7 +497,7 @@
 </head>
 
 <body>
-        <nav id="navbar">
+    <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
         <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
             aria-expanded="false" aria-label="Hap menyën"></button>
@@ -644,7 +644,8 @@
             <h2>Edito Profilin</h2>
             <div class="edit-field" style="text-align:center; margin-bottom: 24px;">
                 <label>Foto e profilit</label>
-                <div class="profile-avatar" id="profile-modal-avatar" style="width: 90px; height: 90px; margin-bottom: 10px; cursor: pointer;">
+                <div class="profile-avatar" id="profile-modal-avatar"
+                    style="width: 90px; height: 90px; margin-bottom: 10px; cursor: pointer;">
                     <span class="avatar-upload-label">📷</span>
                 </div>
                 <input type="file" id="profile-photo-input" accept="image/*" style="display:none">
@@ -898,7 +899,7 @@
             const countryCode = normalizeCountry(currentUserData.country || localStorage.getItem('thriftizy_country'));
             profileCountrySelect.value = countryCode || '';
             updateProfileCityField(countryCode, currentUserData.city || '');
-            
+
             // Set modal avatar preview
             const modalAvatar = document.getElementById('profile-modal-avatar');
             if (modalAvatar) {
@@ -923,7 +924,7 @@
         }
 
         editProfileBtn.addEventListener('click', openProfileModal);
-        
+
         if (profileModalAvatar) {
             profileModalAvatar.addEventListener('click', () => profilePhotoInput.click());
         }
@@ -978,7 +979,7 @@
                     uid: currentUser.uid,
                     updatedAt: new Date().toISOString()
                 };
-                
+
                 if (newProfilePhotoData) {
                     updateData.photoUrl = newProfilePhotoData;
                 }
@@ -1174,39 +1175,67 @@
                 return;
             }
 
-            products.forEach(product => {
-                const sold = isSold(product);
-                const badgeLabel = sold ? 'E Shitur' : 'Në Shitje';
-                const badgeStyle = sold ? 'background:var(--secondary);color:var(--text-main);' : '';
-                const mediaFilter = sold ? 'filter:grayscale(90%);opacity:.85;' : '';
+            products.forEach(p => {
+                const imgBg = firebaseProductImageBackgroundCss(p);
+                const isSold = p.status === 'sold';
+                const pid = String(p.id || '');
+                
+                // Badge logic
+                let badgeHtml = '';
+                if (isSold) {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-sold">I shitur</span>`;
+                } else {
+                    const cond = p.condition || 'E re';
+                    if (cond === 'E re me etiketë' || cond === 'E re pa etiketë') {
+                        badgeHtml = `<span class="tz3-badge tz3-badge-new">E re</span>`;
+                    } else {
+                        badgeHtml = `<span class="tz3-badge tz3-badge-used">Pak e përdorur</span>`;
+                    }
+                }
+
+                // Meta Pills
+                const pills = [
+                    p.size ? `<span class="tz3-pill">${p.size}</span>` : '',
+                    p.color ? `<span class="tz3-pill">${p.color}</span>` : ''
+                ].filter(Boolean).join('');
 
                 const card = document.createElement('div');
-                card.className = 'product-card';
+                card.className = `tz3-card ${isSold ? 'tz3-sold-card' : ''}`;
                 card.innerHTML = `
-            <div class="img-wrapper firebase-prod-img-slot product-card-media"
-                 data-gallery="${galleryDataAttr(product)}"
-                 style="background-image:${firebaseProductImageBackgroundCss(product)};background-size:cover;background-position:center;cursor:pointer;${mediaFilter}">
-                ${renderProductMediaInner(product, `<span class="badge badge-sale" style="${badgeStyle}">${badgeLabel}</span>`)}
-            </div>
-            <div class="product-info" style="cursor:pointer;">
-                <h4>${safeText(product.title, 'Artikull pa titull')}</h4>
-                <p class="product-price">${toPrice(product.price)}</p>
-            </div>
-            <div class="profile-card-actions">
-                <button class="btn-edit-prod" type="button" data-id="${product.id}">✏️ Edito</button>
-                <button class="btn-del-prod"  type="button" data-id="${product.id}">🗑️ Fshi</button>
-            </div>`;
+                <div class="tz3-img-wrap">
+                    <div class="firebase-prod-img-slot product-card-media" data-gallery="${galleryDataAttr(p)}" style="background-image:${imgBg};background-size:cover;background-position:center;height:100%;">
+                        ${renderProductMediaInner(p, '')}
+                    </div>
+                    ${badgeHtml}
+                    <div class="tz3-overlay" style="opacity:1; transform:translateY(0);">
+                        <button class="tz3-btn-cart btn-edit-prod" style="background:#0f172a; color:white;">Ndrysho</button>
+                        <button class="tz3-btn-cart btn-del-prod" style="background:#ef4444; color:white;">Fshi</button>
+                    </div>
+                </div>
+                <div class="tz3-body">
+                    <div class="tz3-brand-row">
+                        <div class="tz3-brand">${p.brand || 'No Brand'}</div>
+                    </div>
+                    <p class="tz3-title">${p.title}</p>
+                    <div class="tz3-meta">${pills}</div>
+                    <div class="tz3-footer">
+                        <span class="tz3-price">${parseFloat(p.price).toFixed(2)}€</span>
+                        <span style="font-size:11px; color:#64748b;">${p.status === 'active' ? 'Aktiv' : 'I shitur'}</span>
+                    </div>
+                </div>`;
 
-                card.querySelector('.img-wrapper').addEventListener('click', () => {
-                    sessionStorage.setItem('current_product', JSON.stringify(product));
-                    window.location.href = `produkt.html?id=${encodeURIComponent(product.id)}`;
+                card.querySelector('.firebase-prod-img-slot').addEventListener('click', () => {
+                    sessionStorage.setItem('current_product', JSON.stringify(p));
+                    window.location.href = `produkt.html?id=${encodeURIComponent(p.id)}`;
                 });
-                card.querySelector('.product-info').addEventListener('click', () => {
-                    sessionStorage.setItem('current_product', JSON.stringify(product));
-                    window.location.href = `produkt.html?id=${encodeURIComponent(product.id)}`;
+                card.querySelector('.btn-edit-prod').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openEditModal(p);
                 });
-                card.querySelector('.btn-edit-prod').addEventListener('click', () => openEditModal(product));
-                card.querySelector('.btn-del-prod').addEventListener('click', () => deleteProduct(product.id));
+                card.querySelector('.btn-del-prod').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteProduct(p.id);
+                });
 
                 itemsGrid.appendChild(card);
             });
@@ -1354,13 +1383,13 @@
                 if (saleSnap.exists()) {
                     const saleData = saleSnap.data();
                     const productId = saleData.item.id;
-                    
+
                     await updateDoc(doc(db, 'shitjet', saleId), { status: 'completed', completedAt: new Date() });
-                    
+
                     if (productId) {
                         await updateDoc(doc(db, 'produktet', productId), { status: 'sold' });
                     }
-                    
+
                     await loadShitjet();
                     await loadProfileAlerts();
                 }
@@ -1400,7 +1429,7 @@
             const fullName = safeText(ud.fullName, user.displayName || user.email?.split('@')[0] || 'Përdorues');
             const username = user.email ? '@' + user.email.split('@')[0] : '@perdorues';
             const location = formatLocation(ud);
- 
+
             if (ud.photoUrl) {
                 avatarEl.style.backgroundImage = `url('${ud.photoUrl}')`;
                 if (avatarInitials) avatarInitials.style.display = 'none';

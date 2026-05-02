@@ -49,11 +49,6 @@ export function renderProductMediaInner(product, extraHtml = '') {
     imgDotsZoom += `<div class="card-photo-dots">${dots}</div>`;
   }
 
-  if (urls.length) {
-    imgDotsZoom +=
-      `<button type="button" class="card-zoom-btn" aria-label="Zmadho foto">🔎</button>`;
-  }
-
   return `${imgDotsZoom}${extraHtml}`;
 }
 
@@ -231,33 +226,45 @@ export function bindProductCardGalleries(root) {
     /** Rrëshqitje për ndërrim të shpejtë fotosh në kartë */
     let tx = null;
     let ty = null;
-    media.style.touchAction = 'pan-y'; // Lejon scroll vertikal, por kap swipe horizontal
+    let isSwipe = false;
+    media.style.touchAction = 'pan-y'; 
     
-    media.addEventListener(
-      'touchstart',
-      (e) => {
+    media.addEventListener('touchstart', (e) => {
         if (slides().length < 2) return;
         tx = e.touches[0]?.clientX ?? null;
         ty = e.touches[0]?.clientY ?? null;
-      },
-      { passive: true }
-    );
-    media.addEventListener(
-      'touchend',
-      (e) => {
+        isSwipe = false;
+    }, { passive: true });
+
+    media.addEventListener('touchmove', (e) => {
+        if (tx === null || ty === null) return;
+        const dx = e.touches[0].clientX - tx;
+        const dy = e.touches[0].clientY - ty;
+        if (Math.abs(dx) > 10) isSwipe = true;
+    }, { passive: true });
+
+    media.addEventListener('touchend', (e) => {
         if (tx == null || ty == null || slides().length < 2) return;
         const dx = e.changedTouches[0].clientX - tx;
         const dy = e.changedTouches[0].clientY - ty;
-        tx = null;
-        ty = null;
+        tx = null; ty = null;
         
-        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
-          if (dx > 0) showSlide(idx - 1);
-          else showSlide(idx + 1);
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+            if (dx > 0) showSlide(idx - 1);
+            else showSlide(idx + 1);
+            // Parandalojmë klikimin nëse ishte swipe
+            isSwipe = true;
         }
-      },
-      { passive: true }
-    );
+    }, { passive: true });
+
+    // Parandalojmë klikimin nëse ishte swipe (për të mos hapur produktin)
+    media.addEventListener('click', (e) => {
+        if (isSwipe) {
+            e.preventDefault();
+            e.stopPropagation();
+            isSwipe = false;
+        }
+    }, true);
 
     if (slides().length >= 2) showSlide(0);
   });
