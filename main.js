@@ -328,19 +328,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        const newCartBtns = shopGrid.querySelectorAll('.btn-cart');
-        newCartBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const card = e.target.closest('.product-card');
-                const title = card.querySelector('h4').textContent;
-                const price = parseFloat(card.querySelector('.product-price').textContent.replace(/[^0-9.]/g, ''));
-                cart.push({ title, price, image: cartImageCssFromProductCard(card) });
-                localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
-                updateCartUI();
-                toggleCart();
-            });
-        });
+        // Note: Event listeners for .btn-cart are now handled globally via delegation below
+
 
         shopGrid.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -458,28 +447,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    addToCartBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
+    // Consolidated Cart Click Handler (Event Delegation)
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-cart');
+        if (!btn) return;
 
-            // Find product details from DOM
-            const card = e.target.closest('.product-card');
-            if (card) {
-                const title = card.querySelector('h4').textContent;
-                const priceText = card.querySelector('.product-price').textContent;
-                const id = card.getAttribute('data-id') || '';
-                const sellerId = card.getAttribute('data-seller-id') || '';
+        e.stopPropagation();
+        e.preventDefault();
 
-                // Extract number from price text (e.g. "45.00€" -> 45.00)
-                const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+        const card = btn.closest('.product-card');
+        if (card) {
+            const title = card.querySelector('h4').textContent;
+            const priceText = card.querySelector('.product-price').textContent;
+            const id = card.getAttribute('data-id') || '';
+            const sellerId = card.getAttribute('data-seller-id') || '';
+            const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
 
-                cart.push({ id, sellerId, title, price, image: cartImageCssFromProductCard(card) });
-                localStorage.setItem('thriftizy_cart', JSON.stringify(cart));
+            // Always get fresh cart from localStorage to avoid sync issues
+            let currentCart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+            currentCart.push({ id, sellerId, title, price, image: cartImageCssFromProductCard(card) });
+            localStorage.setItem('thriftizy_cart', JSON.stringify(currentCart));
 
-                updateCartUI();
-                toggleCart(); // Open sidebar to show it was added
+            updateCartUI();
+
+            // Open sidebar to show it was added
+            if (cartSidebar && cartOverlay) {
+                cartSidebar.classList.add('open');
+                cartOverlay.classList.add('open');
             }
-        });
+        }
     });
 
     // -----------------------------------------
@@ -1003,16 +999,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
             function addLineToCart(line) {
                 const raw = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+                const nextId = line?.id || line?.productId;
+                if (nextId && raw.some((item) => String(item?.id || item?.productId) === String(nextId))) {
+                    window.thriftizy_refreshCartUi?.();
+                    window.thriftizy_openCartSidebar?.();
+                    return false;
+                }
                 raw.push(line);
                 localStorage.setItem('thriftizy_cart', JSON.stringify(raw));
                 window.thriftizy_refreshCartUi?.();
                 window.thriftizy_openCartSidebar?.();
+                return true;
             }
 
             const listedNum = parseFloat(item.price);
 
             document.getElementById('prod-add-cart')?.addEventListener('click', () => {
                 addLineToCart({
+                    id: item.id || '',
                     title: item.title || 'Artikull',
                     price: Number.isFinite(listedNum) ? listedNum : 0,
                     listedPrice: Number.isFinite(listedNum) ? listedNum : undefined,

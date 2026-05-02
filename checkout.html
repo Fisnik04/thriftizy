@@ -334,7 +334,7 @@
 
     <div class="checkout-layout reveal">
         <div class="checkout-main">
-            <!-- Step 1: Shipping -->
+            <!-- Step 1: Shipping Details -->
             <div class="checkout-card">
                 <div class="card-title"><span>1</span> Të dhënat e Dërgesës</div>
                 <div class="form-grid">
@@ -371,9 +371,30 @@
                 </div>
             </div>
 
-            <!-- Step 2: Payment -->
+            <!-- Step 2: Shipping Method -->
             <div class="checkout-card">
-                <div class="card-title"><span>2</span> Mënyra e Pagesës</div>
+                <div class="card-title"><span>2</span> Mënyra e Marrjes</div>
+                <div class="payment-options">
+                    <div class="payment-card active" onclick="selectShipping('delivery', 3)">
+                        <input type="radio" name="ship-method" id="ship-delivery" checked>
+                        <div class="payment-info">
+                            <h4>Dërgesa me Postë (+3.00€)</h4>
+                            <p>Arrin në adresën tuaj brenda 24-48 orëve.</p>
+                        </div>
+                    </div>
+                    <div class="payment-card" onclick="selectShipping('pickup', 0)">
+                        <input type="radio" name="ship-method" id="ship-pickup">
+                        <div class="payment-info">
+                            <h4>Marrja në dorë (Falas)</h4>
+                            <p>Takoheni me shitësin për të marrë artikullin personalisht.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Payment -->
+            <div class="checkout-card">
+                <div class="card-title"><span>3</span> Mënyra e Pagesës</div>
                 <div class="payment-options">
                     <div class="payment-card active" onclick="selectPayment(this)">
                         <input type="radio" name="pay-method" checked>
@@ -412,12 +433,8 @@
                         <span id="checkout-subtotal-price">0.00€</span>
                     </div>
                     <div class="summary-row">
-                        <span>Dërgesa Standarde</span>
-                        <span>2.00€</span>
-                    </div>
-                    <div class="summary-row" style="color: var(--accent);">
-                        <span>Kupon Zbritje</span>
-                        <span>-5.00€</span>
+                        <span id="shipping-method-label">Posta</span>
+                        <span id="shipping-cost-display">3.00€</span>
                     </div>
                     <div class="summary-row total">
                         <span>Totali</span>
@@ -442,21 +459,75 @@
             mk: ["Berovë", "Manastir", "Vallandovë", "Veles", "Vinicë", "Gjevgjeli", "Gostivar", "Dibrë", "Dellçevë", "Demir Hisar", "Kavadar", "Kërçovë", "Koçan", "Kratovë", "Kriva Pallankë", "Krushevë", "Kumanovë", "Brod", "Negotinë", "Ohër", "Prilep", "Probishtip", "Radovisht", "Resnjë", "Sveti Nikollë", "Shkup", "Strugë", "Strumicë", "Tetovë", "Shtip"]
         };
 
+        let shippingCost = 3.00;
+        let cartTotal = 0;
+
         function updateCities() {
-            const country = document.getElementById('ship-country').value;
+            const country = document.getElementById('ship-country');
             const citySelect = document.getElementById('ship-city');
-            const cities = cityData[country] || [];
+            if (!country || !citySelect) return;
+            
+            const selectedCountry = country.value;
+            const cities = cityData[selectedCountry] || [];
 
             citySelect.innerHTML = '<option value="">Zgjidh Qytetin</option>' +
                 cities.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        // Initialize cities on load
+        function updateTotals() {
+            const cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+            cartTotal = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
+            
+            const subtotalEl = document.getElementById('checkout-subtotal-price');
+            const subtotalLabel = document.getElementById('checkout-subtotal-label');
+            const totalEl = document.getElementById('checkout-total-price');
+            const shipDisplay = document.getElementById('shipping-cost-display');
+            const shipLabel = document.getElementById('shipping-method-label');
+
+            subtotalLabel.textContent = `Nëntotali (${cart.length} artikuj)`;
+            subtotalEl.textContent = `${cartTotal.toFixed(2)}€`;
+            shipDisplay.textContent = `${shippingCost.toFixed(2)}€`;
+            shipLabel.textContent = shippingCost === 0 ? "Marrja në dorë" : "Posta";
+            
+            const finalTotal = cartTotal + shippingCost;
+            totalEl.textContent = `${finalTotal.toFixed(2)}€`;
+        }
+
+        function selectShipping(method, cost) {
+            shippingCost = cost;
+            
+            // UI updates
+            const cards = document.querySelectorAll('input[name="ship-method"]');
+            cards.forEach(input => {
+                const card = input.closest('.payment-card');
+                if (input.id === 'ship-' + method) {
+                    input.checked = true;
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+
+            updateTotals();
+        }
+
+        function selectPayment(el) {
+            document.querySelectorAll('.payment-options .payment-card').forEach(c => {
+                if (c.querySelector('input[name="pay-method"]')) {
+                    c.classList.remove('active');
+                }
+            });
+            el.classList.add('active');
+            const radio = el.querySelector('input[name="pay-method"]');
+            if (radio) radio.checked = true;
+        }
+
+        // Initialize cities and totals on load
         window.addEventListener('load', () => {
             updateCities();
-
             const cart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
             const list = document.getElementById('checkout-items-list');
+            
             if (cart.length > 0) {
                 list.innerHTML = cart.map(item => `
                     <div class="order-item">
@@ -470,13 +541,9 @@
             } else {
                 list.innerHTML = '<p style="font-size: 0.85rem; color: #94a3b8;">Shporta është bosh.</p>';
             }
-        });
 
-        function selectPayment(el) {
-            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            el.querySelector('input').checked = true;
-        }
+            updateTotals();
+        });
     </script>
 </body>
 

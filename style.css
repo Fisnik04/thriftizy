@@ -3718,6 +3718,11 @@ body.page-product .btn-buy:hover {
     background: linear-gradient(135deg, #059669, #047857) !important;
 }
 
+body.page-product .btn-buy.is-in-cart {
+    background: linear-gradient(135deg, #0f766e, #0f172a) !important;
+    box-shadow: 0 14px 28px rgba(15, 118, 110, 0.18) !important;
+}
+
 body.page-product .secondary-actions {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
