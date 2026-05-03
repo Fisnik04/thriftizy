@@ -348,6 +348,67 @@
         const ksCities = ["Artanë", "Besianë", "Burim", "Dardanë", "Deçan", "Dragash", "Drenas", "Ferizaj", "Fushë Kosovë", "Gjakovë", "Gjilan", "Kastriot", "Kaçanik", "Klinë", "Leposaviq", "Lipjan", "Malishevë", "Mitrovicë", "Pejë", "Prishtinë", "Prizren", "Rahovec", "Skenderaj", "Shtërpcë", "Shtime", "Therandë", "Viti", "Vushtrri", "Zubin Potok", "Zveçan"];
         const alCities = ["Berat", "Bulqizë", "Delvinë", "Devoll", "Dibër", "Durrës", "Elbasan", "Fier", "Gramsh", "Gjirokastër", "Has", "Kavajë", "Kolonjë", "Korçë", "Krujë", "Kucovë", "Kukës", "Kurbin", "Lezhë", "Librazhd", "Lushnjë", "Malësi e Madhe", "Mallakastër", "Mat", "Mirditë", "Peqin", "Përmet", "Pogradec", "Pukë", "Sarandë", "Skrapar", "Shkodër", "Tepelenë", "Tiranë", "Tropojë", "Vlorë"];
 
+        /* ── dynamic categories logic ── */
+        const genderSelect = document.getElementById('sell-gender');
+        const categorySelect = document.getElementById('sell-category');
+
+        const categoriesData = {
+            femra: [
+                { val: "fustane", label: "👗 Fustane" },
+                { val: "maica", label: "👕 Tops & Maica" },
+                { val: "bluzë", label: "👚 Bluzë & Shirt" },
+                { val: "pantallona", label: "👖 Pantallona" },
+                { val: "xhaketa", label: "🧥 Xhaketa & Pallto" },
+                { val: "triko", label: "🧣 Triko & Pulovër" },
+                { val: "sport", label: "🏃 Sport & Active" },
+                { val: "kepuce", label: "👠 Këpucë" },
+                { val: "çanta", label: "👜 Çanta" },
+                { val: "aksesore", label: "💍 Aksesorë" },
+                { val: "swimwear", label: "👙 Swimwear" },
+                { val: "underwear", label: "🩱 Nënveshje" }
+            ],
+            meshkuj: [
+                { val: "maica", label: "👕 Maica & T-Shirt" },
+                { val: "shirt", label: "👔 Shirt & Këmisha" },
+                { val: "pantallona", label: "👖 Pantallona" },
+                { val: "xhinse", label: "🧶 Xhinse" },
+                { val: "xhaketa", label: "🧥 Xhaketa & Pallto" },
+                { val: "hoodie", label: "🦘 Hoodie & Sweater" },
+                { val: "triko", label: "🧣 Triko & Pulovër" },
+                { val: "sport", label: "🏃 Sport & Tracksuit" },
+                { val: "kostum", label: "🤵 Kostum & Blazer" },
+                { val: "kepuce", label: "👟 Këpucë & Sneakers" },
+                { val: "aksesore", label: "🕶️ Aksesorë" },
+                { val: "bermuda", label: "🩳 Shorts & Bermuda" }
+            ],
+            unisex: [
+                { val: "maica", label: "👕 Maica & T-Shirt" },
+                { val: "hoodie", label: "🦘 Hoodie & Sweater" },
+                { val: "xhaketa", label: "🧥 Xhaketa & Pallto" },
+                { val: "sport", label: "🏃 Sport & Active" },
+                { val: "kepuce", label: "👟 Sneakers / Këpucë" },
+                { val: "aksesore", label: "💍 Aksesorë" },
+                { val: "canta", label: "👜 Çanta / Ruksak" }
+            ]
+        };
+
+        function updateCategories() {
+            const gender = genderSelect.value;
+            const options = categoriesData[gender] || [];
+            
+            categorySelect.innerHTML = '<option value="">Zgjidh Kategorinë</option>';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.val;
+                el.textContent = opt.label;
+                categorySelect.appendChild(el);
+            });
+        }
+
+        genderSelect.addEventListener('change', updateCategories);
+        // Initial load
+        updateCategories();
+
         countrySelect.addEventListener('change', () => {
             const country = countrySelect.value;
             if (country === 'Maqedoni') {
