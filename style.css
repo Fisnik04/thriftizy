@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
 :root {
     --primary: #0f172a;
@@ -572,7 +572,10 @@ nav.scrolled {
 }
 
 .tz3-badge-new {
-    background: #dcfce7;
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+}
+    background: rgba(16, 185, 129, 0.9);
     color: #166534;
 }
 
@@ -2085,7 +2088,7 @@ nav.scrolled {
     font-size: 0.9rem;
 }
 
-/* ── Produktet: kartat me deri në 3 foto & lightbox ── */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Produktet: kartat me deri nÃƒÂ« 3 foto & lightbox Ã¢â€â‚¬Ã¢â€â‚¬ */
 .product-card-media {
     position: relative;
     background-color: #e2e8f0;
@@ -2710,23 +2713,21 @@ nav#navbar.scrolled {
         height: 42px !important;
         margin: 0 !important;
         border-radius: 12px !important;
+        background-color: rgba(15, 23, 42, 0.05) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230f172a' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5' /%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 24px !important;
+        border: none !important;
+        cursor: pointer !important;
         font-size: 0 !important;
         line-height: 1 !important;
         flex: 0 0 42px !important;
     }
 
-    .home-menu-toggle::before {
-        content: "☰";
-        font-size: 1.35rem;
-        font-weight: 800;
-        line-height: 1;
+    .home-nav-drawer-open .home-menu-toggle {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230f172a' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 18 18 6M6 6l12 12' /%3E%3C/svg%3E") !important;
     }
-
-    .home-nav-drawer-open .home-menu-toggle::before {
-        content: "×";
-        font-size: 1.75rem;
-    }
-
     #navbar .nav-center,
     body.page-home #navbar .nav-center {
         order: 4 !important;
@@ -4133,3 +4134,104 @@ body.page-product .product-description-block p + p {
         aspect-ratio: 1 / 1.1 !important;
     }
 }
+
+
+
+/* Mobile Product Card UI Fix */
+@media (max-width: 600px) {
+    .tz3-overlay {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        background: transparent !important;
+        padding: 8px !important;
+        justify-content: flex-end !important;
+        pointer-events: none;
+    }
+    .tz3-btn-cart {
+        pointer-events: auto;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        font-size: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: white !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230f172a' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z' /%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 20px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        border: 1px solid rgba(0,0,0,0.05) !important;
+    }
+    .tz3-btn-cart::before {
+        content: none !important;
+    }
+    .tz3-heart {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+        top: 8px !important;
+        right: 8px !important;
+    }
+    .tz3-badge {
+        top: 8px !important;
+        left: 8px !important;
+        padding: 3px 8px !important;
+        font-size: 9px !important;
+    }
+}
+
+
+/* --- Premium Toast System --- */
+.tz-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.tz-toast {
+    background: white;
+    color: #0f172a;
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+    border: 1px solid rgba(0,0,0,0.05);
+    min-width: 280px;
+}
+
+.tz-toast.show {
+    transform: translateX(0);
+}
+
+.tz-toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.tz-toast-success {
+    border-left: 4px solid #10b981;
+}
+
+.tz-toast-error {
+    border-left: 4px solid #ef4444;
+}
+
+.tz-toast-info {
+    border-left: 4px solid #3b82f6;
+}
+

@@ -971,12 +971,12 @@
 
     <div class="marquee-container">
         <div class="marquee">
-            <span>🔥 Dërgesë falas për porositë mbi 50€</span><span>•</span>
+            <span>🔥 Trend i Ri</span><span>•</span>
             <span>🌟 Produkte të reja çdo ditë</span><span>•</span>
             <span>♻️ Moda e qëndrueshme</span><span>•</span>
             <span>💸 Çmimet më të mira në treg</span><span>•</span>
-            <span>🔥 Dërgesë falas për porositë mbi 50€</span><span>•</span>
             <span>🌟 Produkte të reja çdo ditë</span><span>•</span>
+            <span>🔥 Trend i Ri</span><span>•</span>
             <span>♻️ Moda e qëndrueshme</span><span>•</span>
             <span>💸 Çmimet më të mira në treg</span>
         </div>
@@ -1230,10 +1230,14 @@
                 badgeHtml = `<span class="tz3-badge tz3-badge-sold">I shitur</span>`;
             } else {
                 const cond = p.condition || 'E re';
-                if (cond === 'E re me etiketë' || cond === 'E re pa etiketë') {
-                    badgeHtml = `<span class="tz3-badge tz3-badge-new">E re</span>`;
+                if (cond === 'E re') {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-new">E re me etiketë</span>`;
+                } else if (cond === 'E re pa etiketë') {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-new">E re pa etiketë</span>`;
+                } else if (cond === 'Pak e përdorur') {
+                    badgeHtml = `<span class="tz3-badge tz3-badge-used">Si e re</span>`;
                 } else {
-                    badgeHtml = `<span class="tz3-badge tz3-badge-used">Pak e përdorur</span>`;
+                    badgeHtml = `<span class="tz3-badge tz3-badge-used">E përdorur</span>`;
                 }
             }
 
@@ -1246,7 +1250,7 @@
 
             // Meta Pills
             const pills = [
-                p.size ? `<span class="tz3-pill">${p.size}</span>` : '',
+                p.size ? `<span class="tz3-pill">${String(p.size).toUpperCase()}</span>` : '',
                 p.color ? `<span class="tz3-pill">${p.color}</span>` : '',
                 p.material ? `<span class="tz3-pill">${p.material}</span>` : ''
             ].filter(Boolean).join('');
@@ -1312,6 +1316,15 @@
         window.addCart = encodedRaw => {
             const p = JSON.parse(decodeURIComponent(encodedRaw));
             let c = JSON.parse(localStorage.getItem('thriftizy_cart') || '[]');
+
+            // Kontrollo nëse produkti është tashmë në shportë
+            if (c.some(item => item.id === p.id)) {
+                showToast('Ky produkt është tashmë në shportë!', 'info');
+                document.getElementById('cart-sidebar')?.classList.add('open');
+                document.getElementById('cart-overlay')?.classList.add('open');
+                return;
+            }
+
             c.push({ id: p.id, sellerId: p.sellerId || null, title: p.title, price: parseFloat(p.price), image: firebaseProductImageBackgroundCss(p) });
             localStorage.setItem('thriftizy_cart', JSON.stringify(c));
             document.querySelectorAll('.cart-badge').forEach(b => b.textContent = c.length);

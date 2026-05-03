@@ -521,16 +521,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Always get fresh cart from localStorage to avoid sync issues
             let currentCart = JSON.parse(localStorage.getItem('thriftizy_cart')) || [];
+
+            // Kontrollo nëse produkti është tashmë në shportë
+            if (currentCart.some(item => (item.id === id && id) || (item.title === title && !id))) {
+                showToast('Ky produkt është tashmë në shportë!', 'info');
+                if (window.thriftizy_openCartSidebar) window.thriftizy_openCartSidebar();
+                return;
+            }
+
             currentCart.push({ id, sellerId, title, price, image: cartImageCssFromProductCard(card) });
             localStorage.setItem('thriftizy_cart', JSON.stringify(currentCart));
 
             updateCartUI();
 
             // Open sidebar to show it was added
-            if (cartSidebar && cartOverlay) {
-                cartSidebar.classList.add('open');
-                cartOverlay.classList.add('open');
-            }
+            if (window.thriftizy_openCartSidebar) window.thriftizy_openCartSidebar();
         }
     });
 
@@ -636,27 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let myItems = JSON.parse(localStorage.getItem('thriftizy_my_items')) || [];
 
-    if (sellForm) {
-        sellForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (!sellUploadedDataUrls.length) {
-                alert('Ngarkoni të paktën një foto (deri në 3).');
-                return;
-            }
-            const title = document.getElementById('sell-title').value;
-            const price = parseFloat(document.getElementById('sell-price').value).toFixed(2);
-
-            myItems.push({
-                title,
-                price: price + '€',
-                images: [...sellUploadedDataUrls].slice(0, 3)
-            });
-            localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
-
-            alert('Artikulli u postua me sukses!');
-            window.location.href = 'profile.html';
-        });
-    }
+    // Sell form handler removed from here (handled in sell.html)
 
     // Render "Dollapi Im" dynamically on profile.html
     function renderMyItems() {
@@ -1441,3 +1426,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 });
+
+// --- Premium Toast System ---
+window.showToast = function(message, type = "success") {
+    let container = document.querySelector(".tz-toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.className = "tz-toast-container";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `tz-toast tz-toast-${type}`;
+    
+    let icon = "ℹ️";
+    if (type === "success") icon = "✅";
+    if (type === "error") icon = "❌";
+    
+    toast.innerHTML = `<span class="tz-toast-icon">${icon}</span><span>${message}</span>`;
+    container.appendChild(toast);
+
+    // Force reflow for animation
+    toast.offsetHeight;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 400);
+    }, 3500);
+};
+

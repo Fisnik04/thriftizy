@@ -393,8 +393,15 @@
             document.getElementById('prod-title').textContent = p.title;
             document.getElementById('prod-price').textContent = `${parseFloat(p.price).toFixed(2)}€`;
             document.getElementById('prod-brand').textContent = p.brand || '—';
-            document.getElementById('prod-size').textContent = p.size || '—';
-            document.getElementById('prod-condition').textContent = p.condition || '—';
+            document.getElementById('prod-size').textContent = p.size ? String(p.size).toUpperCase() : '—';
+            const cond = p.condition || 'E re';
+            let condHtml = '';
+            if (cond === 'E re') condHtml = '<span class="tz3-badge-new">✨ E re me etiketë</span>';
+            else if (cond === 'E re pa etiketë') condHtml = '<span class="tz3-badge-new">E re pa etiketë</span>';
+            else if (cond === 'Pak e përdorur') condHtml = '<span class="tz3-badge-used">Si e re</span>';
+            else condHtml = '<span class="tz3-badge-used">E përdorur</span>';
+
+            document.getElementById('prod-condition').innerHTML = condHtml;
             document.getElementById('prod-color').textContent = p.color || '—';
             document.getElementById('prod-material').textContent = p.material || '—';
             document.getElementById('prod-category').textContent = p.category || '—';
@@ -468,6 +475,7 @@
             if (!currentProductData) return;
             let cart = JSON.parse(localStorage.getItem('thriftizy_cart') || '[]');
             if (cart.some((item) => String(item?.id || item?.productId) === String(currentProductData.id))) {
+                showToast('Ky produkt është tashmë në shportë!', 'info');
                 updateProductCartButton();
                 if (window.thriftizy_openCartSidebar) window.thriftizy_openCartSidebar();
                 return;

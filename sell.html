@@ -77,9 +77,175 @@
             transition: border-color 0.2s, color 0.2s;
         }
 
+        /* ── Layout for Preview ── */
+        .sell-container-flex {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        @media (min-width: 992px) {
+            .sell-container-flex {
+                grid-template-columns: 1.4fr 1fr;
+                align-items: start;
+            }
+        }
+
+        .preview-sidebar {
+            position: sticky;
+            top: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .preview-title-sm {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        /* Reusing Site Card Styles for Preview */
+        .preview-card-wrap {
+            max-width: 320px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
         .photo-add-slot:hover {
             border-color: #10b981;
             color: #10b981;
+        }
+
+        /* ── Category Selection Cards ── */
+        .category-selector-label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .category-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .category-card .cat-icon {
+            font-size: 2rem;
+            transition: transform 0.2s;
+        }
+
+        .category-card span {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .category-card:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+        }
+
+        .category-card.active {
+            border-color: #10b981;
+            background: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .category-card.active .cat-icon {
+            transform: scale(1.1);
+        }
+
+        .category-card.active span {
+            color: #059669;
+        }
+
+        /* ── Condition Chips ── */
+        .condition-chips {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .condition-chip {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: center;
+        }
+
+        .condition-chip strong {
+            font-size: 0.95rem;
+            color: #1e293b;
+            font-weight: 800;
+        }
+
+        .condition-chip span {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .condition-chip:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .condition-chip.active {
+            border-color: #10b981;
+            background: #f0fdf4;
+            box-shadow: 0 8px 16px -4px rgba(16, 185, 129, 0.1);
+        }
+
+        .condition-chip.active strong {
+            color: #065f46;
+        }
+
+        @media (max-width: 480px) {
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .condition-chips {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 600px) {
+            .category-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
     </style>
 </head>
@@ -115,8 +281,9 @@
     <div id="sell-auth-loader">Duke verifikuar llogarinë...</div>
 
     <div id="sell-page-content">
-        <div class="auth-container reveal">
-            <div class="form-box">
+        <div class="sell-container-flex reveal">
+            <!-- LEFT: FORM -->
+            <div class="form-box" style="width: 100%; max-width: none;">
                 <h1 class="form-title">Shit Artikullin Tënd</h1>
                 <p class="form-subtitle">Shto detajet dhe fotografitë për t'i dhënë rrobës një jetë të re.</p>
 
@@ -135,27 +302,43 @@
                         <input type="text" id="sell-title" placeholder="p.sh. Xhaketë Lëkure Zara" required>
                     </div>
 
-                    <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-                        <div>
-                            <label>Gjinia *</label>
-                            <select id="sell-gender" required>
-                                <option value="femra">Femra</option>
-                                <option value="meshkuj">Meshkuj</option>
-                                <option value="unisex">Unisex</option>
-                            </select>
+                    <div class="form-group">
+                        <label class="category-selector-label">Çfarë lloji të artikullit po postoni? *</label>
+                        <div class="category-grid" id="main-category-grid">
+                            <div class="category-card active" data-type="femra">
+                                <span class="cat-icon">👗</span>
+                                <span>Femra</span>
+                            </div>
+                            <div class="category-card" data-type="meshkuj">
+                                <span class="cat-icon">👔</span>
+                                <span>Meshkuj</span>
+                            </div>
+                            <div class="category-card" data-type="kepuce">
+                                <span class="cat-icon">👟</span>
+                                <span>Këpucë</span>
+                            </div>
+                            <div class="category-card" data-type="aksesore">
+                                <span class="cat-icon">👜</span>
+                                <span>Aksesorë</span>
+                            </div>
                         </div>
-                        <div>
-                            <label>Kategoria *</label>
-                            <select id="sell-category" required>
-                                <option value="">Zgjidh Kategorinë</option>
-                                <option value="fustane">Fustane</option>
-                                <option value="maica">Maica</option>
-                                <option value="xhaketa">Xhaketa / Pallto</option>
-                                <option value="pantallona">Pantallona / Xhinse</option>
-                                <option value="kepuce">Këpucë / Patika</option>
-                                <option value="aksesore">Aksesorë</option>
-                            </select>
-                        </div>
+                        <input type="hidden" id="sell-gender" value="femra">
+                    </div>
+
+                    <div class="form-group" id="gender-refinement-group" style="display:none; margin-bottom: 20px;">
+                        <label>Gjinia (për këpucë/aksesorë) *</label>
+                        <select id="sell-gender-refinement">
+                            <option value="unisex">Unisex / Të dyja</option>
+                            <option value="femra">Femra</option>
+                            <option value="meshkuj">Meshkuj</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kategoria *</label>
+                        <select id="sell-category" required>
+                            <option value="">Zgjidh Kategorinë</option>
+                        </select>
                     </div>
 
                     <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
@@ -213,13 +396,26 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Gjendja *</label>
-                        <select id="sell-condition" required>
-                            <option value="E re">E re me etiketë</option>
-                            <option value="E re pa etiketë">E re pa etiketë</option>
-                            <option value="Pak e përdorur">Pak e përdorur (Si e re)</option>
-                            <option value="E përdorur">E përdorur</option>
-                        </select>
+                        <label>Gjendja e Artikullit *</label>
+                        <div class="condition-chips" id="condition-chips">
+                            <div class="condition-chip" data-value="E re">
+                                <strong>E re</strong>
+                                <span>Me etiketë</span>
+                            </div>
+                            <div class="condition-chip" data-value="E re pa etiketë">
+                                <strong>E re</strong>
+                                <span>Pa etiketë</span>
+                            </div>
+                            <div class="condition-chip" data-value="Pak e përdorur">
+                                <strong>Pak e përdorur</strong>
+                                <span>Si e re</span>
+                            </div>
+                            <div class="condition-chip" data-value="E përdorur">
+                                <strong>E përdorur</strong>
+                                <span>Me shenja përdorimi</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="sell-condition" value="E re" required>
                     </div>
 
                     <div class="form-row">
@@ -255,6 +451,29 @@
                     <button type="submit" class="btn-buy" id="sell-submit-btn" style="width:100%;">Posto
                         Artikullin</button>
                 </form>
+            </div>
+
+            <!-- RIGHT: LIVE PREVIEW -->
+            <div class="preview-sidebar">
+                <div class="preview-title-sm">Parapamja (Live Preview)</div>
+                <div class="preview-card-wrap" id="live-preview-card">
+                    <!-- This will be filled by JS -->
+                    <div class="tz3-card">
+                        <div class="tz3-img-wrap">
+                            <div class="tz3-img-preview-placeholder" style="background:#f1f5f9; height:300px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:3rem;">🖼️</div>
+                        </div>
+                        <div class="tz3-body">
+                            <div class="tz3-brand-row">
+                                <div class="tz3-brand">Marka</div>
+                            </div>
+                            <p class="tz3-title">Titulli i produktit</p>
+                            <div class="tz3-footer">
+                                <span class="tz3-price">0.00€</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:0.8rem; color:#64748b; text-align:center;">Kështu do të duket produkti juaj në ballinë.</p>
             </div>
         </div>
     </div><!-- /sell-page-content -->
@@ -349,8 +568,28 @@
         const alCities = ["Berat", "Bulqizë", "Delvinë", "Devoll", "Dibër", "Durrës", "Elbasan", "Fier", "Gramsh", "Gjirokastër", "Has", "Kavajë", "Kolonjë", "Korçë", "Krujë", "Kucovë", "Kukës", "Kurbin", "Lezhë", "Librazhd", "Lushnjë", "Malësi e Madhe", "Mallakastër", "Mat", "Mirditë", "Peqin", "Përmet", "Pogradec", "Pukë", "Sarandë", "Skrapar", "Shkodër", "Tepelenë", "Tiranë", "Tropojë", "Vlorë"];
 
         /* ── dynamic categories logic ── */
-        const genderSelect = document.getElementById('sell-gender');
+        const mainCards = document.querySelectorAll('.category-card');
+        const hiddenGenderInput = document.getElementById('sell-gender');
+        const genderRefinementGroup = document.getElementById('gender-refinement-group');
+        const genderRefinementSelect = document.getElementById('sell-gender-refinement');
         const categorySelect = document.getElementById('sell-category');
+
+        const sizeSelect = document.getElementById('sell-size');
+
+        /* ── condition chips logic ── */
+        const conditionChips = document.querySelectorAll('.condition-chip');
+        const hiddenConditionInput = document.getElementById('sell-condition');
+
+        conditionChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                conditionChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                hiddenConditionInput.value = chip.dataset.value;
+                updateLivePreview();
+            });
+        });
+        // Initial active
+        conditionChips[0].classList.add('active');
 
         const categoriesData = {
             femra: [
@@ -381,21 +620,30 @@
                 { val: "aksesore", label: "🕶️ Aksesorë" },
                 { val: "bermuda", label: "🩳 Shorts & Bermuda" }
             ],
-            unisex: [
-                { val: "maica", label: "👕 Maica & T-Shirt" },
-                { val: "hoodie", label: "🦘 Hoodie & Sweater" },
-                { val: "xhaketa", label: "🧥 Xhaketa & Pallto" },
-                { val: "sport", label: "🏃 Sport & Active" },
-                { val: "kepuce", label: "👟 Sneakers / Këpucë" },
-                { val: "aksesore", label: "💍 Aksesorë" },
-                { val: "canta", label: "👜 Çanta / Ruksak" }
+            kepuce: [
+                { val: "sneakers", label: "👟 Sneakers" },
+                { val: "kepuce", label: "👞 Këpucë klasike" },
+                { val: "cizme", label: "🥾 Çizme" },
+                { val: "sandale", label: "🩴 Sandale" },
+                { val: "taka", label: "👠 Taka" },
+                { val: "sportive", label: "🏃 Sportive" }
+            ],
+            aksesore: [
+                { val: "canta", label: "👜 Çanta" },
+                { val: "bizhuteri", label: "💍 Bizhuteri" },
+                { val: "ora", label: "⌚ Ora" },
+                { val: "syze", label: "🕶️ Syze" },
+                { val: "rripa", label: "🧷 Rripa" },
+                { val: "kapele", label: "🧢 Kapele" }
             ]
         };
 
-        function updateCategories() {
-            const gender = genderSelect.value;
-            const options = categoriesData[gender] || [];
-            
+        const clothingSizes = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+        const shoeSizes = ["30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "46+"];
+
+        function updateCategories(mainType) {
+            // Update Categories
+            const options = categoriesData[mainType] || [];
             categorySelect.innerHTML = '<option value="">Zgjidh Kategorinë</option>';
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -403,11 +651,121 @@
                 el.textContent = opt.label;
                 categorySelect.appendChild(el);
             });
+
+            // Update Sizes
+            sizeSelect.innerHTML = '<option value="">Zgjidh</option>';
+            if (mainType === 'kepuce') {
+                shoeSizes.forEach(s => {
+                    const el = document.createElement('option');
+                    el.value = s; el.textContent = s;
+                    sizeSelect.appendChild(el);
+                });
+            } else if (mainType === 'aksesore') {
+                const el = document.createElement('option');
+                el.value = "One Size"; el.textContent = "One Size";
+                sizeSelect.appendChild(el);
+                sizeSelect.value = "One Size";
+            } else {
+                clothingSizes.forEach(s => {
+                    const el = document.createElement('option');
+                    el.value = s; el.textContent = s;
+                    sizeSelect.appendChild(el);
+                });
+            }
+
+            // Show gender refinement if it's generic Shoes/Accessories
+            if (mainType === 'kepuce' || mainType === 'aksesore') {
+                genderRefinementGroup.style.display = 'block';
+                hiddenGenderInput.value = genderRefinementSelect.value;
+            } else {
+                genderRefinementGroup.style.display = 'none';
+                hiddenGenderInput.value = mainType;
+            }
         }
 
-        genderSelect.addEventListener('change', updateCategories);
+        mainCards.forEach(card => {
+            card.addEventListener('click', () => {
+                mainCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                updateCategories(card.dataset.type);
+            });
+        });
+
+        genderRefinementSelect.addEventListener('change', () => {
+            hiddenGenderInput.value = genderRefinementSelect.value;
+        });
+
         // Initial load
-        updateCategories();
+        updateCategories('femra');
+
+        /* ── Live Preview Sync ── */
+        const previewCard = document.getElementById('live-preview-card');
+        
+        function updateLivePreview() {
+            const title = document.getElementById('sell-title').value || 'Titulli i produktit';
+            const price = document.getElementById('sell-price').value || '0.00';
+            const brand = document.getElementById('sell-brand').value || 'Marka';
+            const size = document.getElementById('sell-size').value;
+            const color = document.getElementById('sell-color').value;
+            
+            const condition = document.getElementById('sell-condition').value;
+            
+            let badgeHtml = '';
+            if (condition === 'E re' || condition === 'E re pa etiketë') {
+                badgeHtml = `<span class="tz3-badge tz3-badge-new">E RE</span>`;
+            } else if (condition === 'Pak e përdorur') {
+                badgeHtml = `<span class="tz3-badge tz3-badge-used">SI E RE</span>`;
+            } else {
+                badgeHtml = `<span class="tz3-badge tz3-badge-used">E PËRDORUR</span>`;
+            }
+
+            let imgHtml = `<div style="background:#f1f5f9; height:300px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:3rem;">🖼️</div>`;
+            if (selectedFiles.length > 0) {
+                const url = URL.createObjectURL(selectedFiles[0]);
+                imgHtml = `<img src="${url}" style="width:100%; height:300px; object-fit:cover; display:block;">`;
+            }
+
+            const pills = [
+                size ? `<span class="tz3-pill">${size.toUpperCase()}</span>` : '',
+                color ? `<span class="tz3-pill">${color}</span>` : ''
+            ].filter(Boolean).join('');
+
+            previewCard.innerHTML = `
+                <div class="tz3-card">
+                    <div class="tz3-img-wrap">
+                        ${imgHtml}
+                        ${badgeHtml}
+                        <button class="tz3-heart">🤍</button>
+                    </div>
+                    <div class="tz3-body">
+                        <div class="tz3-brand-row">
+                            <div class="tz3-brand">${brand}</div>
+                            <div class="tz3-seller"><span class="tz3-avatar">${currentUser?.displayName?.charAt(0).toUpperCase() || 'P'}</span> Ju</div>
+                        </div>
+                        <p class="tz3-title">${title}</p>
+                        <div class="tz3-meta">${pills}</div>
+                        <div class="tz3-footer">
+                            <span class="tz3-price">${parseFloat(price).toFixed(2)}€</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Listeners for preview
+        ['sell-title', 'sell-price', 'sell-brand', 'sell-size', 'sell-color'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateLivePreview);
+            document.getElementById(id).addEventListener('change', updateLivePreview);
+        });
+
+        // Photos also trigger preview
+        const originalRenderStrip = renderStrip;
+        renderStrip = function() {
+            originalRenderStrip();
+            updateLivePreview();
+        };
+
+        photoInput.addEventListener('change', updateLivePreview);
 
         countrySelect.addEventListener('change', () => {
             const country = countrySelect.value;
@@ -528,8 +886,10 @@
                     createdAt: serverTimestamp(),
                 });
 
-                alert('✅ Artikulli u postua me sukses!');
-                window.location.href = 'profile.html';
+                showToast('Artikulli u postua me sukses!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1800);
             } catch (err) {
                 console.error(err);
                 alert('Gabim gjatë postimit: ' + err.message);

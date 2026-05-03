@@ -34,7 +34,7 @@
 
             // Meta Pills
             const pills = [
-                p.size ? `<span class="tz3-pill">${p.size}</span>` : '',
+                p.size ? `<span class="tz3-pill">${String(p.size).toUpperCase()}</span>` : '',
                 p.color ? `<span class="tz3-pill">${p.color}</span>` : '',
                 p.material ? `<span class="tz3-pill">${p.material}</span>` : ''
             ].filter(Boolean).join('');

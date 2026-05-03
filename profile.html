@@ -1194,16 +1194,20 @@
                     badgeHtml = `<span class="tz3-badge tz3-badge-sold">I shitur</span>`;
                 } else {
                     const cond = p.condition || 'E re';
-                    if (cond === 'E re me etiketë' || cond === 'E re pa etiketë') {
-                        badgeHtml = `<span class="tz3-badge tz3-badge-new">E re</span>`;
+                    if (cond === 'E re') {
+                        badgeHtml = `<span class="tz3-badge tz3-badge-new">E re me etiketë</span>`;
+                    } else if (cond === 'E re pa etiketë') {
+                        badgeHtml = `<span class="tz3-badge tz3-badge-new">E re pa etiketë</span>`;
+                    } else if (cond === 'Pak e përdorur') {
+                        badgeHtml = `<span class="tz3-badge tz3-badge-used">Si e re</span>`;
                     } else {
-                        badgeHtml = `<span class="tz3-badge tz3-badge-used">Pak e përdorur</span>`;
+                        badgeHtml = `<span class="tz3-badge tz3-badge-used">E përdorur</span>`;
                     }
                 }
 
                 // Meta Pills
                 const pills = [
-                    p.size ? `<span class="tz3-pill">${p.size}</span>` : '',
+                    p.size ? `<span class="tz3-pill">${String(p.size).toUpperCase()}</span>` : '',
                     p.color ? `<span class="tz3-pill">${p.color}</span>` : ''
                 ].filter(Boolean).join('');
 
