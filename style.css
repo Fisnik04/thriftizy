@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
 :root {
     --primary: #0f172a;
@@ -575,9 +575,7 @@ nav.scrolled {
     background: rgba(16, 185, 129, 0.9);
     color: white;
 }
-    background: rgba(16, 185, 129, 0.9);
-    color: #166534;
-}
+    
 
 .tz3-badge-used {
     background: #fef9c3;
@@ -798,6 +796,7 @@ nav.scrolled {
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     height: 38px;
@@ -1274,6 +1273,12 @@ nav.scrolled {
     animation: marquee 20s linear infinite;
 }
 
+@media (max-width: 768px) {
+    .marquee {
+        animation-duration: 10s;
+    }
+}
+
 .marquee:hover {
     animation-play-state: paused;
 }
@@ -1307,6 +1312,7 @@ nav.scrolled {
 .gradient-text {
     background: linear-gradient(90deg, var(--primary), var(--accent));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
 }
@@ -2101,7 +2107,6 @@ nav.scrolled {
     width: 100%;
     height: 260px;
     object-fit: cover;
-    vertical-align: bottom;
 }
 
 .product-card-media .card-slide-hidden {
@@ -2295,6 +2300,7 @@ nav.scrolled {
     overflow: hidden !important;
     -webkit-box-orient: vertical !important;
     -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
 }
 
 .product-meta {
@@ -3231,6 +3237,7 @@ nav#navbar.scrolled {
         height: 34px !important;
         margin-bottom: 7px !important;
         -webkit-line-clamp: 2 !important;
+        line-clamp: 2 !important;
     }
 
     .tz3-meta {

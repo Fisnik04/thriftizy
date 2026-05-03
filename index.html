@@ -213,8 +213,14 @@
         .marquee {
             display: flex;
             gap: 60px;
-            animation: marquee 28s linear infinite;
+            animation: marquee 18s linear infinite;
             white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .marquee {
+                animation-duration: 10s;
+            }
         }
 
         .marquee span {
@@ -1115,7 +1121,7 @@
                 <div class="feat-icon">🚚</div>
                 <div>
                     <h4>Dërgesa e Shpejtë</h4>
-                    <p>24-48 orë në të gjithë Kosovën.</p>
+                    <p>24-48 orë në të gjithë Ballkanin.</p>
                 </div>
             </div>
             <div class="feat">
