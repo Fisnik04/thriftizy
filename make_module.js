@@ -1,5 +1,5 @@
 const fs = require('fs');
-const files = ['index.html', 'femra.html', 'meshkuj.html', 'profil.html', 'shit.html', 'produkt.html', 'saved.html', 'checkout.html', 'mesazhet.html'];
+const files = ['index.html', 'women.html', 'men.html', 'profile.html', 'sell.html', 'product.html', 'saved.html', 'checkout.html', 'messages.html'];
 
 files.forEach(f => {
     try {

@@ -506,12 +506,12 @@
             </div>
             <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">Këpucë</a></li>
-                <li><a href="aksesore.html">Aksesorë</a></li>
-                <li><a href="shit.html">Posto</a></li>
-                <li><a href="profil.html">Profili</a></li>
+                <li><a href="women.html">Femra</a></li>
+                <li><a href="men.html">Meshkuj</a></li>
+                <li><a href="shoes.html">Këpucë</a></li>
+                <li><a href="accessories.html">Aksesorë</a></li>
+                <li><a href="sell.html">Posto</a></li>
+                <li><a href="profile.html">Profili</a></li>
                 <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
                             id="current-country">Kosovë</span></a></li>
             </ul>
@@ -699,7 +699,7 @@
                 <li><a href="#" id="tab-blerjet">Blerjet e mia</a></li>
                 <li><a href="#" id="tab-shitjet">Shitjet (Porositë)</a></li>
                 <li><a href="saved.html">Të Ruajtura ❤️</a></li>
-                <li><a href="mesazhet.html">Mesazhet</a></li>
+                <li><a href="messages.html">Mesazhet</a></li>
                 <li><a href="#" id="logout-link" style="color:red;margin-top:20px;">Shkyçu</a></li>
             </ul>
         </aside>
@@ -759,9 +759,9 @@
             <div class="footer-col">
                 <h3>Blerja</h3>
                 <ul>
-                    <li><a href="femra.html">Femra</a></li>
-                    <li><a href="meshkuj.html">Meshkuj</a></li>
-                    <li><a href="kepuce.html">Këpucë</a></li>
+                    <li><a href="women.html">Femra</a></li>
+                    <li><a href="men.html">Meshkuj</a></li>
+                    <li><a href="shoes.html">Këpucë</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -769,7 +769,7 @@
                 <ul>
                     <li><a href="login.html">Kyçu</a></li>
                     <li><a href="signup.html">Regjistrohu</a></li>
-                    <li><a href="mesazhet.html">Mesazhet</a></li>
+                    <li><a href="messages.html">Mesazhet</a></li>
                 </ul>
             </div>
         </div>
@@ -1164,7 +1164,7 @@
             const c = document.createElement('div');
             c.className = 'product-card';
             c.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:300px;border:2px dashed var(--secondary);background:transparent;';
-            c.onclick = () => window.location.href = 'shit.html';
+            c.onclick = () => window.location.href = 'sell.html';
             c.innerHTML = `<div style="text-align:center;color:var(--text-muted);">
         <div style="font-size:3rem;color:var(--accent);margin-bottom:10px;">+</div>
         <h3>Shto Artikull të Ri</h3>
@@ -1234,7 +1234,7 @@
 
                 card.querySelector('.firebase-prod-img-slot').addEventListener('click', () => {
                     sessionStorage.setItem('current_product', JSON.stringify(p));
-                    window.location.href = `produkt.html?id=${encodeURIComponent(p.id)}`;
+                    window.location.href = `product.html?id=${encodeURIComponent(p.id)}`;
                 });
                 card.querySelector('.btn-edit-prod').addEventListener('click', (e) => {
                     e.stopPropagation();

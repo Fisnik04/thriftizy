@@ -1,5 +1,5 @@
 const fs = require('fs');
-const files = ['femra.html', 'meshkuj.html', 'produkt.html'];
+const files = ['women.html', 'men.html', 'product.html'];
 const newNavCenter = `        <div class="nav-center">
             <div class="nav-search">
                 <i>🔍</i>
@@ -7,15 +7,15 @@ const newNavCenter = `        <div class="nav-center">
             </div>
             <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
+                <li><a href="women.html">Femra</a></li>
+                <li><a href="men.html">Meshkuj</a></li>
             </ul>
         </div>
 
         <div class="nav-actions">
-            <a href="shit.html" class="btn-secondary" style="background: var(--accent); color: white; border: none;">Shit Tani</a>
+            <a href="sell.html" class="btn-secondary" style="background: var(--accent); color: white; border: none;">Shit Tani</a>
             <button class="icon-btn" id="cart-icon">🛒<span class="cart-badge">0</span></button>
-            <button class="icon-btn" onclick="location.href='profil.html'">👤</button>
+            <button class="icon-btn" onclick="location.href='profile.html'">👤</button>
         </div>
     </nav>`;
 

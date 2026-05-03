@@ -1,8 +1,8 @@
 const fs = require('fs');
-const files = ['index.html', 'femra.html', 'meshkuj.html', 'profil.html', 'shit.html', 'produkt.html'];
+const files = ['index.html', 'women.html', 'men.html', 'profile.html', 'sell.html', 'product.html'];
 
 const megaMenuHTML = `<li class="nav-item-dropdown">
-                <a href="femra.html">Femra</a>
+                <a href="women.html">Femra</a>
                 <div class="mega-menu">
                     <!-- Shop by category -->
                     <div class="mega-column two-col">
@@ -19,7 +19,7 @@ const megaMenuHTML = `<li class="nav-item-dropdown">
                         <a href="#" class="mega-link">Jewelry</a>
                         <a href="#" class="mega-link">Coats & Jackets</a>
                         <a href="#" class="mega-link">Plus Size</a>
-                        <a href="femra.html" class="see-all-link">See all women's</a>
+                        <a href="women.html" class="see-all-link">See all women's</a>
                     </div>
                     
                     <!-- Featured -->

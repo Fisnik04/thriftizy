@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const id = card.getAttribute('data-id');
         if (id) {
-            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
+            window.location.href = `product.html?id=${encodeURIComponent(id)}`;
         }
     });
 });
@@ -390,7 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
         shopGrid.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 if (!e.target.closest('.btn-cart') && !e.target.closest('.heart-icon')) {
-                    window.location.href = 'produkt.html';
+                    window.location.href = 'product.html';
                 }
             });
         });
@@ -654,13 +654,13 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem('thriftizy_my_items', JSON.stringify(myItems));
 
             alert('Artikulli u postua me sukses!');
-            window.location.href = 'profil.html';
+            window.location.href = 'profile.html';
         });
     }
 
-    // Render "Dollapi Im" dynamically on profil.html
+    // Render "Dollapi Im" dynamically on profile.html
     function renderMyItems() {
-        if (!window.location.pathname.includes('profil.html')) return;
+        if (!window.location.pathname.includes('profile.html')) return;
 
         const shopGrid = document.querySelector('.profile-content .shop-grid');
         if (!shopGrid) return;
@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         myItems.forEach((item, index) => {
             const cardHTML = `
-                <div class="product-card dynamic-my-item" style="cursor: pointer;" onclick="location.href='produkt.html?myitem=${index}'">
+                <div class="product-card dynamic-my-item" style="cursor: pointer;" onclick="location.href='product.html?myitem=${index}'">
                     <span class="badge badge-sale" style="background: var(--primary);">E Re (Nga ju)</span>
                     <div class="product-img" style="background-image: ${firebaseProductImageBackgroundCss(item)}; background-size: cover; background-position: center;">
                         <div class="product-actions">
@@ -836,10 +836,10 @@ document.addEventListener("DOMContentLoaded", () => {
     initCheckout();
 
     // -----------------------------------------
-    // DYNAMIC PRODUCT PAGE (produkt.html)
+    // DYNAMIC PRODUCT PAGE (product.html)
     // -----------------------------------------
     async function initDynamicProduct() {
-        if (!window.location.pathname.includes('produkt.html')) return;
+        if (!window.location.pathname.includes('product.html')) return;
 
         let item = null;
 
@@ -1040,7 +1040,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const sellerProfileCard = document.getElementById('seller-profile-card');
             const sellerLink = document.getElementById('prod-seller-link');
             if (sellerProfileCard && sellerId) {
-                const sellerUrl = `shitesi.html?id=${encodeURIComponent(sellerId)}&name=${encodeURIComponent(sellerName)}`;
+                const sellerUrl = `seller.html?id=${encodeURIComponent(sellerId)}&name=${encodeURIComponent(sellerName)}`;
                 sellerProfileCard.onclick = () => { window.location.href = sellerUrl; };
                 if (sellerLink) {
                     sellerLink.href = sellerUrl;
@@ -1062,7 +1062,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px;">
                                 <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 1rem;">Ky është artikulli juaj</p>
                                 <p style="margin: 4px 0 12px; font-size: 0.85rem; color: #64748b;">Nuk mund të blesh ose të dërgosh oferta për produktet tuaja.</p>
-                                <a href="profil.html" style="display: inline-block; padding: 10px 20px; background: var(--primary); color: white; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.88rem;">Shko te dollapi</a>
+                                <a href="profile.html" style="display: inline-block; padding: 10px 20px; background: var(--primary); color: white; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.88rem;">Shko te dollapi</a>
                             </div>
                         `;
                     }
@@ -1103,7 +1103,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             document.getElementById('prod-open-messages')?.addEventListener('click', () => {
-                window.location.href = 'mesazhet.html';
+                window.location.href = 'messages.html';
             });
 
             const offerOverlay = document.getElementById('offer-modal-overlay');
@@ -1208,7 +1208,7 @@ document.addEventListener("DOMContentLoaded", () => {
             async function sendOfferToSeller(offerPrice, note) {
                 const user = auth.currentUser;
                 if (!user) {
-                    window.location.href = 'login.html?redirect=' + encodeURIComponent('produkt.html' + window.location.search);
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent('product.html' + window.location.search);
                     return;
                 }
                 if (!sellerId) {
@@ -1240,7 +1240,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     lastAt: serverTimestamp()
                 });
 
-                window.location.href = `mesazhet.html#${convId}`;
+                window.location.href = `messages.html#${convId}`;
             }
 
             document.getElementById('offer-modal-submit')?.addEventListener('click', async () => {
@@ -1373,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p style="margin:0 0 4px;color:#0f766e;font-size:.78rem;font-weight:900;text-transform:uppercase;">Njoftime për shitësin</p>
                                 <h3 style="margin:0;color:#0f172a;font-size:1.25rem;">Ke ${snap.size} porosi të re${snap.size === 1 ? '' : 'ja'}</h3>
                             </div>
-                            <a href="profil.html" style="text-decoration:none;background:#0f172a;color:white;border-radius:999px;padding:10px 14px;font-weight:900;font-size:.82rem;white-space:nowrap;">Hap profilin</a>
+                            <a href="profile.html" style="text-decoration:none;background:#0f172a;color:white;border-radius:999px;padding:10px 14px;font-weight:900;font-size:.82rem;white-space:nowrap;">Hap profilin</a>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
             `;

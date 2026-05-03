@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aksesorë | Thriftizy</title>
+    <title>Rrobat për Femra | Thriftizy</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ─── Page Hero ─── */
         .page-hero {
-            background: linear-gradient(135deg, #fdf4ff 0%, #f5f3ff 50%, #fce7f3 100%);
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #ede9fe 100%);
             padding: 48px 20px 32px;
             text-align: center;
             border-bottom: 1px solid rgba(0, 0, 0, 0.04);
@@ -25,6 +26,7 @@
         .page-hero p {
             color: #64748b;
             font-size: 1rem;
+            margin-bottom: 0;
         }
 
         .page-hero .count-badge {
@@ -34,11 +36,12 @@
             border-radius: 30px;
             font-size: 0.82rem;
             font-weight: 700;
-            color: #9333ea;
+            color: #10b981;
             margin-top: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
+        /* ─── Toolbar ─── */
         .shop-toolbar {
             max-width: 1300px;
             margin: 0 auto;
@@ -72,7 +75,7 @@
 
         .search-wrap input:focus {
             outline: none;
-            border-color: #9333ea;
+            border-color: #10b981;
         }
 
         .search-wrap i {
@@ -95,6 +98,12 @@
             font-weight: 600;
         }
 
+        .sort-select:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        /* ─── Layout ─── */
         .shop-layout {
             display: grid;
             grid-template-columns: 240px 1fr;
@@ -105,6 +114,7 @@
             align-items: start;
         }
 
+        /* ─── Sidebar Filters ─── */
         .filters-sidebar {
             background: white;
             border-radius: 20px;
@@ -131,6 +141,7 @@
             margin-bottom: 12px;
         }
 
+        /* Category pills */
         .cat-list {
             display: flex;
             flex-direction: column;
@@ -140,6 +151,7 @@
         .cat-item {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 8px 12px;
             border-radius: 10px;
             cursor: pointer;
@@ -152,19 +164,36 @@
             font-family: inherit;
             width: 100%;
             text-align: left;
-            gap: 8px;
         }
 
         .cat-item:hover {
-            background: #faf5ff;
+            background: #f8fafc;
             color: #0f172a;
         }
 
         .cat-item.active {
-            background: #f3e8ff;
-            color: #9333ea;
+            background: #f0fdf4;
+            color: #10b981;
         }
 
+        .cat-item .cat-icon {
+            margin-right: 8px;
+        }
+
+        .cat-count {
+            background: #f1f5f9;
+            color: #94a3b8;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+        }
+
+        .cat-item.active .cat-count {
+            background: #dcfce7;
+            color: #10b981;
+        }
+
+        /* Price range */
         .price-inputs {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -184,7 +213,7 @@
 
         .price-input:focus {
             outline: none;
-            border-color: #9333ea;
+            border-color: #10b981;
         }
 
         .btn-apply-price {
@@ -203,9 +232,10 @@
         }
 
         .btn-apply-price:hover {
-            background: #9333ea;
+            background: #10b981;
         }
 
+        /* Condition checkboxes */
         .condition-list {
             display: flex;
             flex-direction: column;
@@ -220,7 +250,7 @@
         }
 
         .cond-item input {
-            accent-color: #9333ea;
+            accent-color: #10b981;
             width: 16px;
             height: 16px;
             cursor: pointer;
@@ -233,6 +263,7 @@
             font-weight: 500;
         }
 
+        /* Size chips */
         .size-chips {
             display: flex;
             flex-wrap: wrap;
@@ -254,9 +285,9 @@
 
         .size-chip:hover,
         .size-chip.active {
-            border-color: #9333ea;
-            color: #9333ea;
-            background: #f3e8ff;
+            border-color: #10b981;
+            color: #10b981;
+            background: #f0fdf4;
         }
 
         .btn-clear-filters {
@@ -277,6 +308,7 @@
             background: #fee2e2;
         }
 
+        /* ─── Product Grid ─── */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -351,7 +383,7 @@
         }
 
         .badge-new {
-            background: #9333ea;
+            background: #10b981;
             color: white;
         }
 
@@ -366,7 +398,7 @@
 
         .product-brand {
             font-size: 0.72rem;
-            color: #9333ea;
+            color: #10b981;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -412,7 +444,7 @@
         }
 
         .btn-cart:hover {
-            background: #9333ea;
+            background: #10b981;
         }
 
         .empty-state {
@@ -436,9 +468,42 @@
             text-align: center;
             padding: 60px;
             color: #94a3b8;
+            font-size: 1rem;
             grid-column: 1/-1;
         }
 
+        /* Active filters bar */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .af-tag {
+            background: #f0fdf4;
+            color: #10b981;
+            border: 1px solid #bbf7d0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .af-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #10b981;
+            font-size: 0.9rem;
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* ─── Responsive ─── */
         @media (max-width: 900px) {
             .shop-layout {
                 grid-template-columns: 1fr;
@@ -446,6 +511,11 @@
 
             .filters-sidebar {
                 position: static;
+                display: none;
+            }
+
+            .filters-sidebar.mobile-open {
+                display: block;
             }
         }
 
@@ -497,6 +567,7 @@
 </head>
 
 <body>
+
     <nav id="navbar">
         <a href="index.html" class="logo">THRIFT<span>IZY</span></a>
         <button type="button" class="home-menu-toggle" id="home-menu-toggle" aria-controls="mobile-nav-drawer-links"
@@ -506,12 +577,12 @@
             </div>
             <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">Këpucë</a></li>
-                <li><a href="aksesore.html">Aksesorë</a></li>
-                <li><a href="shit.html">Posto</a></li>
-                <li><a href="profil.html">Profili</a></li>
+                <li><a href="women.html">Femra</a></li>
+                <li><a href="men.html">Meshkuj</a></li>
+                <li><a href="shoes.html">Këpucë</a></li>
+                <li><a href="accessories.html">Aksesorë</a></li>
+                <li><a href="sell.html">Posto</a></li>
+                <li><a href="profile.html">Profili</a></li>
                 <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
                             id="current-country">Kosovë</span></a></li>
             </ul>
@@ -524,6 +595,7 @@
         </div>
     </nav>
 
+    <!-- Cart Sidebar -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
@@ -536,12 +608,14 @@
         </div>
     </div>
 
+    <!-- Page Hero -->
     <div class="page-hero">
-        <h1>🕶️ Aksesorë</h1>
-        <p>Aksesorë unikë për çdo stil dhe çdo sezon</p>
+        <h1>👗 Femra</h1>
+        <p>Zbulo moda të çmuar nga markë premium me çmime të paimagjinueshme</p>
         <span class="count-badge" id="count-badge">Duke ngarkuar...</span>
     </div>
 
+    <!-- Toolbar -->
     <div class="shop-toolbar">
         <div class="search-wrap">
             <i>🔍</i>
@@ -555,18 +629,32 @@
         </select>
     </div>
 
+    <!-- Main Layout -->
     <div class="shop-layout">
-        <aside class="filters-sidebar">
+
+        <!-- Sidebar -->
+        <aside class="filters-sidebar" id="filters-sidebar">
+
             <div class="filter-section">
                 <h4>Kategoria</h4>
                 <div class="cat-list">
-                    <button class="cat-item active" data-filter="all">🕶️ Të gjitha</button>
-                    <button class="cat-item" data-filter="canta">👜 Çanta</button>
-                    <button class="cat-item" data-filter="bizhuteri">💍 Bizhuteri</button>
-                    <button class="cat-item" data-filter="ora">⌚ Ora</button>
-                    <button class="cat-item" data-filter="syze">🕶️ Syze</button>
-                    <button class="cat-item" data-filter="rripa">🧷 Rripa</button>
-                    <button class="cat-item" data-filter="kapele">🧢 Kapele</button>
+                    <button class="cat-item active" data-filter="all"><span class="cat-icon">🛍️</span>Të
+                        gjitha</button>
+                    <button class="cat-item" data-filter="fustane"><span class="cat-icon">👗</span>Fustane</button>
+                    <button class="cat-item" data-filter="maica"><span class="cat-icon">👕</span>Tops & Maica</button>
+                    <button class="cat-item" data-filter="bluzë"><span class="cat-icon">👚</span>Bluzë & Shirt</button>
+                    <button class="cat-item" data-filter="pantallona"><span
+                            class="cat-icon">👖</span>Pantallona</button>
+                    <button class="cat-item" data-filter="xhaketa"><span class="cat-icon">🧥</span>Xhaketa &
+                        Pallto</button>
+                    <button class="cat-item" data-filter="triko"><span class="cat-icon">🧣</span>Triko &
+                        Pulovër</button>
+                    <button class="cat-item" data-filter="sport"><span class="cat-icon">🏃</span>Sport & Active</button>
+                    <button class="cat-item" data-filter="kepuce"><span class="cat-icon">👠</span>Këpucë</button>
+                    <button class="cat-item" data-filter="çanta"><span class="cat-icon">👜</span>Çanta</button>
+                    <button class="cat-item" data-filter="aksesore"><span class="cat-icon">💍</span>Aksesorë</button>
+                    <button class="cat-item" data-filter="swimwear"><span class="cat-icon">👙</span>Swimwear</button>
+                    <button class="cat-item" data-filter="underwear"><span class="cat-icon">🩱</span>Nënveshje</button>
                 </div>
             </div>
 
@@ -601,6 +689,11 @@
                     <button class="size-chip" data-size="M">M</button>
                     <button class="size-chip" data-size="L">L</button>
                     <button class="size-chip" data-size="XL">XL</button>
+                    <button class="size-chip" data-size="XXL">XXL</button>
+                    <button class="size-chip" data-size="36">36</button>
+                    <button class="size-chip" data-size="38">38</button>
+                    <button class="size-chip" data-size="40">40</button>
+                    <button class="size-chip" data-size="42">42</button>
                     <button class="size-chip" data-size="One Size">One Size</button>
                 </div>
             </div>
@@ -622,7 +715,9 @@
             <button class="btn-clear-filters" onclick="clearFilters()">🗑️ Pastro filtrat</button>
         </aside>
 
+        <!-- Product Grid -->
         <div>
+            <div class="active-filters" id="active-filters"></div>
             <div class="products-grid" id="product-grid">
                 <div class="loading-state">⏳ Duke ngarkuar produktet...</div>
             </div>
@@ -630,7 +725,7 @@
     </div>
 
     <script type="module">
-        import { db, collection, getDocs, firebaseProductImageBackgroundCss } from './firebase-config.js';
+        import { db, collection, getDocs, query, where, firebaseProductImageBackgroundCss } from './firebase-config.js';
         import {
             bindProductCardGalleries,
             galleryDataAttr,
@@ -642,6 +737,7 @@
         let allProducts = [];
         let activeCategory = 'all';
         let activeSize = '';
+        let priceMin = 0, priceMax = Infinity;
 
         function normalizeCountryCode(value) {
             const v = String(value || '').trim().toLowerCase();
@@ -652,30 +748,11 @@
             return v;
         }
 
-        const categoryKeywords = {
-            canta: ['canta', 'çanta', 'bag'],
-            bizhuteri: ['bizhuteri', 'jewelry', 'necklace', 'bracelet', 'ring'],
-            ora: ['ore', 'orë', 'watch'],
-            syze: ['syze', 'glasses', 'sunglasses'],
-            rripa: ['rrip', 'rripa', 'belt'],
-            kapele: ['kapele', 'hat', 'cap']
-        };
-
-        function productCategoryText(p) {
-            return String(p.category || p.type || p.subcategory || p.title || '').toLowerCase();
-        }
-
-        function matchesAccessoryCategory(p, filter) {
-            const text = productCategoryText(p);
-            if (filter === 'all') return Object.values(categoryKeywords).flat().some(k => text.includes(k));
-            const keys = categoryKeywords[filter] || [];
-            return keys.some(k => text.includes(k));
-        }
-
+        // ── Render Card ──
         function renderCard(p) {
             const imgBg = firebaseProductImageBackgroundCss(p);
             const isSold = p.status === "sold";
-            
+
             // Badge logic
             let badgeHtml = '';
             if (isSold) {
@@ -736,12 +813,14 @@
             </div>`;
         }
 
+        // ── Navigate ──
         window.selectProduct = (id) => {
             const p = allProducts.find(x => x.id === id);
             if (p) sessionStorage.setItem('current_product', JSON.stringify(p));
-            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
+            window.location.href = `product.html?id=${encodeURIComponent(id)}`;
         };
 
+        // ── Cart ──
         window.addCart = (id) => {
             const p = allProducts.find(x => x.id === id);
             if (!p) return;
@@ -754,6 +833,7 @@
             window.thriftizy_refreshCartUi?.();
         };
 
+        // ── Heart ──
         window.toggleHeart = (btn, id) => {
             const p = allProducts.find(x => x.id === id);
             if (!p) return;
@@ -764,42 +844,44 @@
             localStorage.setItem('thriftizy_likes', JSON.stringify(likes));
         };
 
+        // ── Filter & Sort ──
         function applyFilters() {
             const search = document.getElementById('search-input').value.toLowerCase();
             const sort = document.getElementById('sort-select').value;
             const filterColor = document.getElementById('filter-color').value;
             const filterMaterial = document.getElementById('filter-material').value;
             const checkedConds = [...document.querySelectorAll('.cond-check:checked')].map(c => c.value);
-            const pMin = parseFloat(document.getElementById('price-min').value) || 0;
-            const pMax = parseFloat(document.getElementById('price-max').value) || Infinity;
+            priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+            priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
 
             let filtered = allProducts.filter(p => {
-                const matchCat = matchesAccessoryCategory(p, activeCategory);
+                const matchCat = activeCategory === 'all' || p.category === activeCategory;
                 const matchQ = !search || p.title?.toLowerCase().includes(search) || p.brand?.toLowerCase().includes(search);
                 const matchCond = !checkedConds.length || checkedConds.includes(p.condition);
-                const matchSize = !activeSize || String(p.size).toUpperCase() === activeSize.toUpperCase();
+                const matchSize = !activeSize || p.size === activeSize;
                 const matchColor = !filterColor || p.color === filterColor;
                 const matchMat = !filterMaterial || p.material === filterMaterial;
-                const price = parseFloat(p.price) || 0;
-                const matchPrc = price >= pMin && price <= pMax;
+                const matchPrc = parseFloat(p.price) >= priceMin && parseFloat(p.price) <= priceMax;
                 return matchCat && matchQ && matchCond && matchSize && matchColor && matchMat && matchPrc;
             });
 
-            if (sort === 'price-asc') filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
-            if (sort === 'price-desc') filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
-            if (sort === 'az') filtered.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+            // Sort
+            if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+            if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+            if (sort === 'az') filtered.sort((a, b) => a.title.localeCompare(b.title));
+            if (sort === 'newest') filtered.sort((a, b) => (b.createdAt || 0) > (a.createdAt || 0) ? 1 : -1);
 
             countEl.textContent = filtered.length + ' produkte';
             grid.innerHTML = filtered.length
                 ? filtered.map(renderCard).join('')
-                : `<div class="empty-state"><h2>🕶️ Asnjë produkt</h2><p>Provo të ndryshosh filtrat.</p></div>`;
+                : `<div class="empty-state"><h2>🛍️ Asnjë produkt</h2><p>Provo të ndryshosh filtrat.</p></div>`;
             bindProductCardGalleries(grid);
         }
 
         window.applyFilters = applyFilters;
+
         window.clearFilters = () => {
-            activeCategory = 'all';
-            activeSize = '';
+            activeCategory = 'all'; activeSize = '';
             document.getElementById('search-input').value = '';
             document.getElementById('price-min').value = '';
             document.getElementById('price-max').value = '';
@@ -811,6 +893,7 @@
             applyFilters();
         };
 
+        // ── Category ──
         document.querySelectorAll('.cat-item').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active'));
@@ -819,6 +902,8 @@
                 applyFilters();
             });
         });
+
+        // ── Size ──
         document.querySelectorAll('.size-chip').forEach(btn => {
             btn.addEventListener('click', () => {
                 const already = btn.classList.contains('active');
@@ -828,26 +913,33 @@
                 applyFilters();
             });
         });
+
+        // ── Search & Sort ──
         document.getElementById('search-input').addEventListener('input', applyFilters);
         document.getElementById('sort-select').addEventListener('change', applyFilters);
         document.getElementById('filter-color').addEventListener('change', applyFilters);
         document.getElementById('filter-material').addEventListener('change', applyFilters);
         document.querySelectorAll('.cond-check').forEach(c => c.addEventListener('change', applyFilters));
 
+        // ── Load from Firestore ──
         try {
-            const snap = await getDocs(collection(db, 'produktet'));
+            const snap = await getDocs(query(collection(db, 'produktet'), where('gender', 'in', ['femra', 'unisex'])));
             let rawProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
+            // Filter by country globally
             const userCountry = normalizeCountryCode(localStorage.getItem('thriftizy_country') || 'all');
-            if (userCountry !== 'all') rawProducts = rawProducts.filter(p => normalizeCountryCode(p.country) === userCountry);
-
-            allProducts = rawProducts.filter(p => matchesAccessoryCategory(p, 'all'));
+            if (userCountry !== 'all') {
+                rawProducts = rawProducts.filter(p => normalizeCountryCode(p.country) === userCountry);
+            }
+            allProducts = rawProducts;
 
             // Populate Color & Material Filters
             const colors = [...new Set(allProducts.map(p => p.color).filter(Boolean))].sort();
             const materials = [...new Set(allProducts.map(p => p.material).filter(Boolean))].sort();
+
             const colorSelect = document.getElementById('filter-color');
             const matSelect = document.getElementById('filter-material');
+
             colors.forEach(c => colorSelect.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
             materials.forEach(m => matSelect.insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`));
 
@@ -855,12 +947,14 @@
 
             if (!allProducts.length) {
                 grid.innerHTML = `<div class="empty-state">
-                    <div style="font-size:3.5rem;margin-bottom:16px;">🕶️</div>
-                    <h2>Ende asnjë produkt</h2>
-                    <p>Bëhu i pari që shet aksesorë në Thriftizy!</p>
-                    <a href="shit.html" class="btn-buy" style="text-decoration:none;display:inline-block;margin-top:8px;">Shit Tani</a>
-                </div>`;
-            } else { applyFilters(); }
+                <div style="font-size:3.5rem;margin-bottom:16px;">👗</div>
+                <h2>Ende asnjë produkt</h2>
+                <p>Bëhu e para që shet diçka në Thriftizy!</p>
+                <a href="sell.html" class="btn-buy" style="text-decoration:none;display:inline-block;margin-top:8px;">Shit Tani</a>
+            </div>`;
+            } else {
+                applyFilters();
+            }
         } catch (err) {
             grid.innerHTML = `<div class="empty-state"><h2>⚠️ Gabim</h2><p>${err.message}</p></div>`;
         }

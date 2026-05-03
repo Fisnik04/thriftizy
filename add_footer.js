@@ -1,5 +1,5 @@
 const fs = require('fs');
-const files = ['index.html', 'femra.html', 'meshkuj.html', 'produkt.html', 'profil.html', 'saved.html', 'shit.html'];
+const files = ['index.html', 'women.html', 'men.html', 'product.html', 'profile.html', 'saved.html', 'sell.html'];
 
 const footerHTML = `    <!-- Global Footer -->
     <footer class="site-footer">
@@ -11,8 +11,8 @@ const footerHTML = `    <!-- Global Footer -->
             <div class="footer-col">
                 <h3>Blerja</h3>
                 <ul>
-                    <li><a href="femra.html">Femra</a></li>
-                    <li><a href="meshkuj.html">Meshkuj</a></li>
+                    <li><a href="women.html">Femra</a></li>
+                    <li><a href="men.html">Meshkuj</a></li>
                     <li><a href="#">Këpucë</a></li>
                     <li><a href="#">Aksesorë</a></li>
                 </ul>
@@ -20,7 +20,7 @@ const footerHTML = `    <!-- Global Footer -->
             <div class="footer-col">
                 <h3>Shitja</h3>
                 <ul>
-                    <li><a href="shit.html">Shit një artikull</a></li>
+                    <li><a href="sell.html">Shit një artikull</a></li>
                     <li><a href="#">Si të shesësh?</a></li>
                     <li><a href="#">Rregullat e shitjes</a></li>
                     <li><a href="#">Tarifat</a></li>

@@ -264,12 +264,12 @@
             </div>
             <ul class="nav-links" id="mobile-nav-drawer-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">Këpucë</a></li>
-                <li><a href="aksesore.html">Aksesorë</a></li>
-                <li><a href="shit.html">Posto</a></li>
-                <li><a href="profil.html">Profili</a></li>
+                <li><a href="women.html">Femra</a></li>
+                <li><a href="men.html">Meshkuj</a></li>
+                <li><a href="shoes.html">Këpucë</a></li>
+                <li><a href="accessories.html">Aksesorë</a></li>
+                <li><a href="sell.html">Posto</a></li>
+                <li><a href="profile.html">Profili</a></li>
                 <li class="nav-country"><a href="#" id="btn-change-country">📍 <span
                             id="current-country">Kosovë</span></a></li>
             </ul>
@@ -327,18 +327,18 @@
             <div class="footer-col">
                 <h3>Blerja</h3>
                 <ul>
-                    <li><a href="femra.html">Femra</a></li>
-                    <li><a href="meshkuj.html">Meshkuj</a></li>
-                    <li><a href="kepuce.html">K&euml;puc&euml;</a></li>
-                    <li><a href="aksesore.html">Aksesor&euml;</a></li>
+                    <li><a href="women.html">Femra</a></li>
+                    <li><a href="men.html">Meshkuj</a></li>
+                    <li><a href="shoes.html">K&euml;puc&euml;</a></li>
+                    <li><a href="accessories.html">Aksesor&euml;</a></li>
                     <li><a href="saved.html">T&euml; Ruajtura</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h3>Shitja</h3>
                 <ul>
-                    <li><a href="shit.html">Shit nj&euml; artikull</a></li>
-                    <li><a href="profil.html">Profili Im</a></li>
+                    <li><a href="sell.html">Shit nj&euml; artikull</a></li>
+                    <li><a href="profile.html">Profili Im</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -346,7 +346,7 @@
                 <ul>
                     <li><a href="login.html">Ky&ccedil;u</a></li>
                     <li><a href="signup.html">Regjistrohu</a></li>
-                    <li><a href="mesazhet.html">Mesazhet</a></li>
+                    <li><a href="messages.html">Mesazhet</a></li>
                 </ul>
             </div>
         </div>
@@ -600,7 +600,7 @@
             const p = window.thriftizySellerProducts?.find(x => x.id === id);
             if (!p) return;
             sessionStorage.setItem('current_product', JSON.stringify(p));
-            window.location.href = `produkt.html?id=${encodeURIComponent(id)}`;
+            window.location.href = `product.html?id=${encodeURIComponent(id)}`;
         };
 
         window.sellerQuickAddCart = (encId) => {
@@ -673,7 +673,7 @@
                     });
                     convId = newConv.id;
                 }
-                window.location.href = 'mesazhet.html#' + convId;
+                window.location.href = 'messages.html#' + convId;
             } catch (err) {
                 alert('Gabim: ' + err.message);
                 btnContact.textContent = prev;

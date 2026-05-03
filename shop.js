@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
         product.style.cursor = 'pointer';
         product.addEventListener('click', (e) => {
             if(!e.target.closest('.btn-cart')) {
-                window.location.href = 'produkt.html';
+                window.location.href = 'product.html';
             }
         });
     });

@@ -1,19 +1,19 @@
 const fs = require('fs');
-let femra = fs.readFileSync('femra.html', 'utf8');
+let femra = fs.readFileSync('women.html', 'utf8');
 
-// kepuce.html
+// shoes.html
 let kepuce = femra.replace(/Rrobat për Femra/g, 'Këpucë');
 kepuce = kepuce.replace(/<h1>👗 Femra<\/h1>/g, '<h1>👟 Këpucë</h1>');
 kepuce = kepuce.replace(/where\('gender', 'in', \['femra', 'unisex'\]\)/g, `where('category', '==', 'kepuce')`);
 kepuce = kepuce.replace(/👗/g, '👟');
-fs.writeFileSync('kepuce.html', kepuce, 'utf8');
+fs.writeFileSync('shoes.html', kepuce, 'utf8');
 
-// aksesore.html
+// accessories.html
 let aksesore = femra.replace(/Rrobat për Femra/g, 'Aksesorë');
 aksesore = aksesore.replace(/<h1>👗 Femra<\/h1>/g, '<h1>💍 Aksesorë</h1>');
 aksesore = aksesore.replace(/where\('gender', 'in', \['femra', 'unisex'\]\)/g, `where('category', '==', 'aksesore')`);
 aksesore = aksesore.replace(/👗/g, '💍');
-fs.writeFileSync('aksesore.html', aksesore, 'utf8');
+fs.writeFileSync('accessories.html', aksesore, 'utf8');
 
 // search.html
 let search = femra.replace(/Rrobat për Femra/g, 'Kërkimi');

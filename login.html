@@ -160,7 +160,7 @@
         const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
 
-        const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'profil.html';
+        const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'profile.html';
 
         onAuthStateChanged(auth, (user) => {
             if (user) {

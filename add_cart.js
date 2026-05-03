@@ -1,5 +1,5 @@
 const fs = require('fs');
-const files = ['femra.html', 'meshkuj.html', 'produkt.html'];
+const files = ['women.html', 'men.html', 'product.html'];
 const cartHTML = `    <!-- Cart Sidebar Overlay -->
     <div class="cart-overlay" id="cart-overlay"></div>
     <div class="cart-sidebar" id="cart-sidebar">

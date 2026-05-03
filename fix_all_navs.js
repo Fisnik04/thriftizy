@@ -6,10 +6,10 @@ const cleanNav = `    <nav id="navbar">
             <div class="nav-search"><i>🔍</i><input type="text" placeholder="Kërko marka, artikuj..."></div>
             <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">Këpucë</a></li>
-                <li><a href="aksesore.html">Aksesorë</a></li>
+                <li><a href="women.html">Femra</a></li>
+                <li><a href="men.html">Meshkuj</a></li>
+                <li><a href="shoes.html">Këpucë</a></li>
+                <li><a href="accessories.html">Aksesorë</a></li>
             </ul>
         </div>
         <div class="nav-actions" id="nav-actions"></div>
@@ -24,18 +24,18 @@ const cleanFooter = `    <footer class="site-footer">
             <div class="footer-col">
                 <h3>Blerja</h3>
                 <ul>
-                    <li><a href="femra.html">Femra</a></li>
-                    <li><a href="meshkuj.html">Meshkuj</a></li>
-                    <li><a href="kepuce.html">Këpucë</a></li>
-                    <li><a href="aksesore.html">Aksesorë</a></li>
+                    <li><a href="women.html">Femra</a></li>
+                    <li><a href="men.html">Meshkuj</a></li>
+                    <li><a href="shoes.html">Këpucë</a></li>
+                    <li><a href="accessories.html">Aksesorë</a></li>
                     <li><a href="saved.html">Të Ruajtura</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h3>Shitja</h3>
                 <ul>
-                    <li><a href="shit.html">Shit një artikull</a></li>
-                    <li><a href="profil.html">Profili Im</a></li>
+                    <li><a href="sell.html">Shit një artikull</a></li>
+                    <li><a href="profile.html">Profili Im</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -43,7 +43,7 @@ const cleanFooter = `    <footer class="site-footer">
                 <ul>
                     <li><a href="login.html">Kyçu</a></li>
                     <li><a href="signup.html">Regjistrohu</a></li>
-                    <li><a href="mesazhet.html">Mesazhet</a></li>
+                    <li><a href="messages.html">Mesazhet</a></li>
                 </ul>
             </div>
         </div>

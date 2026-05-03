@@ -2,12 +2,12 @@ const fs = require('fs');
 
 const newNavLinks = `            <ul class="nav-links">
                 <li><a href="index.html">Ballina</a></li>
-                <li><a href="femra.html">Femra</a></li>
-                <li><a href="meshkuj.html">Meshkuj</a></li>
-                <li><a href="kepuce.html">Këpucë</a></li>
-                <li><a href="aksesore.html">Aksesorë</a></li>
-                <li><a href="shit.html">Posto</a></li>
-                <li><a href="profil.html">Profili</a></li>
+                <li><a href="women.html">Femra</a></li>
+                <li><a href="men.html">Meshkuj</a></li>
+                <li><a href="shoes.html">Këpucë</a></li>
+                <li><a href="accessories.html">Aksesorë</a></li>
+                <li><a href="sell.html">Posto</a></li>
+                <li><a href="profile.html">Profili</a></li>
                 <li class="nav-country"><a href="#" id="btn-change-country">📍 <span id="current-country">Kosovë</span></a></li>
             </ul>`;
 
